@@ -1,4 +1,5 @@
 /.env
-/design.html
-/old_function.py
 /venv
+help
+node_modules
+*__pycache__*

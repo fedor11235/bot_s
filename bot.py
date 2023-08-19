@@ -1,6 +1,6 @@
 import logging
 from telegram import Update
-from telegram import InlineKeyboardButton, InlineKeyboardMarkup
+from telegram import InlineKeyboardButton, InlineKeyboardMarkup, ReplyKeyboardMarkup, KeyboardButton
 from telegram.ext import Application, CommandHandler, ContextTypes, MessageHandler, filters, CallbackQueryHandler
 from dotenv import load_dotenv
 import os
@@ -20,28 +20,30 @@ class MoneyBot():
   def run_bot(self) -> None:
     application = Application.builder().token(self.token).build()
     application.add_handler(CommandHandler("start", self.start_button))
+    application.add_handler(CommandHandler("newslon", self.handler_new_slon))
+    application.add_handler(CommandHandler("newslon", self.handler_new_slon))
     application.add_handler(CallbackQueryHandler(self.button))
-    application.add_handler(MessageHandler(filters.TEXT & ~filters.COMMAND, self.response_from__message))
+    # application.add_handler(MessageHandler(filters.TEXT & ~filters.COMMAND, self.response_from__message))
     application.run_polling()
 
 
   async def start_button(self, update: Update, _) -> None:
     keyboard = [
-      [InlineKeyboardButton("⚡ Погнали ⚡", callback_data='1')],
+      [InlineKeyboardButton("Создать нового бота", callback_data='new_slon')],
     ]
     reply_markup = InlineKeyboardMarkup(keyboard)
-    await update.message.reply_text("Нужно подать заявку. Ты готовы?", reply_markup=reply_markup)
+    await update.message.reply_text('''*Создайте своего персонального бота*\nЧтобы начать использовать бота отправьте команду /newslon или нажмите на кнопку внизу сообщения\n*Другие полезные команды:*\n/partners — сгенерировать уникальный промокод, чтобы вы могли приглашать других пользователей и получать бонусы\n/help — связь со службой поддержки и ответы на часто задаваемые вопросы''',
+      reply_markup=reply_markup, parse_mode="Markdown")
+
+  async def handler_new_slon(self, update: Update, _) -> None:
+    await update.message.reply_text('вы вызвали команду new_slon')
 
   async def button(self, update: Update, _):
+    print('button')
     query = update.callback_query
-    self.variant = query.data
-    await query.answer()
-    await query.edit_message_text(text=registration_steps[self.variant])
+    if query.data == 'new_slon':
+      await query.message.reply_text('вы вызвали команду new_slon')
 
-  async def response_from__message(self, update: Update, _) -> None:
-    variant_temp = int(self.variant) + 1
-    self.variant = str(variant_temp)
-    await update.message.reply_text(registration_steps[self.variant])
 
 def main() -> None:
   load_dotenv()
