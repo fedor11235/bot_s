@@ -12,6 +12,13 @@ datasource db {
 
 model PromoCode {
   id     Int     @default(autoincrement()) @id
-  IdUser Int?
-  Code   Int?
+  idUser String
+  code   String
 }
+
+model UserChanel {
+  id       Int     @default(autoincrement()) @id
+  idUser   String
+  idChanel String
+}
+
