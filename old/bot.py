@@ -52,3 +52,13 @@ def main() -> None:
 
 if __name__ == "__main__":
   main()
+
+# меню
+# bot_commands = [
+#   BotCommand(command="/help", description="Get info about me"),
+#   BotCommand(command="/qna", description="set bot for a QnA task"),
+#   BotCommand(command="/chat", description="set bot for free chat")
+# ]
+# await context.bot.set_my_commands(bot_commands, scope=BotCommandScopeAllGroupChats())
+#      await context.bot.send_message(query.from_user.id, 'Привет', reply_markup=reply_markup)
+# query.from_user.id
