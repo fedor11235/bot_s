@@ -38,6 +38,7 @@ class MoneyBot():
   def run_bot(self) -> None:
     application = Application.builder().token(self.token).build()
     application.add_handler(CallbackQueryHandler(self.button))
+    application.add_handler(CommandHandler("test", self.handler_test))
     application.add_handler(CommandHandler("start", self.start_button))
     application.add_handler(CommandHandler("partners", self.handler_partners))
     application.add_handler(CommandHandler("profile", self.handler_profile))
@@ -211,6 +212,19 @@ class MoneyBot():
     if query.data == 'pay_business':
       await query.answer()
       await query.edit_message_text(text='Выберите срокна который хотите продлить подписку Business\nВаша скидка: 0%',  reply_markup=reply_markup)
+
+  async def handler_test(self, update: Update, _) -> None:
+    # req = requests.get(
+    #   'https://api.tgstat.ru/channels/search' +
+    #   '?token=' + '6423584132:AAHEaLI4jsjHEs17ZF7rHJJfKyOGi5qneI4' +
+    #   '&category=' + category +
+    #   '&limit=' + limit
+    #   )
+    req = requests.get(
+      'https://api.tgstat.ru/database/categories' +
+      '?token=' + '6423584132'
+      )
+    await update.message.reply_text(req.text)
 
 def main() -> None:
   load_dotenv()
