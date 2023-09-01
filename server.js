@@ -36,6 +36,11 @@ app.get('/create-chanel', async  (req, res) => {
       idChanel: idChanel
     },
   });
+  await prisma.User.create({
+    data: { 
+      idUser: idUser,
+    },
+  });
   res.send('created')
 })
 
@@ -51,6 +56,26 @@ app.get('/check', async  (req, res) => {
     return
   }
   res.send('empty')
+})
+
+app.get('/profile', async  (req, res) => {
+  const idUser = req.query.idUser
+  const user = await prisma.user.findFirst({
+    where: {
+      idUser: idUser,
+    },
+  });
+  console.log('user', user)
+  res.send({
+    tariffPlan: user.tariffPlan,
+    subscriptionEndDate: user.subscriptionEndDate,
+    createdOpt: user.createdOpt,
+    byOpt: user.byOpt,
+    totalSavings: user.totalSavings,
+    invitedUsers: user.invitedUsers,
+    totalEarned: user.totalEarned,
+    channels: user.channels,
+  })
 })
 
 app.listen(port, () => {

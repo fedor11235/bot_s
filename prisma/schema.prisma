@@ -16,9 +16,30 @@ model PromoCode {
   code   String
 }
 
+model User {
+  id                   Int     @default(autoincrement()) @id
+  idUser               String
+  tariffPlan           String  @default("base")
+  subscriptionEndDate  String  @default("never")
+  createdOpt           Int     @default(0)
+  byOpt                Int     @default(0)
+  totalSavings         Int     @default(0)
+  invitedUsers         Int     @default(0)
+  totalEarned          Int     @default(0)
+  channels             Int     @default(0)
+  // channels             UserChanel[]
+}
+
 model UserChanel {
   id       Int     @default(autoincrement()) @id
   idUser   String
   idChanel String
 }
+
+// model UserChanel {
+//   id       Int     @default(autoincrement()) @id
+//   idChanel String
+//   user     User? @relation(fields: [idUser], references: [id])
+//   idUser   Int?
+// }
 

@@ -32,3 +32,6 @@ ChatMemberMember(
   status=<ChatMemberStatus.MEMBER>,
   user=User(first_name='Slon', id=6423584132, is_bot=True, username='SlonPostBot')
 )
+
+Message(channel_chat_created=False, chat=Chat(first_name='Fedor', id=372099197, last_name='Avdeev', type=<ChatType.PRIVATE>, username='fedor11235b'), date=datetime.datetime(2023, 9, 1, 10, 52, 33, tzinfo=<UTC>), delete_chat_photo=False, forward_date=datetime.datetime(2023, 9, 1, 
+10, 48, 42, tzinfo=<UTC>), forward_from_chat=Chat(id=-1001713055963, title='test3', type=<ChatType.CHANNEL>, username='jbhjvyvy'), forward_from_message_id=2, from_user=User(first_name='Fedor', id=372099197, is_bot=False, language_code='ru', last_name='Avdeev', username='fedor11235b'), group_chat_created=False, message_id=470, supergroup_chat_created=False, text='ссс')
