@@ -25,3 +25,16 @@ CREATE TABLE "UserChanel" (
     "idUser" TEXT NOT NULL,
     "idChanel" TEXT NOT NULL
 );
+
+-- CreateTable
+CREATE TABLE "Catalog" (
+    "id" INTEGER NOT NULL PRIMARY KEY AUTOINCREMENT,
+    "category" TEXT,
+    "username" TEXT,
+    "title" TEXT,
+    "daily_reach" INTEGER,
+    "ci_index" INTEGER,
+    "participants_count" INTEGER,
+    "avg_post_reach" INTEGER,
+    "forwards_count" INTEGER
+);
