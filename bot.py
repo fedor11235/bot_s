@@ -1,73 +1,20 @@
 import logging
 import requests
 from telegram import Update
-from telegram import InlineKeyboardButton, InlineKeyboardMarkup, ReplyKeyboardMarkup, KeyboardButton, BotCommand, BotCommandScopeDefault, BotCommandScopeAllGroupChats
+from telegram import InlineKeyboardButton, InlineKeyboardMarkup, ReplyKeyboardMarkup, KeyboardButton
 from telegram.ext import Application, CommandHandler, MessageHandler, filters, CallbackQueryHandler
 from dotenv import load_dotenv
 import os
-
-def getCategories(category_type, start_cut, finish_cut, page):
-  categoriesBtns = []
-  req = requests.get(
-    'http://localhost:3001/category' +
-    '?category=' + category_type
-    )
-  categoriesArray =  req.json()
-  if len(categoriesArray) != 0:
-    categoriesBtns = parseCategories(categoriesArray[start_cut:finish_cut], category_type, page)
-  return categoriesBtns
-
-def parseCategories(categoriesArray, category_type, page):
-  if len(categoriesArray) == 0:
-    return 'каналов по запросу нет'
-  arrayBtns = [[InlineKeyboardButton('Фильтры', callback_data='filters_' + category_type +'_'+ str(page))]]
-  for category in categoriesArray:
-    arrayBtns.append([InlineKeyboardButton(category['username'], callback_data=category['username'])])
-    # output += category['username'] + ' количество подписчиков: ' + str(category['participants_count']) + ' суммарный дневной охват: ' + str(category['daily_reach']) + ' количнсвто репостов в другие каналы: ' + str(category['forwards_count']) + '\n'
-  arrayBtns.append([InlineKeyboardButton('<<Назад', callback_data=(category_type +'_back_' + str(page))), InlineKeyboardButton('Далее>>', callback_data=(category_type +'_next_' + str(page)))])
-  return InlineKeyboardMarkup(arrayBtns)
-
-def set_catalog():
-  keyboard = [
-    [InlineKeyboardButton("Все тематики", callback_data='all_static_0')],
-    [InlineKeyboardButton("Образование", callback_data='education')],
-    [InlineKeyboardButton("Финансы", callback_data='education')],
-    [InlineKeyboardButton("Здоровье", callback_data='health')],
-    [InlineKeyboardButton("Новости", callback_data='news')],
-    [InlineKeyboardButton("IT", callback_data='tech')],
-    [InlineKeyboardButton("Развлечения", callback_data='entertainment')],
-    [InlineKeyboardButton("Психология", callback_data='psychology')],
-    [InlineKeyboardButton("Видосики", callback_data='psychology')],
-    [InlineKeyboardButton("Авторские", callback_data='author')],
-    [InlineKeyboardButton("Другое", callback_data='other')],
-  ]
-  return InlineKeyboardMarkup(keyboard)
-
-def set_filters(category_type):
-  keyboard = [
-    [InlineKeyboardButton("Фильтры", callback_data=category_type + '_static_0')],
-    [InlineKeyboardButton("Рейтинг", callback_data='rating')],
-    [InlineKeyboardButton("Охват", callback_data='coverage')],
-    [InlineKeyboardButton("Кол-во подписчиков", callback_data='numberSubscribers')],
-    [InlineKeyboardButton("Прирост за месяц", callback_data='growthMonth')],
-    [InlineKeyboardButton("Прирост за неделю", callback_data='growthWeek')],
-    [InlineKeyboardButton("Прирост за день", callback_data='growthDay')],
-    [InlineKeyboardButton("Сначала новые", callback_data='new')],
-    [InlineKeyboardButton("Сначала старые", callback_data='old')],
-    [InlineKeyboardButton("Подтвержденные", callback_data='confirm')],
-    [InlineKeyboardButton("Применить", callback_data='apply')]
-  ]
-  return InlineKeyboardMarkup(keyboard)
+from create_btns import get_categories, set_catalog, set_filters
 
 logging.basicConfig(
     format="%(asctime)s - %(name)s - %(levelname)s - %(message)s", level=logging.INFO
 )
 logger = logging.getLogger(__name__)
 
-registration_steps = {
-}
+category_type = ['all', 'education', 'finance', 'health', 'news', 'tech', 'entertainment', 'psychology', 'video', 'author', 'other']
 
-class MoneyBot():
+class SlonBot():
   def __init__(self, token):
     self.token = token
 
@@ -250,63 +197,7 @@ class MoneyBot():
     elif query_array[0] == 'payBusiness':
       await query.answer()
       await query.edit_message_text(text='Выберите срокна который хотите продлить подписку Business\nВаша скидка: 0%',  reply_markup=reply_markup)
-    elif query_array[0] == 'education':
-      req = requests.get(
-      'http://localhost:3001/category' +
-      '?category=' + 'education'
-      )
-      categoriesArray = req.json()
-      output = parseCategories(categoriesArray)
-      await query.edit_message_text(text=output)
-    elif query_array[0] == 'health':
-      req = requests.get(
-      'http://localhost:3001/category' +
-      '?category=' + 'health'
-      )
-      categoriesArray = req.json()
-      output = parseCategories(categoriesArray)
-      await query.edit_message_text(text=output)
-    elif query_array[0] == 'news':
-      req = requests.get(
-      'http://localhost:3001/category' +
-      '?category=' + 'news'
-      )
-      categoriesArray = req.json()
-      output = parseCategories(categoriesArray)
-      await query.edit_message_text(text=output)
-    elif query_array[0] == 'tech':
-      req = requests.get(
-      'http://localhost:3001/category' +
-      '?category=' + 'tech'
-      )
-      categoriesArray = req.json()
-      output = parseCategories(categoriesArray)
-      await query.edit_message_text(text=output)
-    elif query_array[0] == 'entertainment':
-      req = requests.get(
-      'http://localhost:3001/category' +
-      '?category=' + 'entertainment'
-      )
-      categoriesArray = req.json()
-      output = parseCategories(categoriesArray)
-      await query.edit_message_text(text=output)
-    elif query_array[0] == 'psychology':
-      req = requests.get(
-      'http://localhost:3001/category' +
-      '?category=' + 'psychology'
-      )
-      categoriesArray = req.json()
-      output = parseCategories(categoriesArray)
-      await query.edit_message_text(text=output)
-    elif query_array[0] == 'author':
-      req = requests.get(
-      'http://localhost:3001/category' +
-      '?category=' + 'author'
-      )
-      categoriesArray = req.json()
-      output = parseCategories(categoriesArray)
-      await query.edit_message_text(text=output)
-    elif query_array[0] == 'other':
+
       req = requests.get(
       'http://localhost:3001/category' +
       '?category=' + 'other'
@@ -314,7 +205,7 @@ class MoneyBot():
       categoriesArray = req.json()
       output = parseCategories(categoriesArray)
       await query.edit_message_text(text=output)
-    elif query_array[0] == 'all':
+    elif query_array[0] in category_type:
       start_cut = 1
       finish_cut = 10
       page = int(query_array[2])
@@ -328,30 +219,51 @@ class MoneyBot():
         start_cut = ((page - 2) * 10) + 1
         finish_cut = (page - 1) * 10
         page = page - 1
-      categoriesArray = getCategories('all', start_cut, finish_cut, page)
-      await query.edit_message_text('все каналы', reply_markup=categoriesArray)
+      categoriesArray = get_categories(query_array[0], start_cut, finish_cut, page)
+      if len(categoriesArray)!= 0:
+        await query.edit_message_text('все каналы', reply_markup=categoriesArray)
+      else:
+        await query.edit_message_text('нет каналов такой категории')
+
+
+
     elif query_array[0] == 'filters':
-      reply_markup =  set_filters(query_array[1])
+      reply_markup =  set_filters(query_array[1], False)
       await query.edit_message_text('Фильтры', reply_markup=reply_markup)
 
+
+
+
     elif query_array[0] == 'rating':
-      print('rating')
+      reply_markup =  set_filters(query.data, True)
+      await query.edit_message_text('Фильтры', reply_markup=reply_markup)
     elif query_array[0] == 'coverage':
-      print('coverage')
+      reply_markup =  set_filters(query.data, True)
+      await query.edit_message_text('Фильтры', reply_markup=reply_markup)
     elif query_array[0] == 'numberSubscribers':
-      print('numberSubscribers')
+      reply_markup =  set_filters(query.data, True)
+      await query.edit_message_text('Фильтры', reply_markup=reply_markup)
     elif query_array[0] == 'growthMonth':
-      print('growthMonth')
+      reply_markup =  set_filters(query.data, True)
+      await query.edit_message_text('Фильтры', reply_markup=reply_markup)
     elif query_array[0] == 'growthWeek':
-      print('growthWeek')
-    elif query_array[0] == 'growthDay':
-      print('growthDay')
+      reply_markup =  set_filters(query.data, True)
+      await query.edit_message_text('Фильтры', reply_markup=reply_markup)
+      reply_markup =  set_filters(query.data, True)
+      await query.edit_message_text('Фильтры', reply_markup=reply_markup)
     elif query_array[0] == 'new':
-      print('new')
+      reply_markup =  set_filters(query.data, True)
+      await query.edit_message_text('Фильтры', reply_markup=reply_markup)
     elif query_array[0] == 'old':
-      print('old')
+      reply_markup =  set_filters(query.data, True)
+      await query.edit_message_text('Фильтры', reply_markup=reply_markup)
     elif query_array[0] == 'confirm':
-      print('confirm')
+      reply_markup =  set_filters(query.data, True)
+      await query.edit_message_text('Фильтры', reply_markup=reply_markup)
+    elif query_array[0] == 'apply':
+      categoriesArray = get_categories(query_array[-1], 1, 10, 0)
+      #TODO тут вставить запрос на сохранение фильтров
+      await query.edit_message_text('все каналы', reply_markup=categoriesArray)
 
 
 
@@ -387,7 +299,7 @@ class MoneyBot():
 def main() -> None:
   load_dotenv()
   API_TOKEN = os.getenv('API_TOKEN')
-  game_bot = MoneyBot(token = API_TOKEN)
+  game_bot = SlonBot(token = API_TOKEN)
   game_bot.run_bot()
 
 
