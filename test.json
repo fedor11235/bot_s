@@ -63,19 +63,39 @@
   {"code":"darknet","name":"Даркнет"}
 ]
 
+[Все тематики]
+[Образование] - education, language, edutainment, art
+[Финансы] - economics, business, marketing
+[Здоровье] - medicine, health 
+[Новости] - news, politics
+[IT] - tech, apps, crypto
+[Развлечения] - entertaiment
+[Психология] - psychology, babies
+[Видосники] - video
+[Авторские] - blogs
+[Другое] - sales, other, travels, design
 
-id: 1543717,
-title: 'Ответы на ЕГЭ ОГЭ',
-username: '@otvety_ege',
-peer_type: 'channel',
-participants_count: 823744,
-avg_post_reach: 0,
-adv_post_reach_12h: null,
-adv_post_reach_24h: null,
-adv_post_reach_48h: null,
-err_percent: 0,
-daily_reach: 0,
-ci_index: 3.32715,
-mentions_count: 27,
-forwards_count: 8,
-mentioning_channels_count: 11
+
+{
+  "status": "ok",
+  "response": {
+      "id": 118,                           # Внутренний ID канала в TGStat
+      "title": "РИА Новости",              # Название канала
+      "username": "@rian_ru",              # Username канала
+      "peer_type": "channel",              # Тип (канал/чат)
+      "participants_count": 2048184,       # Количество подписчиков канала на момент запроса
+      "avg_post_reach": 541540,            # Средний охват публикации
+      "adv_post_reach_12h": 475712,        # Средний рекламный охват публикации за 12 часов
+      "adv_post_reach_24h": 554476,        # Средний рекламный охват публикации за 24 часа
+      "adv_post_reach_48h": 580952,        # Средний рекламный охват публикации за 48 часов
+      "err_percent": 26.4,                 # Процент вовлеченности подписчиков (ERR %)
+      "err24_percent": 25.2,               # Процент вовлеченности подписчиков в просмотр поста за первые 24 часа (ERR24 %)
+      "er_percent": 11.11,                 # Коэффициент вовлеченности подписчиков во взаимодействия с постом (реакция, пересылка, комментарий)        
+      "daily_reach": 35496444,             # Cуммарный дневной охват
+      "ci_index": 8737.68,                 # Индекс цитирования (ИЦ)
+      "mentions_count": 171477,            # Количество упоминаний канала в других каналах
+      "forwards_count": 472536,            # Количество репостов в другие каналы
+      "mentioning_channels_count": 18740   # Количество каналов, упоминающих данный канал
+      "posts_count": 53500,                # Общее количество неудаленных публикаций в канале
+  }
+}

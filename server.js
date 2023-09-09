@@ -22,29 +22,29 @@ function getCategoriesTop() {
   for(const category of categoriesList) {
     const urlCategoriesTop = getUrlCategoriesTop(category, 30)
 
-    request({url: urlCategoriesTop, json: true}, (error, response, data) => {
-      const chanelsTop = data.response;
-      for(const chanel of chanelsTop.items) {
-        const urlCategoryStat = getUrlCategoryStat(chanel.username)
-        request({url: urlCategoryStat, json: true}, async (error, response, data) => {
-          const categoryStat = data.response;
-          if(categoryStat) {
-            const catalogNew = await prisma.catalog.create({
-              data: { 
-                category: category,
-                username: chanel.username,
-                title: chanel.title,
-                daily_reach: categoryStat.daily_reach,
-                ci_index: categoryStat.ci_index,
-                participants_count: categoryStat.participants_count,
-                avg_post_reach: categoryStat.avg_post_reach,
-                forwards_count: categoryStat.forwards_count,
-              },
-            });
-          }
-        });
-      }
-    });
+    // request({url: urlCategoriesTop, json: true}, (error, response, data) => {
+    //   const chanelsTop = data.response;
+    //   for(const chanel of chanelsTop.items) {
+    //     const urlCategoryStat = getUrlCategoryStat(chanel.username)
+    //     request({url: urlCategoryStat, json: true}, async (error, response, data) => {
+    //       const categoryStat = data.response;
+    //       if(categoryStat) {
+    //         const catalogNew = await prisma.catalog.create({
+    //           data: { 
+    //             category: category,
+    //             username: chanel.username,
+    //             title: chanel.title,
+    //             daily_reach: categoryStat.daily_reach,
+    //             ci_index: categoryStat.ci_index,
+    //             participants_count: categoryStat.participants_count,
+    //             avg_post_reach: categoryStat.avg_post_reach,
+    //             forwards_count: categoryStat.forwards_count,
+    //           },
+    //         });
+    //       }
+    //     });
+    //   }
+    // });
     
   }
 }
