@@ -179,6 +179,12 @@ app.get('/create-chanel', async  (req, res) => {
     res.send('exist')
     return
   }
+  // modeDb = await prisma.mode.create({
+  //   data: {
+  //     idUser: idUser,
+  //     state: state
+  //   },
+  // });
   await prisma.userChanel.create({
     data: { 
       idUser: idUser,
@@ -227,7 +233,33 @@ app.get('/profile', async  (req, res) => {
   })
 })
 
+// app.get('/mode-set', async  (req, res) => {
+//   const idUser = req.query.idUser
+//   const mode = req.query.mode
+
+//   const modeDb = await prisma.mode.update({
+//     where: { idUser: idUser},
+//     data: {
+//       state: mode
+//     },
+//   });
+
+//   res.send("ok")
+// })
+
+// app.get('/mode-get', async  (req, res) => {
+//   const idUser = req.query.idUser
+
+//   console.log(idUser)
+
+//   const modeDb = await prisma.mode.findFirst({
+//     where: { idUser: idUser}
+//   });
+
+//   res.send(modeDb)
+// })
+
 app.listen(port, () => {
   console.log(`Example app listening on port ${port}`)
-  // getCategoriesTop()
+  getCategoriesTop()
 })

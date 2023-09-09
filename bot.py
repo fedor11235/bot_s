@@ -50,6 +50,11 @@ class SlonBot():
     await update.message.reply_text(req.text)
 
   async def response_from__message(self, update: Update, context) -> None:
+    # req = requests.get(
+    #   'http://localhost:3001/mode-get' +
+    #   '?idUser=' + str(update.message.chat.id)
+    # )
+    # print(req.json())
     if update.message.text == 'Каталог':
       req = requests.get(
       'http://localhost:3001/check' +
@@ -257,6 +262,16 @@ class SlonBot():
       reply_text = query_array[0] + '\nПодписчиков: ' + str(chanel['participants_count']) + '\nОхват: ' + str(chanel['avg_post_reach']) + '\nЦена рекламы:' + '?' + '\nРекомендаций: ' + '?' + '\nКонтакт для связи: ' + '?'
 
       await query.edit_message_text(reply_text, reply_markup=reply_markup)
+
+    #!Опт
+    elif query_array[0] == 'opt':
+      # req = requests.get(
+      #   'http://localhost:3001/mode-set' +
+      #   '?idUser=' + str(update.message.chat.id) +
+      #   '&mode=' + 'newOpt'
+      # )
+      # await query.answer()
+      await query.message.reply_text('Напишите стандартную(розничную) стоимость размещения: ')
 
 
 

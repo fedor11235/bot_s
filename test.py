@@ -47,3 +47,6 @@ array = ['all', 'education', 'finance', 'health', 'news', 'tech', 'entertainment
 
 
 print(check in array)
+
+
+Update(message=Message(channel_chat_created=False, chat=Chat(first_name='Fedor', id=372099197, last_name='Avdeev', type=<ChatType.PRIVATE>, username='fedor11235b'), date=datetime.datetime(2023, 9, 9, 16, 57, 49, tzinfo=<UTC>), delete_chat_photo=False, from_user=User(first_name='Fedor', id=372099197, is_bot=False, language_code='ru', last_name='Avdeev', username='fedor11235b'), group_chat_created=False, message_id=768, supergroup_chat_created=False, text='3333'), update_id=351020782)

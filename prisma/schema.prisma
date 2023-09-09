@@ -38,16 +38,6 @@ model UserChanel {
 
 model Catalog {
   id          Int     @default(autoincrement()) @id
-  // id_telegram String
-  // tg_id String
-  // link String
-  // peer_type String
-
-  // about String
-  // image100 String
-  // image640 String
-  // "tgstat_restrictions":[],
-  // created_at String
 
   category String?
   username String?
@@ -65,6 +55,12 @@ model Catalog {
   avg_post_reach Int?
   //количнсвто репостов в другие каналы
   forwards_count Int?
+}
+
+model Mode {
+  id       Int     @default(autoincrement()) @id
+  idUser   String
+  state    String  @default("standart")
 }
 
 // model UserChanel {
