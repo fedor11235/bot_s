@@ -1,10 +1,19 @@
 import requests
 from telegram import InlineKeyboardButton, InlineKeyboardMarkup
 
+def get_btns_pay():
+  keyboard = [
+    [InlineKeyboardButton("Ввести промокод", callback_data='promocode_enter')],
+    [InlineKeyboardButton("30 дней за 0", callback_data='test')],
+    [InlineKeyboardButton("90 дней за 0", callback_data='test')],
+    [InlineKeyboardButton("365 дней за 0", callback_data='test')],
+  ]
+  return InlineKeyboardMarkup(keyboard)
+
 def get_categories(category_type, start_cut, finish_cut, page):
   categoriesBtns = []
   req = requests.get(
-    'http://localhost:3001/category' +
+    'http://localhost:3001/categories' +
     '?category=' + category_type
     )
   categoriesArray =  req.json()
@@ -17,7 +26,7 @@ def parseCategories(categoriesArray, category_type, page):
     return 'каналов по запросу нет'
   arrayBtns = [[InlineKeyboardButton('Фильтры', callback_data='filters_' + category_type +'_'+ str(page))]]
   for category in categoriesArray:
-    arrayBtns.append([InlineKeyboardButton(category['username'], callback_data=category['username'])])
+    arrayBtns.append([InlineKeyboardButton(category['username'] + ' ' + str(category['participants_count']), callback_data=category['username'] + '_' + category_type)])
     # output += category['username'] + ' количество подписчиков: ' + str(category['participants_count']) + ' суммарный дневной охват: ' + str(category['daily_reach']) + ' количнсвто репостов в другие каналы: ' + str(category['forwards_count']) + '\n'
   arrayBtns.append([InlineKeyboardButton('<<Назад', callback_data=(category_type +'_back_' + str(page))), InlineKeyboardButton('Далее>>', callback_data=(category_type +'_next_' + str(page)))])
   return InlineKeyboardMarkup(arrayBtns)

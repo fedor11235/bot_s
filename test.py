@@ -40,6 +40,9 @@ stroka = 'ef_fedor_pd'
 check = "education"
 # print(check in stroka)
 
+
+
+array = ['rating', 'coverage', 'numberSubscribers', 'growthMonth', 'growthWeek', 'new', 'old', 'confirm']
 array = ['all', 'education', 'finance', 'health', 'news', 'tech', 'entertainment', 'psychology', 'video', 'author', 'other']
 
 

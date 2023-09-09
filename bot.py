@@ -5,13 +5,14 @@ from telegram import InlineKeyboardButton, InlineKeyboardMarkup, ReplyKeyboardMa
 from telegram.ext import Application, CommandHandler, MessageHandler, filters, CallbackQueryHandler
 from dotenv import load_dotenv
 import os
-from create_btns import get_categories, set_catalog, set_filters
+from create_btns import get_categories, set_catalog, set_filters, get_btns_pay
 
 logging.basicConfig(
     format="%(asctime)s - %(name)s - %(levelname)s - %(message)s", level=logging.INFO
 )
 logger = logging.getLogger(__name__)
 
+filters_type = ['rating', 'coverage', 'numberSubscribers', 'growthMonth', 'growthWeek', 'new', 'old', 'confirm']
 category_type = ['all', 'education', 'finance', 'health', 'news', 'tech', 'entertainment', 'psychology', 'video', 'author', 'other']
 
 class SlonBot():
@@ -158,9 +159,9 @@ class SlonBot():
       await update.message.reply_text('''*Сначала создайте профиль*\n\nЧтобы начать использовать бота, сделайте @SlonRobot администратором в канале, а затем пришлите сюда ссылку на канал или просто перешлите из него любое сообщение.\nБоту можно не выдавать никаких прав. Данная процедура нужна чтобы подтвердить, что вы являетесь владельцем канала.\nДругие полезные команды:\n/partners — сгенерировать уникальный промокод, чтобы вы могли приглашать других пользователей и получать бонусы\n/help — связь со службой поддержки и ответы на часто задаваемые вопросы''', parse_mode="Markdown")
     else:
       keyboard = [
-        [InlineKeyboardButton("Lite — 290₽/мес.", callback_data='payLite')],
-        [InlineKeyboardButton("Pro — 890₽/мес.", callback_data='payPro')],
-        [InlineKeyboardButton("Business — 3890₽/мес.", callback_data='payBusiness')],
+        [InlineKeyboardButton("Lite — 290₽/мес.", callback_data='pay_lite')],
+        [InlineKeyboardButton("Pro — 890₽/мес.", callback_data='pay_pro')],
+        [InlineKeyboardButton("Business — 3890₽/мес.", callback_data='pay_business')],
       ]
       reply_markup = InlineKeyboardMarkup(keyboard)
       await update.message.reply_text('''*Lite*\n• доступ к полному функционалу каталога\n• подключение до 2 каналов к боту\n• создание до 2 оптов в месяц\n• до 10 мест в каждом созданном опте\n• покупка до 10 оптов в месяц\n• статус подтвержденного канала в каталоге\n*Pro*\n• доступ к полному функционалу каталога\n• безлимит на подключение каналов\n• безлимит на создание оптов\n• до 20 мест в каждом созданном опте\n• безлимит на покупку оптов\n• статус подтвержденного канала в каталоге\n*Business*\n• все вышеперечисленные функции\n• до 30 мест в каждом созданном опте\n• доступ к уникальным подборкам в крупнейших и авторских каналах от команды Slon''', reply_markup=reply_markup, parse_mode="Markdown")
@@ -178,33 +179,22 @@ class SlonBot():
   
   # all education health news tech entertainment psychology author other
   async def button(self, update: Update, _):
-    keyboard = [
-      [InlineKeyboardButton("Ввести промокод", callback_data='promocode_enter')],
-      [InlineKeyboardButton("30 дней за 0", callback_data='pay_fo_30')],
-      [InlineKeyboardButton("90 дней за 0", callback_data='pay_fo_90')],
-      [InlineKeyboardButton("365 дней за 0", callback_data='pay_fo_365')],
-    ]
-    reply_markup = InlineKeyboardMarkup(keyboard)
+
     query = update.callback_query
     query_array = query.data.split('_')
 
-    if query_array[0] == 'payLite':
+    #!Подписчки
+    if query_array[0] == 'pay':
+      reply_markup = get_btns_pay()
       await query.answer()
-      await query.edit_message_text(text='Выберите срокна который хотите продлить подписку Lite\nВаша скидка: 0%',  reply_markup=reply_markup)
-    elif query_array[0] == 'payPro':
-      await query.answer()
-      await query.edit_message_text(text='Выберите срокна который хотите продлить подписку Pro\nВаша скидка: 0%',  reply_markup=reply_markup)
-    elif query_array[0] == 'payBusiness':
-      await query.answer()
-      await query.edit_message_text(text='Выберите срокна который хотите продлить подписку Business\nВаша скидка: 0%',  reply_markup=reply_markup)
+      if query_array[1] == 'lite':
+        await query.edit_message_text(text='Выберите срокна который хотите продлить подписку Lite\nВаша скидка: 0%',  reply_markup=reply_markup)
+      elif query_array[1] == 'pro':
+        await query.edit_message_text(text='Выберите срокна который хотите продлить подписку Pro\nВаша скидка: 0%',  reply_markup=reply_markup)
+      elif query_array[1] == 'business':
+        await query.edit_message_text(text='Выберите срокна который хотите продлить подписку Business\nВаша скидка: 0%',  reply_markup=reply_markup)
 
-      req = requests.get(
-      'http://localhost:3001/category' +
-      '?category=' + 'other'
-      )
-      categoriesArray = req.json()
-      output = parseCategories(categoriesArray)
-      await query.edit_message_text(text=output)
+    #!КАТЕГОРИИ
     elif query_array[0] in category_type:
       start_cut = 1
       finish_cut = 10
@@ -220,50 +210,41 @@ class SlonBot():
         finish_cut = (page - 1) * 10
         page = page - 1
       categoriesArray = get_categories(query_array[0], start_cut, finish_cut, page)
-      if len(categoriesArray)!= 0:
+      try:
         await query.edit_message_text('все каналы', reply_markup=categoriesArray)
-      else:
+      except:
         await query.edit_message_text('нет каналов такой категории')
 
 
-
+    #!ФИЛЬТРЫ
     elif query_array[0] == 'filters':
       reply_markup =  set_filters(query_array[1], False)
       await query.edit_message_text('Фильтры', reply_markup=reply_markup)
-
-
-
-
-    elif query_array[0] == 'rating':
-      reply_markup =  set_filters(query.data, True)
-      await query.edit_message_text('Фильтры', reply_markup=reply_markup)
-    elif query_array[0] == 'coverage':
-      reply_markup =  set_filters(query.data, True)
-      await query.edit_message_text('Фильтры', reply_markup=reply_markup)
-    elif query_array[0] == 'numberSubscribers':
-      reply_markup =  set_filters(query.data, True)
-      await query.edit_message_text('Фильтры', reply_markup=reply_markup)
-    elif query_array[0] == 'growthMonth':
-      reply_markup =  set_filters(query.data, True)
-      await query.edit_message_text('Фильтры', reply_markup=reply_markup)
-    elif query_array[0] == 'growthWeek':
-      reply_markup =  set_filters(query.data, True)
-      await query.edit_message_text('Фильтры', reply_markup=reply_markup)
-      reply_markup =  set_filters(query.data, True)
-      await query.edit_message_text('Фильтры', reply_markup=reply_markup)
-    elif query_array[0] == 'new':
-      reply_markup =  set_filters(query.data, True)
-      await query.edit_message_text('Фильтры', reply_markup=reply_markup)
-    elif query_array[0] == 'old':
-      reply_markup =  set_filters(query.data, True)
-      await query.edit_message_text('Фильтры', reply_markup=reply_markup)
-    elif query_array[0] == 'confirm':
+    elif query_array[0] in filters_type:
       reply_markup =  set_filters(query.data, True)
       await query.edit_message_text('Фильтры', reply_markup=reply_markup)
     elif query_array[0] == 'apply':
       categoriesArray = get_categories(query_array[-1], 1, 10, 0)
       #TODO тут вставить запрос на сохранение фильтров
       await query.edit_message_text('все каналы', reply_markup=categoriesArray)
+
+    #!Каналы
+    elif '@' in query_array[0]:
+
+      req = requests.get(
+        'http://localhost:3001/chanel' +
+        '?username=' + query_array[0]
+        )
+      
+      chanel =  req.json()
+
+      keyboard = [
+        [InlineKeyboardButton("<<Назад", callback_data=query_array[1] + '_static_0')]
+      ]
+      reply_markup = InlineKeyboardMarkup(keyboard)
+      reply_text = query_array[0] + '\nПодписчиков: ' + str(chanel['participants_count']) + '\nОхват: ' + str(chanel['avg_post_reach']) + '\nЦена рекламы:' + '?' + '\nРекомендаций: ' + '?' + '\nКонтакт для связи: ' + '?'
+
+      await query.edit_message_text(reply_text, reply_markup=reply_markup)
 
 
 

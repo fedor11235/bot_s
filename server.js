@@ -22,34 +22,45 @@ function getCategoriesTop() {
   for(const category of categoriesList) {
     const urlCategoriesTop = getUrlCategoriesTop(category, 30)
 
-    // request({url: urlCategoriesTop, json: true}, (error, response, data) => {
-    //   const chanelsTop = data.response;
-    //   for(const chanel of chanelsTop.items) {
-    //     const urlCategoryStat = getUrlCategoryStat(chanel.username)
-    //     request({url: urlCategoryStat, json: true}, async (error, response, data) => {
-    //       const categoryStat = data.response;
-    //       if(categoryStat) {
-    //         const catalogNew = await prisma.catalog.create({
-    //           data: { 
-    //             category: category,
-    //             username: chanel.username,
-    //             title: chanel.title,
-    //             daily_reach: categoryStat.daily_reach,
-    //             ci_index: categoryStat.ci_index,
-    //             participants_count: categoryStat.participants_count,
-    //             avg_post_reach: categoryStat.avg_post_reach,
-    //             forwards_count: categoryStat.forwards_count,
-    //           },
-    //         });
-    //       }
-    //     });
-    //   }
-    // });
+    request({url: urlCategoriesTop, json: true}, (error, response, data) => {
+      const chanelsTop = data.response;
+      for(const chanel of chanelsTop.items) {
+        const urlCategoryStat = getUrlCategoryStat(chanel.username)
+        request({url: urlCategoryStat, json: true}, async (error, response, data) => {
+          const categoryStat = data.response;
+          if(categoryStat) {
+            const catalogNew = await prisma.catalog.create({
+              data: { 
+                category: category,
+                username: chanel.username,
+                title: chanel.title,
+                link: chanel.link,
+                daily_reach: categoryStat.daily_reach,
+                ci_index: categoryStat.ci_index,
+                participants_count: categoryStat.participants_count,
+                avg_post_reach: categoryStat.avg_post_reach,
+                forwards_count: categoryStat.forwards_count,
+              },
+            });
+          }
+        });
+      }
+    });
     
   }
 }
 
-app.get('/category', async  (req, res) => {
+app.get('/chanel', async  (req, res) => {
+  const username = req.query.username
+  const chanel = await prisma.catalog.findFirst({
+    where: {
+      username: username,
+    }
+  });
+  res.send(chanel)
+})
+
+app.get('/categories', async  (req, res) => {
   const categoryQuery = req.query.category
   let categoryFind
   if(categoryQuery === 'all') {
@@ -139,5 +150,5 @@ app.get('/profile', async  (req, res) => {
 
 app.listen(port, () => {
   console.log(`Example app listening on port ${port}`)
-  getCategoriesTop()
+  // getCategoriesTop()
 })

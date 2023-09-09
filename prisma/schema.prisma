@@ -53,6 +53,8 @@ model Catalog {
   username String?
   title String?
 
+  link String?
+
   //сумарный дневной охват
   daily_reach Int?
   //индекс цитирования
