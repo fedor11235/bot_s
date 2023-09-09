@@ -5,7 +5,7 @@ from telegram import InlineKeyboardButton, InlineKeyboardMarkup, ReplyKeyboardMa
 from telegram.ext import Application, CommandHandler, MessageHandler, filters, CallbackQueryHandler
 from dotenv import load_dotenv
 import os
-from create_btns import get_categories, set_catalog, set_filters, get_btns_pay
+from create_btns import get_categories, set_catalog, set_filters, get_btns_pay, get_user_chanels
 
 logging.basicConfig(
     format="%(asctime)s - %(name)s - %(levelname)s - %(message)s", level=logging.INFO
@@ -67,9 +67,19 @@ class SlonBot():
       '?idUser=' + str(update.message.chat.id)
       )
       if req.text == 'empty':
-        await update.message.reply_text('''*Сначала создайте профиль*\n\nЧтобы начать использовать бота, сделайте @SlonRobot администратором в канале, а затем пришлите сюда ссылку на канал или просто перешлите из него любое сообщение.\nБоту можно не выдавать никаких прав. Данная процедура нужна чтобы подтвердить, что вы являетесь владельцем канала.\nДругие полезные команды:\n/partners — сгенерировать уникальный промокод, чтобы вы могли приглашать других пользователей и получать бонусы\n/help — связь со службой поддержки и ответы на часто задаваемые вопросы''', parse_mode="Markdown")
+        keyboard = [
+          [InlineKeyboardButton("Добавить канал", callback_data='chanelAdd')],
+        ]
+        reply_markup =  InlineKeyboardMarkup(keyboard)
+        await update.message.reply_text('''*Вы пока что не добавили ни одного канала. Чтобы его добавить, введите команду /channel или нажмите кнопку ниже.''', reply_markup=reply_markup, parse_mode="Markdown")
       else:
-        await update.message.reply_text('Создать опт')
+        req = requests.get(
+          'http://localhost:3001/chanel-user' +
+          '?idUser=' + str(update.message.chat.id)
+          )
+        chanels = req.json()
+        reply_markup = get_user_chanels(chanels)
+        await update.message.reply_text('Выберите канал в котором хотите собрать опт:\n', reply_markup=reply_markup)
       return
     elif update.message.text == 'Зайти в опт':
       req = requests.get(
@@ -194,6 +204,8 @@ class SlonBot():
       elif query_array[1] == 'business':
         await query.edit_message_text(text='Выберите срокна который хотите продлить подписку Business\nВаша скидка: 0%',  reply_markup=reply_markup)
 
+    
+    
     #!КАТЕГОРИИ
     elif query_array[0] in category_type:
       start_cut = 1

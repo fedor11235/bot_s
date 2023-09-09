@@ -10,6 +10,12 @@ def get_btns_pay():
   ]
   return InlineKeyboardMarkup(keyboard)
 
+def get_user_chanels(chanels_array):
+  keyboard = []
+  for chanel in chanels_array:
+    keyboard.append([InlineKeyboardButton(chanel['idChanel'], callback_data='test')])
+  return InlineKeyboardMarkup(keyboard)
+
 def get_categories(category_type, start_cut, finish_cut, page):
   categoriesBtns = []
   req = requests.get(

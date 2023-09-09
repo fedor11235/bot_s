@@ -7,8 +7,77 @@ const prisma = new PrismaClient()
 const app = express()
 const port = 3001
 const categoriesUrl = `https://api.tgstat.ru/database/categories?token=${token}`
-const categoriesList = ['education', 'health', 'news', 'tech', 'entertainment', 'psychology', 'other']
+const categoriesList = ['education', 'finance', 'health', 'news', 'tech', 'entertainment', 'psychology', 'video', 'author', 'other']
+
 // const categoriesList = ['education']
+
+// const ss = [
+//   {
+//     name: 'education',
+//     listType: [
+//       'education', 'language', 'edutainment', 'art'
+//     ]
+//   },
+//   {
+//     name: 'finance',
+//     listType: [
+//       'economics', 'business', 'marketing'
+//     ]
+//   },
+//   {
+//     name: 'health',
+//     listType: [
+//       'medicine', 'health'
+//     ]
+//   },
+//   {
+//     name: 'news',
+//     listType: [
+//       'news', 'politics'
+//     ]
+//   },
+//   {
+//     name: 'tech',
+//     listType: [
+//       'tech', 'apps', 'crypto'
+//     ]
+//   },
+//   {
+//     name: 'entertainment',
+//     listType: [
+//       'entertainment'
+//     ]
+//   },
+//   {
+//     name: 'psychology',
+//     listType: [
+//       'psychology', 'babies'
+//     ]
+//   },
+//   {
+//     name: 'video',
+//     listType: [
+//       'video'
+//     ]
+//   },
+//   {
+//     name: 'author',
+//     listType: [
+//       'blogs'
+//     ]
+//   },
+//   {
+//     name: 'other',
+//     listType: [
+//       'sales', 'other', 'travels', 'design'
+//     ]
+//   }
+// ]
+
+
+// [Видосники] - video
+// [Авторские] - blogs
+// [Другое] - sales, other, travels, design
 
 function getUrlCategoriesTop(category, limit) {
   return `https://api.tgstat.ru/channels/search?token=${token}&category=${category}&limit=${limit}&country=ru`
@@ -56,6 +125,16 @@ app.get('/chanel', async  (req, res) => {
     where: {
       username: username,
     }
+  });
+  res.send(chanel)
+})
+
+app.get('/chanel-user', async  (req, res) => {
+  const idUser = req.query.idUser
+  const chanel = await prisma.userChanel.findMany({
+    where: {
+      idUser: idUser
+    },
   });
   res.send(chanel)
 })
