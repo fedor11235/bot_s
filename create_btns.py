@@ -22,7 +22,7 @@ def get_reservation_more_table():
   keyboard = []
   keyboard.append([InlineKeyboardButton("Дата", callback_data='test'), InlineKeyboardButton("Утро", callback_data='test'), InlineKeyboardButton("День", callback_data='test'), InlineKeyboardButton("Вечер", callback_data='test')])
   for data in data_reservation:
-    keyboard.append([InlineKeyboardButton(data, callback_data='test'), InlineKeyboardButton(" ", callback_data='test'), InlineKeyboardButton(" ", callback_data='test'), InlineKeyboardButton(" ", callback_data='test')])
+    keyboard.append([InlineKeyboardButton(data, callback_data='test'), InlineKeyboardButton(" ", callback_data='reservation_morning_' + data), InlineKeyboardButton(" ", callback_data='reservation_day_' + data), InlineKeyboardButton(" ", callback_data='reservation_evening_' + data)])
   keyboard.append([InlineKeyboardButton("Больше дат", callback_data='test'), InlineKeyboardButton("Потдвердить", callback_data='opt_confirm')])
   return InlineKeyboardMarkup(keyboard)
 
@@ -32,7 +32,7 @@ def get_reservation_time_table():
   for data_row in data_reservation_time:
     row = []
     for data in data_row:
-      row.append(InlineKeyboardButton(data, callback_data='test'))
+      row.append(InlineKeyboardButton(data, callback_data='time_' + data))
     keyboard.append(row)
   keyboard.append([InlineKeyboardButton("Потдвердить", callback_data='opt_time')])
   return InlineKeyboardMarkup(keyboard)

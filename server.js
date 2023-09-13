@@ -1,5 +1,6 @@
 import express from 'express'
 import request from 'request';
+import bodyParser from 'body-parser';
 import { PrismaClient } from '@prisma/client'
 
 const token = '746c997297440937501f953ec01c985f'
@@ -7,6 +8,9 @@ const prisma = new PrismaClient()
 const app = express()
 const port = 3001
 const categoriesUrl = `https://api.tgstat.ru/database/categories?token=${token}`
+
+app.use(bodyParser.json());
+app.use(bodyParser.urlencoded({ extended: true }));
 
 const categoriesList = [
   'education',
@@ -102,6 +106,7 @@ function getCategoriesTop() {
   }
 }
 
+// PROFILE
 app.get('/chanel', async  (req, res) => {
   const username = req.query.username
   const chanel = await prisma.catalog.findFirst({
@@ -182,6 +187,7 @@ app.get('/create-chanel', async  (req, res) => {
   res.send('created')
 })
 
+// USER
 app.get('/check', async  (req, res) => {
   const idUser = req.query.idUser
   const isUserChanel = await prisma.userChanel.findFirst({
@@ -216,11 +222,65 @@ app.get('/profile', async  (req, res) => {
   })
 })
 
+//OPT
+app.get('/opt-create', async  (req, res) => {
+  const idUser = req.query.idUser
+  const chanel = req.query.chanel
+
+  const user = await prisma.user.findFirst({
+    where: { idUser: idUser},
+  });
+
+  await prisma.opt.deleteMany({
+    where: { idUser: user.id}
+  });
+
+  const opt = await prisma.opt.create({
+    data: { 
+      idUser: user.id,
+      chanel: chanel
+    },
+  });
+  res.send('ok')
+})
+
+//OPT
+app.post('/opt-set', async  (req, res) => {
+  const idUser = req.query.idUser
+  const data = req.body;
+
+  const user = await prisma.user.findFirst({
+    where: { idUser: idUser},
+    include: {
+      opts: true,
+    },
+  });
+
+  const opt = await prisma.opt.update({
+    where: { id: user.opts[0].id},
+    data: data
+  });
+
+  res.send(opt)
+})
+
+app.get('/opt-get', async  (req, res) => {
+  const idUser = req.query.idUser
+
+  const user = await prisma.user.findFirst({
+    where: { idUser: idUser},
+    include: {
+      opt: true,
+    },
+  });
+  console.log('opt', user.opt)
+  res.send(user.opt)
+})
+
+// MODE MESSAGE
 app.get('/mode-set', async  (req, res) => {
   const idUser = req.query.idUser
   const mode = req.query.mode
-
-  console.log('idUser: ', idUser)
 
   const user = await prisma.user.findFirst({
     where: { idUser: idUser},

@@ -33,18 +33,19 @@ model User {
 }
 
 model Opt {
-  id       Int     @default(autoincrement()) @id
-  retail_price String?
+  id             Int     @default(autoincrement()) @id
+  chanel         String?
+  retail_price   String?
   wholesale_cost String?
-  min_places String?
-  max_places String?
-  booking_date String?
-  deadline_date String?
+  min_places     String?
+  max_places     String?
+  booking_date   String?
+  deadline_date  String?
   placement_time String?
-  requisites String?
-  status   String  @default("created")
-  user     User? @relation(fields: [idUser], references: [id])
-  idUser   Int?
+  requisites     String?
+  status         String  @default("created")
+  user           User?   @relation(fields: [idUser], references: [id])
+  idUser         Int?
 }
 
 

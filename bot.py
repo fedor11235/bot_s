@@ -5,7 +5,15 @@ from telegram import InlineKeyboardButton, InlineKeyboardMarkup, ReplyKeyboardMa
 from telegram.ext import Application, CommandHandler, MessageHandler, filters, CallbackQueryHandler
 from dotenv import load_dotenv
 import os
-from requests_data import user_check, user_change_message_mod, user_get_message_mod
+from requests_data import (
+  user_check,
+  user_change_message_mod,
+  user_get_message_mod, 
+  opt_create,
+  opt_set,
+  opt_get
+)
+
 from create_btns import (
   get_categories,
   set_catalog,
@@ -65,7 +73,9 @@ class SlonBot():
     #создание оптов
     if mode == 'opt-retail-price':
       try:
-        int(update.message.text)
+        retail_price = int(update.message.text)
+        data = {'retail_price': retail_price}
+        opt_set(user_id, data)
         user_change_message_mod(user_id, 'opt-wholesale-cost')
         await update.message.reply_text("Напишите текущую(оптовую) стоимость размещения. Разница с розничной должна быть не менее 10%:")
       except:
@@ -73,7 +83,9 @@ class SlonBot():
       return
     elif mode == 'opt-wholesale-cost':
       try:
-        int(update.message.text)
+        wholesale_cost = int(update.message.text)
+        data = {'wholesale_cost': wholesale_cost}
+        opt_set(user_id, data)
         user_change_message_mod(user_id, 'opt-minimum-permissible-value')
         await update.message.reply_text("Введите минимальное количество мест, необходимое для оформления опта(от 3 до 10):")
       except:
@@ -83,6 +95,8 @@ class SlonBot():
       try:
         opt_minimum = int(update.message.text)
         if opt_minimum > 3 and opt_minimum < 10:
+          data = {'min_places': str(opt_minimum)}
+          opt_set(user_id, data)
           user_change_message_mod(user_id, 'opt-maximum-permissible-value')
           await update.message.reply_text("Введите максимальное допустимое количество мест в опте(до x):")
         else:
@@ -92,7 +106,9 @@ class SlonBot():
       return
     elif mode == 'opt-maximum-permissible-value':
       try:
-        int(update.message.text)
+        opt_maximum = int(update.message.text)
+        data = {'max_places': str(opt_maximum)}
+        opt_set(user_id, data)
         user_change_message_mod(user_id, 'opt-available-reservation')
         reply_markup = get_reservation_more_table()
         await update.message.reply_text('Выберите доступные для брони слоты:', reply_markup=reply_markup)
@@ -104,12 +120,30 @@ class SlonBot():
       await update.message.reply_text('Выберите доступные для брони слоты:', reply_markup=reply_markup)
       return
     elif mode == 'deadline-wholesale-formation':
+      deadline_date = update.message.text
+      data = {'deadline_date': deadline_date}
+      opt_set(user_id, data)
       reply_markup = get_reservation_time_table()
       await update.message.reply_text('Выберите допустимое время размещений:', reply_markup=reply_markup)
       return
     elif mode == 'opt-send-details':
+      requisites = update.message.text
+      data = {'requisites': requisites}
+      opt = opt_set(user_id, data)
       reply_markup = get_opt_create()
-      await update.message.reply_text('''Опт от [текущая дата] в канале [название канала со вшитой ссылкой»(жирным), далее через одну строку\nРозничная цена: [переменная]\nОптовая цена: [переменная]\nМинимум постов: [переменная]\nМаксимум постов: [переменная]\nСписок дат: [список]\nДедлайн: [переменная]\nРеквизиты: [переменная]\nВладелец: [юзернейм создателя опта]''', reply_markup=reply_markup)
+      await update.message.reply_text('''
+Опт от '''+'1.07'+''' в канале *'''+opt['chanel']+'''*
+Розничная цена: '''+ str(opt['retail_price']) + ''' \n
+Оптовая цена: '''+ str(opt['wholesale_cost']) + '''\n
+Минимум постов: '''+ str(opt['min_places']) + '''\n
+Максимум постов: '''+ str(opt['max_places']) + '''\n
+Список дат: '''+ opt['booking_date'] + '''\n
+Дедлайн: '''+ opt['deadline_date'] + '''\n
+Реквизиты: '''+ opt['requisites'] + '''\n
+Владелец: '''+ str(opt['idUser'])
+        ,
+        reply_markup=reply_markup
+      )
       return
     
 
@@ -245,6 +279,7 @@ class SlonBot():
 
     query = update.callback_query
     query_array = query.data.split('_')
+    user_id = query.message.chat.id
 
     #!Подписчки
     if query_array[0] == 'pay':
@@ -256,9 +291,6 @@ class SlonBot():
         await query.edit_message_text(text='Выберите срокна который хотите продлить подписку Pro\nВаша скидка: 0%',  reply_markup=reply_markup)
       elif query_array[1] == 'business':
         await query.edit_message_text(text='Выберите срокна который хотите продлить подписку Business\nВаша скидка: 0%',  reply_markup=reply_markup)
-
-    
-    
     #!КАТЕГОРИИ
     elif query_array[0] in category_type:
       start_cut = 1
@@ -279,8 +311,6 @@ class SlonBot():
         await query.edit_message_text('все каналы', reply_markup=categoriesArray)
       except:
         await query.edit_message_text('нет каналов такой категории')
-
-
     #!ФИЛЬТРЫ
     elif query_array[0] == 'filters':
       reply_markup =  set_filters(query_array[1], False)
@@ -292,7 +322,6 @@ class SlonBot():
       categoriesArray = get_categories(query_array[-1], 1, 10, 0)
       #TODO тут вставить запрос на сохранение фильтров
       await query.edit_message_text('все каналы', reply_markup=categoriesArray)
-
     #!Каналы
     elif '@' in query_array[0]:
 
@@ -310,7 +339,6 @@ class SlonBot():
       reply_text = query_array[0] + '\nПодписчиков: ' + str(chanel['participants_count']) + '\nОхват: ' + str(chanel['avg_post_reach']) + '\nЦена рекламы:' + '?' + '\nРекомендаций: ' + '?' + '\nКонтакт для связи: ' + '?'
 
       await query.edit_message_text(reply_text, reply_markup=reply_markup)
-
     #!Опт
     elif query_array[0] == 'opt':
       if query_array[1] == 'confirm':
@@ -318,19 +346,30 @@ class SlonBot():
         await query.message.reply_text('Хотите выбрать следующие даты:?', reply_markup=reply_markup)
         return
       elif query_array[1] == 'save':
-        user_change_message_mod(query.message.chat.id, 'deadline-wholesale-formation')
+        user_change_message_mod(user_id, 'deadline-wholesale-formation')
         await query.message.reply_text('Укажите крайнюю дату формирования опта в формате [01.07]. По наступлении этой даты, если опт не будет собран, он будет отменен.')
         return
       elif query_array[1] == 'time':
-        user_change_message_mod(query.message.chat.id, 'opt-send-details')
+        user_change_message_mod(user_id, 'opt-send-details')
         await query.message.reply_text('Пришлите реквизиты для оплаты одним сообщением:')
         return
       elif query_array[1] == 'create':
-        user_change_message_mod(query.message.chat.id, 'standart')
-        await query.message.reply_text('Поздравляем! Опт успешно создан и добавлен в каталог.». В слово «каталог» должна быть вшита ссылка на раздел «зайти в опт')
+        data = {'status': 'confirmed'}
+        opt_set(user_id, data)
+        user_change_message_mod(user_id, 'standart')
+        await query.message.reply_text('Поздравляем! Опт успешно создан и добавлен в каталог.')
         return
-      user_change_message_mod(query.message.chat.id, 'opt-retail-price')
+      opt_create(user_id, str(query_array[1]))
+      user_change_message_mod(user_id, 'opt-retail-price')
       await query.message.reply_text('Создаем опт для канала '+ str(query_array[1]) +'. Напишите стандартную(розничную) стоимость размещения: ')
+
+    elif query_array[0] == 'reservation':
+      data = {'booking_date': query_array[1] + ' ' + query_array[2]}
+      opt_set(user_id, data)
+
+    elif query_array[0] == 'time':
+      data = {'placement_time': query_array[1]}
+      opt_set(user_id, data)
 
 
 
