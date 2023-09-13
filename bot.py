@@ -11,7 +11,7 @@ from requests_data import (
   user_get_message_mod, 
   opt_create,
   opt_set,
-  opt_get
+  opt_get,
 )
 
 from create_btns import (
@@ -24,7 +24,9 @@ from create_btns import (
   get_reservation_more_table,
   get_reservation_time_table,
   get_opt_create,
-  go_into_opt
+  go_into_opt,
+  go_chanel_opt,
+  opt_reservation
 )
 
 logging.basicConfig(
@@ -42,7 +44,7 @@ class SlonBot():
   def run_bot(self) -> None:
     application = Application.builder().token(self.token).build()
     application.add_handler(CallbackQueryHandler(self.button))
-    application.add_handler(CommandHandler("test", self.handler_test))
+    # application.add_handler(CommandHandler("test", self.handler_test))
     application.add_handler(CommandHandler("start", self.start_button))
     application.add_handler(CommandHandler("partners", self.handler_partners))
     application.add_handler(CommandHandler("profile", self.handler_profile))
@@ -191,7 +193,11 @@ class SlonBot():
       if user_stat == 'empty':
         await update.message.reply_text('''*Сначала создайте профиль*\n\nЧтобы начать использовать бота, сделайте @SlonRobot администратором в канале, а затем пришлите сюда ссылку на канал или просто перешлите из него любое сообщение.\nБоту можно не выдавать никаких прав. Данная процедура нужна чтобы подтвердить, что вы являетесь владельцем канала.\nДругие полезные команды:\n/partners — сгенерировать уникальный промокод, чтобы вы могли приглашать других пользователей и получать бонусы\n/help — связь со службой поддержки и ответы на часто задаваемые вопросы''', parse_mode="Markdown")
       else:
-        await update.message.reply_text('Подборки')
+        keyboard = [
+          [InlineKeyboardButton("<<Назад", callback_data='testtest'), InlineKeyboardButton("Смотреть предложения", callback_data='watch')]
+        ]
+        reply_markup = InlineKeyboardMarkup(keyboard)
+        await update.message.reply_text('*Slon Business* «— это инструмент автоматической масштабной закупки рекламы в топовых telegram-каналах по уникальным ценам.', reply_markup=reply_markup, parse_mode="Markdown")
       return
     try:
       if update.message.forward_from_chat:
@@ -217,6 +223,7 @@ class SlonBot():
         parse_mode="Markdown")
     except:
       await update.message.reply_text('Не верные введенные данные, либо вы не добавили бота в канал')
+
 
 
 
@@ -359,9 +366,64 @@ class SlonBot():
         user_change_message_mod(user_id, 'standart')
         await query.message.reply_text('Поздравляем! Опт успешно создан и добавлен в каталог.')
         return
-      opt_create(user_id, str(query_array[1]))
-      user_change_message_mod(user_id, 'opt-retail-price')
-      await query.message.reply_text('Создаем опт для канала '+ str(query_array[1]) +'. Напишите стандартную(розничную) стоимость размещения: ')
+      elif query_array[1] in category_type:
+
+        start_cut = 1
+        finish_cut = 10
+        page = 1
+        reply_markup = go_chanel_opt(query_array[1], start_cut, finish_cut, page)
+
+        await query.message.reply_text('Выберите категорию', reply_markup=reply_markup)
+        return
+      elif '@' in query_array[1]:
+        req = requests.get(
+        'http://localhost:3001/chanel' +
+        '?username=' + query_array[1]
+        )
+
+        chanel =  req.json()
+        keyboard = [
+          [InlineKeyboardButton("<<Назад", callback_data='opt_' + query_array[2] + '_static_0')],
+          [InlineKeyboardButton("Записаться", callback_data='opt_' + 'sign-up_' +query_array[2])]
+        ]
+        reply_markup = InlineKeyboardMarkup(keyboard)
+        reply_text = query_array[1] + '\nОсталось мест: [х/у]' + '\nПодписчиков: ' + str(chanel['participants_count']) + '\nОхват: ' + str(chanel['avg_post_reach']) + '\nЦена рекламы:' + '?' + '\nРекомендаций: ' + '?' + '\nКонтакт для связи: ' + '?'
+
+        await query.edit_message_text(reply_text, reply_markup=reply_markup)
+        return
+      elif query_array[1] == 'sign-up':
+        reply_markup = opt_reservation()
+        await query.edit_message_text('Выберите дату: ', reply_markup=reply_markup)
+        return
+      elif query_array[1] == 'reservation':
+        if query_array[2] == 'confirm':
+          keyboard = [
+            [InlineKeyboardButton("Вернуться в каталог", callback_data='test')]
+          ]
+          reply_markup = InlineKeyboardMarkup(keyboard)
+          await query.edit_message_text('Креативы переданы владельцу канала. Вам придет уведомление когда он ответит.')
+          return
+        elif query_array[2] == 'paid':
+          keyboard = [
+            [InlineKeyboardButton("Подтвердить", callback_data='opt_reservation_confirm')]
+          ]
+          reply_markup = InlineKeyboardMarkup(keyboard)
+          await query.edit_message_text('Поздравляем! Выбранные места успешно забронированы. Пришлите рекламные креативы сюда или напрямую владельцу [юзер владельца].')
+          return
+        elif query_array[2] == 'data':
+          return
+        keyboard = [
+          [InlineKeyboardButton("<<Назад", callback_data='opt_reservation_back')],
+          [InlineKeyboardButton("Оплатил ✅", callback_data='opt_reservation_paid')]
+        ]
+        reply_markup = InlineKeyboardMarkup(keyboard)
+        await query.edit_message_text('*Чтобы забронировать выбранные даты, оплатите [сумма] на реквизиты владельца канала, затем нажмите кнопку ниже:*', reply_markup=reply_markup, parse_mode="Markdown")
+        return
+      elif query_array[1] == 'init':
+        opt_create(user_id, str(query_array[2]))
+        user_change_message_mod(user_id, 'opt-retail-price')
+
+        await query.message.reply_text('Создаем опт для канала '+ str(query_array[2]) +'. Напишите стандартную(розничную) стоимость размещения: ')
 
     elif query_array[0] == 'reservation':
       data = {'booking_date': query_array[1] + ' ' + query_array[2]}
@@ -371,37 +433,49 @@ class SlonBot():
       data = {'placement_time': query_array[1]}
       opt_set(user_id, data)
 
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-  async def handler_test(self, update: Update, _) -> None:
-    req = requests.get(
-      'https://api.tgstat.ru/channels/search' +
-      '?token=' + '746c997297440937501f953ec01c985f' +
-      '&category=' + 'art' +
-      '&limit=' + '5' +
-      '&country=' + 'ru'
+    elif query_array[0] == 'watch':
+      req = requests.get(
+        'http://localhost:3001/profile' +
+        '?idUser=' + str(user_id)
       )
-    # req = requests.get(
-    #   'https://api.tgstat.ru/database/categories' +
-    #   '?token=' + '746c997297440937501f953ec01c985f'
-    #   )
-    topJson = req.json()
-    print(topJson)
-    await update.message.reply_text(topJson["response"])
+      profile = req.json()
+      if profile['tariffPlan'] == 'base':
+        keyboard = [
+          [InlineKeyboardButton("Lite — 290₽/мес.", callback_data='pay_lite')],
+          [InlineKeyboardButton("Pro — 890₽/мес.", callback_data='pay_pro')],
+          [InlineKeyboardButton("Business — 3890₽/мес.", callback_data='pay_business')],
+        ]
+        reply_markup = InlineKeyboardMarkup(keyboard)
+        await query.edit_message_text('''*Lite*\n• доступ к полному функционалу каталога\n• подключение до 2 каналов к боту\n• создание до 2 оптов в месяц\n• до 10 мест в каждом созданном опте\n• покупка до 10 оптов в месяц\n• статус подтвержденного канала в каталоге\n*Pro*\n• доступ к полному функционалу каталога\n• безлимит на подключение каналов\n• безлимит на создание оптов\n• до 20 мест в каждом созданном опте\n• безлимит на покупку оптов\n• статус подтвержденного канала в каталоге\n*Business*\n• все вышеперечисленные функции\n• до 30 мест в каждом созданном опте\n• доступ к уникальным подборкам в крупнейших и авторских каналах от команды Slon''', reply_markup=reply_markup, parse_mode="Markdown")
+      else:
+        await query.edit_message_text('''[(Название канала с вшитой ссылкой) (Стоимость рекламного места)тыс.₽]''')
+        return
+        
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+  # async def handler_test(self, update: Update, _) -> None:
+  #   req = requests.get(
+  #     'https://api.tgstat.ru/channels/search' +
+  #     '?token=' + '746c997297440937501f953ec01c985f' +
+  #     '&category=' + 'art' +
+  #     '&limit=' + '5' +
+  #     '&country=' + 'ru'
+  #     )
+
+  #   topJson = req.json()
+  #   await update.message.reply_text(topJson["response"])
 
 def main() -> None:
   load_dotenv()

@@ -48,6 +48,12 @@ model Opt {
   idUser         Int?
 }
 
+// model Notifications {
+//   id       Int     @default(autoincrement()) @id
+//   date String?
+//   time String?
+//   sum String?
+// }
 
 model UserChanel {
   id       Int     @default(autoincrement()) @id

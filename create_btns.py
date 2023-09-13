@@ -49,7 +49,7 @@ def get_btns_pay():
 def get_user_chanels(chanels_array):
   keyboard = []
   for chanel in chanels_array:
-    keyboard.append([InlineKeyboardButton(chanel['idChanel'], callback_data='opt_' + chanel['idChanel'])])
+    keyboard.append([InlineKeyboardButton(chanel['idChanel'], callback_data='opt_init_' + chanel['idChanel'])])
   return InlineKeyboardMarkup(keyboard)
 
 def get_categories(category_type, start_cut, finish_cut, page):
@@ -60,18 +60,8 @@ def get_categories(category_type, start_cut, finish_cut, page):
     )
   categoriesArray =  req.json()
   if len(categoriesArray) != 0:
-    categoriesBtns = parseCategories(categoriesArray[start_cut:finish_cut], category_type, page)
+    categoriesBtns = parse_categories(categoriesArray[start_cut:finish_cut], category_type, page)
   return categoriesBtns
-
-def parseCategories(categoriesArray, category_type, page):
-  if len(categoriesArray) == 0:
-    return 'каналов по запросу нет'
-  arrayBtns = [[InlineKeyboardButton('Фильтры', callback_data='filters_' + category_type +'_'+ str(page))]]
-  for category in categoriesArray:
-    arrayBtns.append([InlineKeyboardButton(category['username'] + ' ' + str(category['participants_count']), callback_data=category['username'] + '_' + category_type)])
-    # output += category['username'] + ' количество подписчиков: ' + str(category['participants_count']) + ' суммарный дневной охват: ' + str(category['daily_reach']) + ' количнсвто репостов в другие каналы: ' + str(category['forwards_count']) + '\n'
-  arrayBtns.append([InlineKeyboardButton('<<Назад', callback_data=(category_type +'_back_' + str(page))), InlineKeyboardButton('Далее>>', callback_data=(category_type +'_next_' + str(page)))])
-  return InlineKeyboardMarkup(arrayBtns)
 
 def set_catalog():
   keyboard = [
@@ -140,4 +130,42 @@ def go_into_opt():
     [InlineKeyboardButton("Авторские", callback_data='opt_author')],
     [InlineKeyboardButton("Другое", callback_data='opt_other')],
   ]
+  return InlineKeyboardMarkup(keyboard)
+
+def go_chanel_opt(category_type, start_cut, finish_cut, page):
+  categoriesBtns = []
+  req = requests.get(
+    'http://localhost:3001/categories' +
+    '?category=' + category_type
+    )
+  categoriesArray =  req.json()
+  if len(categoriesArray) != 0:
+    categoriesBtns = parse_categories_opt(categoriesArray[start_cut:finish_cut], category_type, page)
+  return categoriesBtns
+
+def parse_categories_opt(categoriesArray, category_type, page):
+  if len(categoriesArray) == 0:
+    return 'каналов по запросу нет'
+  arrayBtns = [[InlineKeyboardButton('Фильтры', callback_data='filters_' + category_type +'_'+ str(page))]]
+  for category in categoriesArray:
+    arrayBtns.append([InlineKeyboardButton(category['username'] + ' ' + str(category['participants_count']), callback_data='opt_' + category['username'] + '_' + category_type)])
+  arrayBtns.append([InlineKeyboardButton('<<Назад', callback_data=('opt_' + category_type +'_back_' + str(page))), InlineKeyboardButton('Далее>>', callback_data=('opt_' + category_type +'_next_' + str(page)))])
+  return InlineKeyboardMarkup(arrayBtns)
+
+def parse_categories(categoriesArray, category_type, page):
+  if len(categoriesArray) == 0:
+    return 'каналов по запросу нет'
+  arrayBtns = [[InlineKeyboardButton('Фильтры', callback_data='filters_' + category_type +'_'+ str(page))]]
+  for category in categoriesArray:
+    arrayBtns.append([InlineKeyboardButton(category['username'] + ' ' + str(category['participants_count']), callback_data=category['username'] + '_' + category_type)])
+    # output += category['username'] + ' количество подписчиков: ' + str(category['participants_count']) + ' суммарный дневной охват: ' + str(category['daily_reach']) + ' количнсвто репостов в другие каналы: ' + str(category['forwards_count']) + '\n'
+  arrayBtns.append([InlineKeyboardButton('<<Назад', callback_data=(category_type +'_back_' + str(page))), InlineKeyboardButton('Далее>>', callback_data=(category_type +'_next_' + str(page)))])
+  return InlineKeyboardMarkup(arrayBtns)
+
+def opt_reservation():
+  keyboard = []
+  keyboard.append([InlineKeyboardButton("Дата", callback_data='test'), InlineKeyboardButton("Утро", callback_data='test'), InlineKeyboardButton("День", callback_data='test'), InlineKeyboardButton("Вечер", callback_data='test')])
+  for data in data_reservation:
+    keyboard.append([InlineKeyboardButton(data, callback_data='test'), InlineKeyboardButton(" ", callback_data='opt_reservation_data_morning_' + data), InlineKeyboardButton(" ", callback_data='opt_reservation_day_' + data), InlineKeyboardButton(" ", callback_data='opt_reservation_evening_' + data)])
+  keyboard.append([InlineKeyboardButton("Больше дат", callback_data='test'), InlineKeyboardButton("Потдвердить", callback_data='opt_reservation_confirm')])
   return InlineKeyboardMarkup(keyboard)
