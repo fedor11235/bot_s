@@ -7,77 +7,58 @@ const prisma = new PrismaClient()
 const app = express()
 const port = 3001
 const categoriesUrl = `https://api.tgstat.ru/database/categories?token=${token}`
-const categoriesList = ['education', 'finance', 'health', 'news', 'tech', 'entertainment', 'psychology', 'video', 'author', 'other']
+
+const categoriesList = [
+  'education',
+  'language',
+  'edutainment',
+  'art',
+  'economics',
+  'business',
+  'marketing',
+  'medicine',
+  'health',
+  'news',
+  'politics',
+  'tech',
+  'apps',
+  'crypto',
+  'entertainment',
+  'psychology',
+  'babies',
+  'video',
+  'blogs',
+  'sales',
+  'other',
+  'travels',
+  'design',
+]
 
 // const categoriesList = ['education']
 
-// const ss = [
-//   {
-//     name: 'education',
-//     listType: [
-//       'education', 'language', 'edutainment', 'art'
-//     ]
-//   },
-//   {
-//     name: 'finance',
-//     listType: [
-//       'economics', 'business', 'marketing'
-//     ]
-//   },
-//   {
-//     name: 'health',
-//     listType: [
-//       'medicine', 'health'
-//     ]
-//   },
-//   {
-//     name: 'news',
-//     listType: [
-//       'news', 'politics'
-//     ]
-//   },
-//   {
-//     name: 'tech',
-//     listType: [
-//       'tech', 'apps', 'crypto'
-//     ]
-//   },
-//   {
-//     name: 'entertainment',
-//     listType: [
-//       'entertainment'
-//     ]
-//   },
-//   {
-//     name: 'psychology',
-//     listType: [
-//       'psychology', 'babies'
-//     ]
-//   },
-//   {
-//     name: 'video',
-//     listType: [
-//       'video'
-//     ]
-//   },
-//   {
-//     name: 'author',
-//     listType: [
-//       'blogs'
-//     ]
-//   },
-//   {
-//     name: 'other',
-//     listType: [
-//       'sales', 'other', 'travels', 'design'
-//     ]
-//   }
-// ]
-
-
-// [Видосники] - video
-// [Авторские] - blogs
-// [Другое] - sales, other, travels, design
+function categoriesMap (name) {
+  if(name === 'education' || name === 'language' || name === 'edutainment' || name === 'art') {
+    return 'education'
+  } else if (name === 'economics' || name === 'business' || name === 'marketing') {
+    return 'finance'
+  } else if (name === 'medicine' || name === 'health') {
+    return 'health'
+  } else if (name === 'news' || name === 'politics') {
+    return 'news'
+  } else if (name === 'tech' || name === 'apps' || name === 'crypto') {
+    return 'tech'
+  } else if (name === 'entertainment') {
+    return 'entertainment'
+  } else if (name === 'psychology' || name === 'babies') {
+    return 'psychology'
+  } else if (name === 'video') {
+    return 'video'
+  } else if (name === 'blogs') {
+    return 'author'
+  } else if (name === 'sales' || name === 'other' || name === 'travels' || name === 'design') {
+    return 'other'
+  }
+}
 
 function getUrlCategoriesTop(category, limit) {
   return `https://api.tgstat.ru/channels/search?token=${token}&category=${category}&limit=${limit}&country=ru`
@@ -92,6 +73,8 @@ function getCategoriesTop() {
     const urlCategoriesTop = getUrlCategoriesTop(category, 30)
 
     request({url: urlCategoriesTop, json: true}, (error, response, data) => {
+      console.log(data)
+      if(data.status === 'error') return;
       const chanelsTop = data.response;
       for(const chanel of chanelsTop.items) {
         const urlCategoryStat = getUrlCategoryStat(chanel.username)
@@ -100,7 +83,7 @@ function getCategoriesTop() {
           if(categoryStat) {
             const catalogNew = await prisma.catalog.create({
               data: { 
-                category: category,
+                category: categoriesMap(category),
                 username: chanel.username,
                 title: chanel.title,
                 link: chanel.link,
@@ -233,33 +216,40 @@ app.get('/profile', async  (req, res) => {
   })
 })
 
-// app.get('/mode-set', async  (req, res) => {
-//   const idUser = req.query.idUser
-//   const mode = req.query.mode
+app.get('/mode-set', async  (req, res) => {
+  const idUser = req.query.idUser
+  const mode = req.query.mode
 
-//   const modeDb = await prisma.mode.update({
-//     where: { idUser: idUser},
-//     data: {
-//       state: mode
-//     },
-//   });
+  console.log('idUser: ', idUser)
 
-//   res.send("ok")
-// })
+  const user = await prisma.user.findFirst({
+    where: { idUser: idUser},
+  });
 
-// app.get('/mode-get', async  (req, res) => {
-//   const idUser = req.query.idUser
+  await prisma.user.update({
+    where: { id: user.id},
+    data: {
+      message_mode: mode
+    },
+  });
+  res.send("ok")
+})
 
-//   console.log(idUser)
+app.get('/mode-get', async  (req, res) => {
+  const idUser = req.query.idUser
 
-//   const modeDb = await prisma.mode.findFirst({
-//     where: { idUser: idUser}
-//   });
+  const user = await prisma.user.findFirst({
+    where: { idUser: idUser}
+  });
 
-//   res.send(modeDb)
-// })
+  if(user) {
+    res.send(user.message_mode)
+    return
+  }
+  res.send('standart')
+})
 
 app.listen(port, () => {
   console.log(`Example app listening on port ${port}`)
-  getCategoriesTop()
+  // getCategoriesTop()
 })

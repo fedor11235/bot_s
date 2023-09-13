@@ -1,4 +1,4 @@
-/.env
+# /.env
 /venv
 help
 node_modules

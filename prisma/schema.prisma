@@ -27,8 +27,26 @@ model User {
   invitedUsers         Int     @default(0)
   totalEarned          Int     @default(0)
   channels             Int     @default(0)
+  message_mode String @default("standart")
+  opts             Opt[]
   // channels             UserChanel[]
 }
+
+model Opt {
+  id       Int     @default(autoincrement()) @id
+  retail_price String?
+  wholesale_cost String?
+  min_places String?
+  max_places String?
+  booking_date String?
+  deadline_date String?
+  placement_time String?
+  requisites String?
+  status   String  @default("created")
+  user     User? @relation(fields: [idUser], references: [id])
+  idUser   Int?
+}
+
 
 model UserChanel {
   id       Int     @default(autoincrement()) @id
@@ -57,11 +75,11 @@ model Catalog {
   forwards_count Int?
 }
 
-model Mode {
-  id       Int     @default(autoincrement()) @id
-  idUser   String
-  state    String  @default("standart")
-}
+// model Mode {
+//   id       Int     @default(autoincrement()) @id
+//   idUser   String
+//   state    String  @default("standart")
+// }
 
 // model UserChanel {
 //   id       Int     @default(autoincrement()) @id

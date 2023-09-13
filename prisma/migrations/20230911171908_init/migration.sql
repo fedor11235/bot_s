@@ -16,7 +16,16 @@ CREATE TABLE "User" (
     "totalSavings" INTEGER NOT NULL DEFAULT 0,
     "invitedUsers" INTEGER NOT NULL DEFAULT 0,
     "totalEarned" INTEGER NOT NULL DEFAULT 0,
-    "channels" INTEGER NOT NULL DEFAULT 0
+    "channels" INTEGER NOT NULL DEFAULT 0,
+    "message_mode" TEXT NOT NULL DEFAULT 'standart'
+);
+
+-- CreateTable
+CREATE TABLE "Opt" (
+    "id" INTEGER NOT NULL PRIMARY KEY AUTOINCREMENT,
+    "state" TEXT NOT NULL DEFAULT 'standart',
+    "idUser" INTEGER,
+    CONSTRAINT "Opt_idUser_fkey" FOREIGN KEY ("idUser") REFERENCES "User" ("id") ON DELETE SET NULL ON UPDATE CASCADE
 );
 
 -- CreateTable
@@ -32,6 +41,7 @@ CREATE TABLE "Catalog" (
     "category" TEXT,
     "username" TEXT,
     "title" TEXT,
+    "link" TEXT,
     "daily_reach" INTEGER,
     "ci_index" INTEGER,
     "participants_count" INTEGER,

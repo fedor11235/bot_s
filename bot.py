@@ -5,7 +5,19 @@ from telegram import InlineKeyboardButton, InlineKeyboardMarkup, ReplyKeyboardMa
 from telegram.ext import Application, CommandHandler, MessageHandler, filters, CallbackQueryHandler
 from dotenv import load_dotenv
 import os
-from create_btns import get_categories, set_catalog, set_filters, get_btns_pay, get_user_chanels
+from requests_data import user_check, user_change_message_mod, user_get_message_mod
+from create_btns import (
+  get_categories,
+  set_catalog,
+  set_filters,
+  get_btns_pay,
+  get_user_chanels,
+  get_reservation_table,
+  get_reservation_more_table,
+  get_reservation_time_table,
+  get_opt_create,
+  go_into_opt
+)
 
 logging.basicConfig(
     format="%(asctime)s - %(name)s - %(levelname)s - %(message)s", level=logging.INFO
@@ -34,11 +46,8 @@ class SlonBot():
     application.run_polling()
 
   async def start_button(self, update: Update, _) -> None:
-    req = requests.get(
-      'http://localhost:3001/check' +
-      '?idUser=' + str(update.message.chat.id)
-    )
-    if req.text == 'empty':
+    user_stat = user_check(update.message.chat.id)
+    if user_stat == 'empty':
       await update.message.reply_text('''*Создайте профиль и добавьте канал*\n\nЧтобы начать использовать бота, сделайте @SlonRobot администратором в канале, а затем пришлите сюда ссылку на канал или просто перешлите из него любое сообщение.\nБоту можно не выдавать никаких прав. Данная процедура нужна чтобы подтвердить, что вы являетесь владельцем канала.\nДругие полезные команды:\n/partners — сгенерировать уникальный промокод, чтобы вы могли приглашать других пользователей и получать бонусы\n/help — связь со службой поддержки и ответы на часто задаваемые вопросы''',
         parse_mode="Markdown")
 
@@ -50,28 +59,77 @@ class SlonBot():
     await update.message.reply_text(req.text)
 
   async def response_from__message(self, update: Update, context) -> None:
-    # req = requests.get(
-    #   'http://localhost:3001/mode-get' +
-    #   '?idUser=' + str(update.message.chat.id)
-    # )
-    # print(req.json())
+    user_id = update.message.chat.id
+    mode = user_get_message_mod(user_id)
+
+    #создание оптов
+    if mode == 'opt-retail-price':
+      try:
+        int(update.message.text)
+        user_change_message_mod(user_id, 'opt-wholesale-cost')
+        await update.message.reply_text("Напишите текущую(оптовую) стоимость размещения. Разница с розничной должна быть не менее 10%:")
+      except:
+        await update.message.reply_text("вы ввели неверные данные, повторите ввод")
+      return
+    elif mode == 'opt-wholesale-cost':
+      try:
+        int(update.message.text)
+        user_change_message_mod(user_id, 'opt-minimum-permissible-value')
+        await update.message.reply_text("Введите минимальное количество мест, необходимое для оформления опта(от 3 до 10):")
+      except:
+        await update.message.reply_text("вы ввели неверные данные, повторите ввод")
+      return
+    elif mode == 'opt-minimum-permissible-value':
+      try:
+        opt_minimum = int(update.message.text)
+        if opt_minimum > 3 and opt_minimum < 10:
+          user_change_message_mod(user_id, 'opt-maximum-permissible-value')
+          await update.message.reply_text("Введите максимальное допустимое количество мест в опте(до x):")
+        else:
+          await update.message.reply_text("вы ввели неверные данные, повторите ввод")
+      except:
+        await update.message.reply_text("вы ввели неверные данные, повторите ввод")
+      return
+    elif mode == 'opt-maximum-permissible-value':
+      try:
+        int(update.message.text)
+        user_change_message_mod(user_id, 'opt-available-reservation')
+        reply_markup = get_reservation_more_table()
+        await update.message.reply_text('Выберите доступные для брони слоты:', reply_markup=reply_markup)
+      except:
+        await update.message.reply_text("вы ввели неверные данные, повторите ввод")
+      return
+    elif mode == 'opt-available-reservation':
+      reply_markup = get_reservation_more_table()
+      await update.message.reply_text('Выберите доступные для брони слоты:', reply_markup=reply_markup)
+      return
+    elif mode == 'deadline-wholesale-formation':
+      reply_markup = get_reservation_time_table()
+      await update.message.reply_text('Выберите допустимое время размещений:', reply_markup=reply_markup)
+      return
+    elif mode == 'opt-send-details':
+      reply_markup = get_opt_create()
+      await update.message.reply_text('''Опт от [текущая дата] в канале [название канала со вшитой ссылкой»(жирным), далее через одну строку\nРозничная цена: [переменная]\nОптовая цена: [переменная]\nМинимум постов: [переменная]\nМаксимум постов: [переменная]\nСписок дат: [список]\nДедлайн: [переменная]\nРеквизиты: [переменная]\nВладелец: [юзернейм создателя опта]''', reply_markup=reply_markup)
+      return
+    
+
+
+
+
+
+
+
     if update.message.text == 'Каталог':
-      req = requests.get(
-      'http://localhost:3001/check' +
-      '?idUser=' + str(update.message.chat.id)
-      )
-      if req.text == 'empty':
+      user_stat = user_check(user_id)
+      if user_stat == 'empty':
         await update.message.reply_text('''*Сначала создайте профиль*\n\nЧтобы начать использовать бота, сделайте @SlonRobot администратором в канале, а затем пришлите сюда ссылку на канал или просто перешлите из него любое сообщение.\nБоту можно не выдавать никаких прав. Данная процедура нужна чтобы подтвердить, что вы являетесь владельцем канала.\nДругие полезные команды:\n/partners — сгенерировать уникальный промокод, чтобы вы могли приглашать других пользователей и получать бонусы\n/help — связь со службой поддержки и ответы на часто задаваемые вопросы''', parse_mode="Markdown")
       else:
         reply_markup = set_catalog()
         await update.message.reply_text('Каталог', reply_markup=reply_markup)
       return
     elif update.message.text == 'Создать опт':
-      req = requests.get(
-      'http://localhost:3001/check' +
-      '?idUser=' + str(update.message.chat.id)
-      )
-      if req.text == 'empty':
+      user_stat = user_check(user_id)
+      if user_stat == 'empty':
         keyboard = [
           [InlineKeyboardButton("Добавить канал", callback_data='chanelAdd')],
         ]
@@ -80,28 +138,23 @@ class SlonBot():
       else:
         req = requests.get(
           'http://localhost:3001/chanel-user' +
-          '?idUser=' + str(update.message.chat.id)
+          '?idUser=' + str(user_id)
           )
         chanels = req.json()
         reply_markup = get_user_chanels(chanels)
         await update.message.reply_text('Выберите канал в котором хотите собрать опт:\n', reply_markup=reply_markup)
       return
     elif update.message.text == 'Зайти в опт':
-      req = requests.get(
-      'http://localhost:3001/check' +
-      '?idUser=' + str(update.message.chat.id)
-      )
-      if req.text == 'empty':
+      user_stat = user_check(user_id)
+      if user_stat == 'empty':
         await update.message.reply_text('''*Сначала создайте профиль*\n\nЧтобы начать использовать бота, сделайте @SlonRobot администратором в канале, а затем пришлите сюда ссылку на канал или просто перешлите из него любое сообщение.\nБоту можно не выдавать никаких прав. Данная процедура нужна чтобы подтвердить, что вы являетесь владельцем канала.\nДругие полезные команды:\n/partners — сгенерировать уникальный промокод, чтобы вы могли приглашать других пользователей и получать бонусы\n/help — связь со службой поддержки и ответы на часто задаваемые вопросы''', parse_mode="Markdown")
       else:
-        await update.message.reply_text('Зайти в опт')
+        reply_markup = go_into_opt()
+        await update.message.reply_text('Зайти в опт', reply_markup=reply_markup)
       return
     elif update.message.text == 'Подборки':
-      req = requests.get(
-      'http://localhost:3001/check' +
-      '?idUser=' + str(update.message.chat.id)
-      )
-      if req.text == 'empty':
+      user_stat = user_check(user_id)
+      if user_stat == 'empty':
         await update.message.reply_text('''*Сначала создайте профиль*\n\nЧтобы начать использовать бота, сделайте @SlonRobot администратором в канале, а затем пришлите сюда ссылку на канал или просто перешлите из него любое сообщение.\nБоту можно не выдавать никаких прав. Данная процедура нужна чтобы подтвердить, что вы являетесь владельцем канала.\nДругие полезные команды:\n/partners — сгенерировать уникальный промокод, чтобы вы могли приглашать других пользователей и получать бонусы\n/help — связь со службой поддержки и ответы на часто задаваемые вопросы''', parse_mode="Markdown")
       else:
         await update.message.reply_text('Подборки')
@@ -112,14 +165,14 @@ class SlonBot():
         await context.bot.get_chat_member(user_id=6423584132, chat_id=str(idChanel))
         req = requests.get(
           'http://localhost:3001/create-chanel' +
-          '?idUser=' + str(update.message.chat.id) +
+          '?idUser=' + str(user_id) +
           '&idChanel=' + str(idChanel)
         )
       else:
         await context.bot.get_chat_member(user_id=6423584132, chat_id=update.message.text)
         req = requests.get(
           'http://localhost:3001/create-chanel' +
-          '?idUser=' + str(update.message.chat.id) +
+          '?idUser=' + str(user_id) +
           '&idChanel=' + update.message.text
         )
       if req.text == 'exist':
@@ -131,12 +184,16 @@ class SlonBot():
     except:
       await update.message.reply_text('Не верные введенные данные, либо вы не добавили бота в канал')
 
+
+
+
+
+
+
+
   async def handler_profile(self, update: Update, _) -> None:
-    req = requests.get(
-    'http://localhost:3001/check' +
-    '?idUser=' + str(update.message.chat.id)
-    )
-    if req.text == 'empty':
+    user_stat = user_check(update.message.chat.id)
+    if user_stat == 'empty':
       await update.message.reply_text('''*Сначала создайте профиль*\n\nЧтобы начать использовать бота, сделайте @SlonRobot администратором в канале, а затем пришлите сюда ссылку на канал или просто перешлите из него любое сообщение.\nБоту можно не выдавать никаких прав. Данная процедура нужна чтобы подтвердить, что вы являетесь владельцем канала.\nДругие полезные команды:\n/partners — сгенерировать уникальный промокод, чтобы вы могли приглашать других пользователей и получать бонусы\n/help — связь со службой поддержки и ответы на часто задаваемые вопросы''', parse_mode="Markdown")
     else:
       keyboard = [
@@ -156,21 +213,15 @@ class SlonBot():
     await update.message.reply_text('''*Возникли вопросы?*\nМы всегда готовы помочь вам с любые задачи и решение всех интересующих вопросов.\nПросто напишите нам: @slon_feedback''')
 
   async def handler_channel(self, update: Update, _) -> None:
-    req = requests.get(
-    'http://localhost:3001/check' +
-    '?idUser=' + str(update.message.chat.id)
-    )
-    if req.text == 'empty':
+    user_stat = user_check(update.message.chat.id)
+    if user_stat == 'empty':
       await update.message.reply_text('''*Сначала создайте профиль*\n\nЧтобы начать использовать бота, сделайте @SlonRobot администратором в канале, а затем пришлите сюда ссылку на канал или просто перешлите из него любое сообщение.\nБоту можно не выдавать никаких прав. Данная процедура нужна чтобы подтвердить, что вы являетесь владельцем канала.\nДругие полезные команды:\n/partners — сгенерировать уникальный промокод, чтобы вы могли приглашать других пользователей и получать бонусы\n/help — связь со службой поддержки и ответы на часто задаваемые вопросы''', parse_mode="Markdown")
     else:
       await update.message.reply_text('''Чтобы добавить канал введите в поле ниже\n''')
 
   async def handler_pay(self, update: Update, _) -> None:
-    req = requests.get(
-      'http://localhost:3001/check' +
-      '?idUser=' + str(update.message.chat.id)
-      )
-    if req.text == 'empty':
+    user_stat = user_check(update.message.chat.id)
+    if user_stat == 'empty':
       await update.message.reply_text('''*Сначала создайте профиль*\n\nЧтобы начать использовать бота, сделайте @SlonRobot администратором в канале, а затем пришлите сюда ссылку на канал или просто перешлите из него любое сообщение.\nБоту можно не выдавать никаких прав. Данная процедура нужна чтобы подтвердить, что вы являетесь владельцем канала.\nДругие полезные команды:\n/partners — сгенерировать уникальный промокод, чтобы вы могли приглашать других пользователей и получать бонусы\n/help — связь со службой поддержки и ответы на часто задаваемые вопросы''', parse_mode="Markdown")
     else:
       keyboard = [
@@ -182,11 +233,8 @@ class SlonBot():
       await update.message.reply_text('''*Lite*\n• доступ к полному функционалу каталога\n• подключение до 2 каналов к боту\n• создание до 2 оптов в месяц\n• до 10 мест в каждом созданном опте\n• покупка до 10 оптов в месяц\n• статус подтвержденного канала в каталоге\n*Pro*\n• доступ к полному функционалу каталога\n• безлимит на подключение каналов\n• безлимит на создание оптов\n• до 20 мест в каждом созданном опте\n• безлимит на покупку оптов\n• статус подтвержденного канала в каталоге\n*Business*\n• все вышеперечисленные функции\n• до 30 мест в каждом созданном опте\n• доступ к уникальным подборкам в крупнейших и авторских каналах от команды Slon''', reply_markup=reply_markup, parse_mode="Markdown")
 
   async def handler_catalog(self, update: Update, _) -> None:
-    req = requests.get(
-      'http://localhost:3001/check' +
-      '?idUser=' + str(update.message.chat.id)
-      )
-    if req.text == 'empty':
+    user_stat = user_check(update.message.chat.id)
+    if user_stat == 'empty':
       await update.message.reply_text('''*Сначала создайте профиль*\n\nЧтобы начать использовать бота, сделайте @SlonRobot администратором в канале, а затем пришлите сюда ссылку на канал или просто перешлите из него любое сообщение.\nБоту можно не выдавать никаких прав. Данная процедура нужна чтобы подтвердить, что вы являетесь владельцем канала.\nДругие полезные команды:\n/partners — сгенерировать уникальный промокод, чтобы вы могли приглашать других пользователей и получать бонусы\n/help — связь со службой поддержки и ответы на часто задаваемые вопросы''', parse_mode="Markdown")
     else:
       reply_markup = set_catalog()
@@ -265,13 +313,25 @@ class SlonBot():
 
     #!Опт
     elif query_array[0] == 'opt':
-      # req = requests.get(
-      #   'http://localhost:3001/mode-set' +
-      #   '?idUser=' + str(update.message.chat.id) +
-      #   '&mode=' + 'newOpt'
-      # )
-      # await query.answer()
-      await query.message.reply_text('Напишите стандартную(розничную) стоимость размещения: ')
+      if query_array[1] == 'confirm':
+        reply_markup = get_reservation_table()
+        await query.message.reply_text('Хотите выбрать следующие даты:?', reply_markup=reply_markup)
+        return
+      elif query_array[1] == 'save':
+        user_change_message_mod(query.message.chat.id, 'deadline-wholesale-formation')
+        await query.message.reply_text('Укажите крайнюю дату формирования опта в формате [01.07]. По наступлении этой даты, если опт не будет собран, он будет отменен.')
+        return
+      elif query_array[1] == 'time':
+        user_change_message_mod(query.message.chat.id, 'opt-send-details')
+        await query.message.reply_text('Пришлите реквизиты для оплаты одним сообщением:')
+        return
+      elif query_array[1] == 'create':
+        user_change_message_mod(query.message.chat.id, 'standart')
+        await query.message.reply_text('Поздравляем! Опт успешно создан и добавлен в каталог.». В слово «каталог» должна быть вшита ссылка на раздел «зайти в опт')
+        return
+      user_change_message_mod(query.message.chat.id, 'opt-retail-price')
+      await query.message.reply_text('Создаем опт для канала '+ str(query_array[1]) +'. Напишите стандартную(розничную) стоимость размещения: ')
+
 
 
 

@@ -1,6 +1,42 @@
 import requests
 from telegram import InlineKeyboardButton, InlineKeyboardMarkup
 
+data_reservation = ['01.07', '02.07', '03.07', '04.07', '05.07', '06.07', '07.07', '08.07', '09.07', '10.07']
+data_reservation_time = [
+  ['8:10', '13:10', '18:10'],
+  ['9:10', '14:10', '19:10'],
+  ['10:10', '15:10', '20:10'],
+  ['11:10', '16:10', '21:10'],
+  ['12:10', '17:10', '22:10'],
+]
+
+def get_opt_create():
+  keyboard = [[InlineKeyboardButton("Потдвердить", callback_data='opt_create'), InlineKeyboardButton("Изменить", callback_data='test')]]
+  return InlineKeyboardMarkup(keyboard)
+
+def get_reservation_table():
+  keyboard = [[InlineKeyboardButton("Потдвердить", callback_data='opt_save'), InlineKeyboardButton("Изменить", callback_data='test')]]
+  return InlineKeyboardMarkup(keyboard)
+
+def get_reservation_more_table():
+  keyboard = []
+  keyboard.append([InlineKeyboardButton("Дата", callback_data='test'), InlineKeyboardButton("Утро", callback_data='test'), InlineKeyboardButton("День", callback_data='test'), InlineKeyboardButton("Вечер", callback_data='test')])
+  for data in data_reservation:
+    keyboard.append([InlineKeyboardButton(data, callback_data='test'), InlineKeyboardButton(" ", callback_data='test'), InlineKeyboardButton(" ", callback_data='test'), InlineKeyboardButton(" ", callback_data='test')])
+  keyboard.append([InlineKeyboardButton("Больше дат", callback_data='test'), InlineKeyboardButton("Потдвердить", callback_data='opt_confirm')])
+  return InlineKeyboardMarkup(keyboard)
+
+def get_reservation_time_table():
+  keyboard = []
+  keyboard.append([InlineKeyboardButton("Утро", callback_data='test'), InlineKeyboardButton("День", callback_data='test'), InlineKeyboardButton("Вечер", callback_data='test')])
+  for data_row in data_reservation_time:
+    row = []
+    for data in data_row:
+      row.append(InlineKeyboardButton(data, callback_data='test'))
+    keyboard.append(row)
+  keyboard.append([InlineKeyboardButton("Потдвердить", callback_data='opt_time')])
+  return InlineKeyboardMarkup(keyboard)
+
 def get_btns_pay():
   keyboard = [
     [InlineKeyboardButton("Ввести промокод", callback_data='promocode_enter')],
@@ -87,4 +123,21 @@ def set_filters(query, mode_callback):
       [InlineKeyboardButton("Подтвержденные", callback_data='confirm_' + query)],
       [InlineKeyboardButton("Применить", callback_data='apply_' + query)]
     ]
+  return InlineKeyboardMarkup(keyboard)
+
+
+def go_into_opt():
+  keyboard = [
+    [InlineKeyboardButton("Все тематики", callback_data='opt_all')],
+    [InlineKeyboardButton("Образование", callback_data='opt_education')],
+    [InlineKeyboardButton("Финансы", callback_data='opt_finance')],
+    [InlineKeyboardButton("Здоровье", callback_data='opt_health')],
+    [InlineKeyboardButton("Новости", callback_data='opt_news')],
+    [InlineKeyboardButton("IT", callback_data='opt_tech')],
+    [InlineKeyboardButton("Развлечения", callback_data='opt_entertainment')],
+    [InlineKeyboardButton("Психология", callback_data='opt_psychology')],
+    [InlineKeyboardButton("Видосики", callback_data='opt_video')],
+    [InlineKeyboardButton("Авторские", callback_data='opt_author')],
+    [InlineKeyboardButton("Другое", callback_data='opt_other')],
+  ]
   return InlineKeyboardMarkup(keyboard)

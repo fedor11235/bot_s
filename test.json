@@ -75,6 +75,10 @@
 // [Авторские] - blogs
 // [Другое] - sales, other, travels, design
 
+Update(callback_query=CallbackQuery(chat_instance='-8407272759682052912', data='opt_-1001713055963', from_user=User(first_name='Fedor', id=372099197, is_bot=False, language_code='ru', last_name='Avdeev', username='fedor11235b'), id='1598153884768187748', message=Message(channel_chat_created=False, chat=Chat(first_name='Fedor', id=372099197, last_name='Avdeev', type=<ChatType.PRIVATE>, username='fedor11235b'), date=datetime.datetime(2023, 9, 11, 16, 53, 47, tzinfo=<UTC>), delete_chat_photo=False, from_user=User(first_name='Slon', id=6423584132, is_bot=True, username='SlonPostBot'), group_chat_created=False, message_id=816, reply_markup=InlineKeyboardMarkup(inline_keyboard=((InlineKeyboardButton(callback_data='opt_-1001713055963', text='-1001713055963'),),)), supergroup_chat_created=False, text='Выберите канал в котором хотите собрать опт:')), update_id=351020827)
+2023-09-11 23:54:12,825 - telegram.ext._application - ERROR - No error handlers are registered, logging exception.
+Traceback (most recent call last):
+
 
 {
   "status": "ok",
@@ -99,3 +103,18 @@
       "posts_count": 53500,                # Общее количество неудаленных публикаций в канале
   }
 }
+
+режимы сообщений юзера
+standart
+opt-retail-price - опт стоимость размещения розничная
+opt-wholesale-cost - оптстоимость оптовая
+opt-minimum-permissible-value - минимально допустимое значение мест в опте
+opt-maximum-permissible-value - максимальное допустимое значение мест в опт
+opt-available-reservation - доступные для брони слоты
+deadline-wholesale-formation - крайняя дата формирования опта
+opt-send-details - прислать реквизиты
+
+
+опт статусы
+not_confirmed - не подтвержден
+confirmed - подтвержден
