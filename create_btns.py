@@ -55,7 +55,7 @@ def get_user_chanels(chanels_array):
 def get_categories(category_type, start_cut, finish_cut, page):
   categoriesBtns = []
   req = requests.get(
-    'http://localhost:3001/categories' +
+    'http://localhost:3001/chanel/categories' +
     '?category=' + category_type
     )
   categoriesArray =  req.json()
@@ -135,7 +135,7 @@ def go_into_opt():
 def go_chanel_opt(category_type, start_cut, finish_cut, page):
   categoriesBtns = []
   req = requests.get(
-    'http://localhost:3001/categories' +
+    'http://localhost:3001/chanel/categories' +
     '?category=' + category_type
     )
   categoriesArray =  req.json()

@@ -65,7 +65,7 @@ class SlonBot():
     await update.message.reply_text('вы вызвали команду new_slon')
 
   async def handler_partners(self, update: Update, _) -> None:
-    req = requests.get('http://localhost:3001/promocode' + '?id=' + str(update.message.chat.id))
+    req = requests.get('http://localhost:3001/user/promocode' + '?id=' + str(update.message.chat.id))
     await update.message.reply_text(req.text)
 
   async def response_from__message(self, update: Update, context) -> None:
@@ -173,7 +173,7 @@ class SlonBot():
         await update.message.reply_text('''*Вы пока что не добавили ни одного канала. Чтобы его добавить, введите команду /channel или нажмите кнопку ниже.''', reply_markup=reply_markup, parse_mode="Markdown")
       else:
         req = requests.get(
-          'http://localhost:3001/chanel-user' +
+          'http://localhost:3001/chanel/user' +
           '?idUser=' + str(user_id)
           )
         chanels = req.json()
@@ -204,14 +204,14 @@ class SlonBot():
         idChanel = update.message.forward_from_chat.id
         await context.bot.get_chat_member(user_id=6423584132, chat_id=str(idChanel))
         req = requests.get(
-          'http://localhost:3001/create-chanel' +
+          'http://localhost:3001/chanel/create' +
           '?idUser=' + str(user_id) +
           '&idChanel=' + str(idChanel)
         )
       else:
         await context.bot.get_chat_member(user_id=6423584132, chat_id=update.message.text)
         req = requests.get(
-          'http://localhost:3001/create-chanel' +
+          'http://localhost:3001/chanel/create' +
           '?idUser=' + str(user_id) +
           '&idChanel=' + update.message.text
         )
@@ -244,7 +244,7 @@ class SlonBot():
       ]
       reply_markup = ReplyKeyboardMarkup(keyboard)
       req = requests.get(
-        'http://localhost:3001/profile' +
+        'http://localhost:3001/user/profile' +
         '?idUser=' + str(update.message.chat.id)
       )
       profile = req.json()
@@ -333,7 +333,7 @@ class SlonBot():
     elif '@' in query_array[0]:
 
       req = requests.get(
-        'http://localhost:3001/chanel' +
+        'http://localhost:3001/chanel/get' +
         '?username=' + query_array[0]
         )
       
@@ -377,7 +377,7 @@ class SlonBot():
         return
       elif '@' in query_array[1]:
         req = requests.get(
-        'http://localhost:3001/chanel' +
+        'http://localhost:3001/chanel/get' +
         '?username=' + query_array[1]
         )
 
@@ -435,7 +435,7 @@ class SlonBot():
 
     elif query_array[0] == 'watch':
       req = requests.get(
-        'http://localhost:3001/profile' +
+        'http://localhost:3001/user/profile' +
         '?idUser=' + str(user_id)
       )
       profile = req.json()

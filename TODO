@@ -7,3 +7,13 @@ python-telegram-bot
 с результатом. Отправленные креативы также присылаются владельцу. После них
 сообщение: «Рекламные креативы от [юзер]. На [дата(ы)].». Снизу кнопки:
 [Отказаться] и [Подтвердить]. Уведомление также приходит пользователю.
+
+
+/home/ubuntu/bot_s/bot.py
+
+sudo systemctl daemon-reload
+
+sudo systemctl enable bot.service
+sudo systemctl start bot.service
+
+pm2 start bot.py --interpreter=python3
