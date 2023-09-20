@@ -18,3 +18,4 @@ sudo systemctl start bot.service
 
 ssh -i C:\Users\exferd\.ssh\id_rsa ubuntu@212.233.92.135
 pm2 start bot.py --interpreter=python3
+pm2 start dist/main.js --name bytalent-api

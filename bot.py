@@ -183,6 +183,7 @@ class SlonBot():
           '?idUser=' + str(user_id)
           )
         chanels = req.json()
+        print(chanels)
         reply_markup = get_user_chanels(chanels)
         await update.message.reply_text('Выберите канал в котором хотите собрать опт:\n', reply_markup=reply_markup)
       return
