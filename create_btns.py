@@ -94,6 +94,7 @@ def get_btns_pay():
 
 def get_user_chanels(chanels_array):
   keyboard = []
+  print(chanels_array)
   for chanel in chanels_array:
     keyboard.append([InlineKeyboardButton(chanel['idChanel'], callback_data='opt_init_' + chanel['idChanel'])])
   return InlineKeyboardMarkup(keyboard)
