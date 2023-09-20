@@ -2,6 +2,7 @@ import requests
 from datetime import datetime
 from calendar import monthrange
 from telegram import InlineKeyboardButton, InlineKeyboardMarkup
+import sys
 
 data_reservation = ['01.07', '02.07', '03.07', '04.07', '05.07', '06.07', '07.07', '08.07', '09.07', '10.07']
 data_reservation_time = [
@@ -94,7 +95,8 @@ def get_btns_pay():
 
 def get_user_chanels(chanels_array):
   keyboard = []
-  print(chanels_array)
+  sys.stdout.write("Hello")
+  sys.stdout.write(chanels_array)
   for chanel in chanels_array:
     keyboard.append([InlineKeyboardButton(chanel['idChanel'], callback_data='opt_init_' + chanel['idChanel'])])
   return InlineKeyboardMarkup(keyboard)
