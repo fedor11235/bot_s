@@ -1,4 +1,6 @@
 import requests
+from datetime import datetime
+from calendar import monthrange
 from telegram import InlineKeyboardButton, InlineKeyboardMarkup
 
 data_reservation = ['01.07', '02.07', '03.07', '04.07', '05.07', '06.07', '07.07', '08.07', '09.07', '10.07']
@@ -18,12 +20,56 @@ def get_reservation_table():
   keyboard = [[InlineKeyboardButton("Потдвердить", callback_data='opt_save'), InlineKeyboardButton("Изменить", callback_data='test')]]
   return InlineKeyboardMarkup(keyboard)
 
-def get_reservation_more_table():
+
+def check_morning(data, bookeds):
+  result = " "
+  for booked in bookeds:
+    if (data in booked) and ("morning" in booked):
+      result = "✅"
+      break
+  return result
+
+def check_day(data, bookeds):
+  result = " "
+  for booked in bookeds:
+    if (data in booked) and ("day" in booked):
+      result = "✅"
+      break
+  return result
+
+def check_evening(data, bookeds):
+  result = " "
+  for booked in bookeds:
+    if (data in booked) and ("evening" in booked):
+      result = "✅"
+      break
+  return result
+
+def generate_date(offset = 0):
+  dates = []
+  current_datetime = datetime.now()
+  month_now = current_datetime.month
+  month = current_datetime.month
+  day_now = current_datetime.day
+
+  days_in_month = monthrange(current_datetime.year, current_datetime.month)[1]
+
+  for index in range(10):
+    day = day_now + index  + int(offset)
+    if day >= days_in_month:
+      month = month_now + 1
+      day -= days_in_month
+    dates.append(str(month) + '.' + str(day))
+  return dates
+
+def get_reservation_more_table(bookeds=[], offset = 0):
+  dates = generate_date(offset)
   keyboard = []
   keyboard.append([InlineKeyboardButton("Дата", callback_data='test'), InlineKeyboardButton("Утро", callback_data='test'), InlineKeyboardButton("День", callback_data='test'), InlineKeyboardButton("Вечер", callback_data='test')])
-  for data in data_reservation:
-    keyboard.append([InlineKeyboardButton(data, callback_data='test'), InlineKeyboardButton(" ", callback_data='reservation_morning_' + data), InlineKeyboardButton(" ", callback_data='reservation_day_' + data), InlineKeyboardButton(" ", callback_data='reservation_evening_' + data)])
-  keyboard.append([InlineKeyboardButton("Больше дат", callback_data='test'), InlineKeyboardButton("Потдвердить", callback_data='opt_confirm')])
+
+  for index, data in enumerate(dates):
+    keyboard.append([InlineKeyboardButton(data, callback_data='test'), InlineKeyboardButton(check_morning(data, bookeds) , callback_data='reservation_morning/' + data + "_" +str(offset)), InlineKeyboardButton(check_day(data, bookeds), callback_data='reservation_day/' + data + "_" +str(offset)), InlineKeyboardButton(check_evening(data, bookeds), callback_data='reservation_evening/' + data + "_" +str(offset))])
+  keyboard.append([InlineKeyboardButton("Больше дат", callback_data='reservation_more_' + str(offset)), InlineKeyboardButton("Потдвердить", callback_data='opt_confirm')])
   return InlineKeyboardMarkup(keyboard)
 
 def get_reservation_time_table():

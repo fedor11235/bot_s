@@ -44,7 +44,7 @@ class SlonBot():
   def run_bot(self) -> None:
     application = Application.builder().token(self.token).build()
     application.add_handler(CallbackQueryHandler(self.button))
-    # application.add_handler(CommandHandler("test", self.handler_test))
+    application.add_handler(CommandHandler("test", self.handler_test))
     application.add_handler(CommandHandler("start", self.start_button))
     application.add_handler(CommandHandler("partners", self.handler_partners))
     application.add_handler(CommandHandler("profile", self.handler_profile))
@@ -59,6 +59,9 @@ class SlonBot():
     user_stat = user_check(update.message.chat.id)
     if user_stat == 'empty':
       await update.message.reply_text('''*Создайте профиль и добавьте канал*\n\nЧтобы начать использовать бота, сделайте @SlonRobot администратором в канале, а затем пришлите сюда ссылку на канал или просто перешлите из него любое сообщение.\nБоту можно не выдавать никаких прав. Данная процедура нужна чтобы подтвердить, что вы являетесь владельцем канала.\nДругие полезные команды:\n/partners — сгенерировать уникальный промокод, чтобы вы могли приглашать других пользователей и получать бонусы\n/help — связь со службой поддержки и ответы на часто задаваемые вопросы''',
+        parse_mode="Markdown")
+    else:
+      await update.message.reply_text('''\nДругие полезные команды:\n/partners — сгенерировать уникальный промокод, чтобы вы могли приглашать других пользователей и получать бонусы\n/help — связь со службой поддержки и ответы на часто задаваемые вопросы''',
         parse_mode="Markdown")
 
   async def handler_new_slon(self, update: Update, _) -> None:
@@ -129,11 +132,12 @@ class SlonBot():
       await update.message.reply_text('Выберите допустимое время размещений:', reply_markup=reply_markup)
       return
     elif mode == 'opt-send-details':
-      requisites = update.message.text
-      data = {'requisites': requisites}
-      opt = opt_set(user_id, data)
-      reply_markup = get_opt_create()
-      await update.message.reply_text('''
+      try:
+        requisites = update.message.text
+        data = {'requisites': requisites}
+        opt = opt_set(user_id, data)
+        reply_markup = get_opt_create()
+        await update.message.reply_text('''
 Опт от '''+'1.07'+''' в канале *'''+opt['chanel']+'''*
 Розничная цена: '''+ str(opt['retail_price']) + ''' \n
 Оптовая цена: '''+ str(opt['wholesale_cost']) + '''\n
@@ -146,6 +150,8 @@ class SlonBot():
         ,
         reply_markup=reply_markup
       )
+      except:
+        await update.message.reply_text("Упс произошла ошибка")
       return
     
 
@@ -331,21 +337,24 @@ class SlonBot():
       await query.edit_message_text('все каналы', reply_markup=categoriesArray)
     #!Каналы
     elif '@' in query_array[0]:
+      try:
 
-      req = requests.get(
-        'http://localhost:3001/chanel/get' +
-        '?username=' + query_array[0]
-        )
-      
-      chanel =  req.json()
+        req = requests.get(
+          'http://localhost:3001/chanel/get' +
+          '?username=' + query_array[0]
+          )
+        
+        chanel =  req.json()
 
-      keyboard = [
-        [InlineKeyboardButton("<<Назад", callback_data=query_array[1] + '_static_0')]
-      ]
-      reply_markup = InlineKeyboardMarkup(keyboard)
-      reply_text = query_array[0] + '\nПодписчиков: ' + str(chanel['participants_count']) + '\nОхват: ' + str(chanel['avg_post_reach']) + '\nЦена рекламы:' + '?' + '\nРекомендаций: ' + '?' + '\nКонтакт для связи: ' + '?'
+        keyboard = [
+          [InlineKeyboardButton("<<Назад", callback_data=query_array[1] + '_static_0')]
+        ]
+        reply_markup = InlineKeyboardMarkup(keyboard)
+        reply_text = query_array[0] + '\nПодписчиков: ' + str(chanel['participants_count']) + '\nОхват: ' + str(chanel['avg_post_reach']) + '\nЦена рекламы:' + '?' + '\nРекомендаций: ' + '?' + '\nКонтакт для связи: ' + '?'
 
-      await query.edit_message_text(reply_text, reply_markup=reply_markup)
+        await query.edit_message_text(reply_text, reply_markup=reply_markup)
+      except:
+        query.edit_message_text("Упс произошла ошибка")
     #!Опт
     elif query_array[0] == 'opt':
       if query_array[1] == 'confirm':
@@ -376,20 +385,23 @@ class SlonBot():
         await query.message.reply_text('Выберите категорию', reply_markup=reply_markup)
         return
       elif '@' in query_array[1]:
-        req = requests.get(
-        'http://localhost:3001/chanel/get' +
-        '?username=' + query_array[1]
-        )
+        try:
+          req = requests.get(
+          'http://localhost:3001/chanel/get' +
+          '?username=' + query_array[1]
+          )
 
-        chanel =  req.json()
-        keyboard = [
-          [InlineKeyboardButton("<<Назад", callback_data='opt_' + query_array[2] + '_static_0')],
-          [InlineKeyboardButton("Записаться", callback_data='opt_' + 'sign-up_' +query_array[2])]
-        ]
-        reply_markup = InlineKeyboardMarkup(keyboard)
-        reply_text = query_array[1] + '\nОсталось мест: [х/у]' + '\nПодписчиков: ' + str(chanel['participants_count']) + '\nОхват: ' + str(chanel['avg_post_reach']) + '\nЦена рекламы:' + '?' + '\nРекомендаций: ' + '?' + '\nКонтакт для связи: ' + '?'
+          chanel =  req.json()
+          keyboard = [
+            [InlineKeyboardButton("<<Назад", callback_data='opt_' + query_array[2] + '_static_0')],
+            [InlineKeyboardButton("Записаться", callback_data='opt_' + 'sign-up_' +query_array[2])]
+          ]
+          reply_markup = InlineKeyboardMarkup(keyboard)
+          reply_text = query_array[1] + '\nОсталось мест: [х/у]' + '\nПодписчиков: ' + str(chanel['participants_count']) + '\nОхват: ' + str(chanel['avg_post_reach']) + '\nЦена рекламы:' + '?' + '\nРекомендаций: ' + '?' + '\nКонтакт для связи: ' + '?'
 
-        await query.edit_message_text(reply_text, reply_markup=reply_markup)
+          await query.edit_message_text(reply_text, reply_markup=reply_markup)
+        except:
+          await query.edit_message_text("Упс произошла ошибка")
         return
       elif query_array[1] == 'sign-up':
         reply_markup = opt_reservation()
@@ -410,7 +422,10 @@ class SlonBot():
           reply_markup = InlineKeyboardMarkup(keyboard)
           await query.edit_message_text('Поздравляем! Выбранные места успешно забронированы. Пришлите рекламные креативы сюда или напрямую владельцу [юзер владельца].')
           return
-        elif query_array[2] == 'data':
+        elif query_array[1] == 'morning' or query_array[2] == 'day' or query_array[2] == 'evening':
+          # print(query_array[3])
+          # reply_markup = get_reservation_more_table()
+          # await update.message.reply_text('Выберите доступные для брони слоты:', reply_markup=reply_markup)
           return
         keyboard = [
           [InlineKeyboardButton("<<Назад", callback_data='opt_reservation_back')],
@@ -426,8 +441,31 @@ class SlonBot():
         await query.message.reply_text('Создаем опт для канала '+ str(query_array[2]) +'. Напишите стандартную(розничную) стоимость размещения: ')
 
     elif query_array[0] == 'reservation':
-      data = {'booking_date': query_array[1] + ' ' + query_array[2]}
-      opt_set(user_id, data)
+      booking_date_old = ''
+      opt_old = opt_get(user_id)
+      offset = 0
+      if query_array[1] == 'more':
+        offset_old = int(query_array[2])
+        if offset_old < 20:
+          offset = offset_old + 10
+        else:
+          offset = offset_old
+      else:
+        offset = query_array[2]
+      if opt_old != None:
+        if isinstance(opt_old['booking_date'], str):
+          booking_date_old += '_' + opt_old['booking_date']
+
+      data = {'booking_date': booking_date_old + '_' + query_array[1]}
+      opt = opt_set(user_id, data)
+      # opt = opt_get(user_id)
+      bookeds = []
+      if opt != None:
+        if isinstance(opt['booking_date'], str):
+          bookeds = opt['booking_date'].split('_')
+      
+      reply_markup = get_reservation_more_table(bookeds, offset)
+      await query.edit_message_text('Выберите доступные для брони слоты:', reply_markup=reply_markup)
 
     elif query_array[0] == 'time':
       data = {'placement_time': query_array[1]}
@@ -465,17 +503,12 @@ class SlonBot():
 
 
 
-  # async def handler_test(self, update: Update, _) -> None:
-  #   req = requests.get(
-  #     'https://api.tgstat.ru/channels/search' +
-  #     '?token=' + '746c997297440937501f953ec01c985f' +
-  #     '&category=' + 'art' +
-  #     '&limit=' + '5' +
-  #     '&country=' + 'ru'
-  #     )
+  async def handler_test(self, update: Update, _) -> None:
+    from datetime import datetime
 
-  #   topJson = req.json()
-  #   await update.message.reply_text(topJson["response"])
+    current_datetime = datetime.now()
+    date = str(current_datetime.month) + '.' + str(current_datetime.day)
+    await update.message.reply_text(date)
 
 def main() -> None:
   load_dotenv()

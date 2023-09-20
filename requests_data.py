@@ -20,7 +20,7 @@ def user_get_message_mod(id):
     'http://localhost:3001/mode/get' +
     '?idUser=' + str(id) 
   )
-  return req.text
+  return req.json()
 
 # opt
 def opt_create(id, chanel):
@@ -44,7 +44,6 @@ def opt_set(id, data):
 def opt_get(id):
   req = requests.get(
     'http://localhost:3001/opt/get' +
-    '&idUser=' + str(id)
+    '?idUser=' + str(id)
   )
-  print('opt_get', req.json())
   return req.json()
