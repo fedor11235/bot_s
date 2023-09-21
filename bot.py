@@ -50,6 +50,9 @@ class SlonBot():
     application.add_handler(CommandHandler("profile", self.handler_profile))
     application.add_handler(CommandHandler("help", self.handler_help))
     application.add_handler(CommandHandler("channel", self.handler_channel))
+    application.add_handler(CommandHandler("newopt", self.handler_newopt))
+    application.add_handler(CommandHandler("getopt", self.handler_getopt))
+    application.add_handler(CommandHandler("busines", self.handler_busines))
     application.add_handler(CommandHandler("pay", self.handler_pay))
     application.add_handler(CommandHandler("catalog", self.handler_catalog))
     application.add_handler(MessageHandler(filters.TEXT & ~filters.COMMAND, self.response_from__message))
@@ -57,19 +60,66 @@ class SlonBot():
 
   async def start_button(self, update: Update, _) -> None:
     user_stat = user_check(update.message.chat.id)
+    keyboard = [
+      [KeyboardButton("Каталог")],
+      [KeyboardButton("Создать опт"), KeyboardButton("Зайти в опт")],
+      [KeyboardButton("Подборки"), KeyboardButton("Профиль")],
+    ]
+    reply_markup = ReplyKeyboardMarkup(keyboard)
     if user_stat == 'empty':
       await update.message.reply_text('''*Создайте профиль и добавьте канал*\n\nЧтобы начать использовать бота, сделайте @SlonRobot администратором в канале, а затем пришлите сюда ссылку на канал или просто перешлите из него любое сообщение.\nБоту можно не выдавать никаких прав. Данная процедура нужна чтобы подтвердить, что вы являетесь владельцем канала.\nДругие полезные команды:\n/partners — сгенерировать уникальный промокод, чтобы вы могли приглашать других пользователей и получать бонусы\n/help — связь со службой поддержки и ответы на часто задаваемые вопросы''',
-        parse_mode="Markdown")
+        reply_markup=reply_markup, parse_mode="Markdown")
     else:
-      await update.message.reply_text('''\nДругие полезные команды:\n/partners — сгенерировать уникальный промокод, чтобы вы могли приглашать других пользователей и получать бонусы\n/help — связь со службой поддержки и ответы на часто задаваемые вопросы''',
-        parse_mode="Markdown")
+      await update.message.reply_text('''\nДругие полезные команды:\n/partners — сгенерировать уникальный промокод, чтобы вы могли приглашать других пользователей и получать бонусы\n/help — связь со службой поддержки и ответы на часто задаваемые вопросы''', 
+        reply_markup=reply_markup, parse_mode="Markdown")
 
   async def handler_new_slon(self, update: Update, _) -> None:
     await update.message.reply_text('вы вызвали команду new_slon')
 
   async def handler_partners(self, update: Update, _) -> None:
-    req = requests.get('http://localhost:3001/user/promocode' + '?id=' + str(update.message.chat.id))
-    await update.message.reply_text(req.text)
+    user_stat = user_check(update.message.chat.id)
+    if user_stat == 'empty':
+      await update.message.reply_text('''Сначала зарегистрируетесь''', parse_mode="Markdown")
+    else:
+      req = requests.get('http://localhost:3001/user/promocode' + '?idUser=' + str(update.message.chat.id))
+      await update.message.reply_text(req.json())
+
+  async def handler_busines(self, update: Update, _) -> None:
+    user_stat = user_check(update.message.chat.id)
+    if user_stat == 'empty':
+      await update.message.reply_text('''*Сначала создайте профиль*\n\nЧтобы начать использовать бота, сделайте @SlonRobot администратором в канале, а затем пришлите сюда ссылку на канал или просто перешлите из него любое сообщение.\nБоту можно не выдавать никаких прав. Данная процедура нужна чтобы подтвердить, что вы являетесь владельцем канала.\nДругие полезные команды:\n/partners — сгенерировать уникальный промокод, чтобы вы могли приглашать других пользователей и получать бонусы\n/help — связь со службой поддержки и ответы на часто задаваемые вопросы''', parse_mode="Markdown")
+    else:
+      keyboard = [
+        [InlineKeyboardButton("<<Назад", callback_data='testtest'), InlineKeyboardButton("Смотреть предложения", callback_data='watch')]
+      ]
+      reply_markup = InlineKeyboardMarkup(keyboard)
+      await update.message.reply_text('*Slon Business* «— это инструмент автоматической масштабной закупки рекламы в топовых telegram-каналах по уникальным ценам.', reply_markup=reply_markup, parse_mode="Markdown")
+
+  async def handler_newopt(self, update: Update, _) -> None:
+    user_stat = user_check(update.message.chat.id)
+    if user_stat == 'empty':
+      keyboard = [
+        [InlineKeyboardButton("Добавить канал", callback_data='chanelAdd')],
+      ]
+      reply_markup =  InlineKeyboardMarkup(keyboard)
+      await update.message.reply_text('''*Вы пока что не добавили ни одного канала. Чтобы его добавить, введите команду /channel или нажмите кнопку ниже.''', reply_markup=reply_markup, parse_mode="Markdown")
+    else:
+      req = requests.get(
+        'http://localhost:3001/chanel/user' +
+        '?idUser=' + str(update.message.chat.id)
+        )
+      chanels = req.json()
+      reply_markup = get_user_chanels(chanels)
+      await update.message.reply_text('Выберите канал в котором хотите собрать опт:\n', reply_markup=reply_markup)
+    return
+
+  async def handler_getopt(self, update: Update, _) -> None:
+    user_stat = user_check(update.message.chat.id)
+    if user_stat == 'empty':
+      await update.message.reply_text('''*Сначала создайте профиль*\n\nЧтобы начать использовать бота, сделайте @SlonRobot администратором в канале, а затем пришлите сюда ссылку на канал или просто перешлите из него любое сообщение.\nБоту можно не выдавать никаких прав. Данная процедура нужна чтобы подтвердить, что вы являетесь владельцем канала.\nДругие полезные команды:\n/partners — сгенерировать уникальный промокод, чтобы вы могли приглашать других пользователей и получать бонусы\n/help — связь со службой поддержки и ответы на часто задаваемые вопросы''', parse_mode="Markdown")
+    else:
+      reply_markup = go_into_opt()
+      await update.message.reply_text('Зайти в опт', reply_markup=reply_markup)
 
   async def response_from__message(self, update: Update, context) -> None:
     user_id = update.message.chat.id
@@ -183,7 +233,6 @@ class SlonBot():
           '?idUser=' + str(user_id)
           )
         chanels = req.json()
-        print(chanels)
         reply_markup = get_user_chanels(chanels)
         await update.message.reply_text('Выберите канал в котором хотите собрать опт:\n', reply_markup=reply_markup)
       return
@@ -244,18 +293,12 @@ class SlonBot():
     if user_stat == 'empty':
       await update.message.reply_text('''*Сначала создайте профиль*\n\nЧтобы начать использовать бота, сделайте @SlonRobot администратором в канале, а затем пришлите сюда ссылку на канал или просто перешлите из него любое сообщение.\nБоту можно не выдавать никаких прав. Данная процедура нужна чтобы подтвердить, что вы являетесь владельцем канала.\nДругие полезные команды:\n/partners — сгенерировать уникальный промокод, чтобы вы могли приглашать других пользователей и получать бонусы\n/help — связь со службой поддержки и ответы на часто задаваемые вопросы''', parse_mode="Markdown")
     else:
-      keyboard = [
-        [KeyboardButton("Каталог")],
-        [KeyboardButton("Создать опт"), KeyboardButton("Зайти в опт")],
-        [KeyboardButton("Подборки"), KeyboardButton("Профиль")],
-      ]
-      reply_markup = ReplyKeyboardMarkup(keyboard)
       req = requests.get(
         'http://localhost:3001/user/profile' +
         '?idUser=' + str(update.message.chat.id)
       )
       profile = req.json()
-      await update.message.reply_text("*Здесь собирается информация, показывающая насколько вы Slon.*\nПодписка " + profile['tariffPlan'] + " действует до: "+ profile['subscriptionEndDate'] +"\nВаши каналы: " + str(profile['channels']) + "\nСоздано оптов: " + str(profile['createdOpt']) + " на сумму " + str(profile['totalSavings']) + "\nКуплено оптов: " + str(profile['byOpt']) + " на сумму " + str(profile['totalEarned']) + "\nВсего сэкономлено:  "+ str(profile['totalEarned']) + "\nПриглашено пользователей: "+ str(profile['totalEarned']) + "\nВсего заработано: "+ str(profile['totalEarned'] )+ "", reply_markup=reply_markup, parse_mode="Markdown")
+      await update.message.reply_text("*Здесь собирается информация, показывающая насколько вы Slon.*\nПодписка " + profile['tariffPlan'] + " действует до: "+ profile['subscriptionEndDate'] +"\nВаши каналы: " + str(profile['channels']) + "\nСоздано оптов: " + str(profile['createdOpt']) + " на сумму " + str(profile['totalSavings']) + "\nКуплено оптов: " + str(profile['byOpt']) + " на сумму " + str(profile['totalEarned']) + "\nВсего сэкономлено:  "+ str(profile['totalEarned']) + "\nПриглашено пользователей: "+ str(profile['totalEarned']) + "\nВсего заработано: "+ str(profile['totalEarned'] )+ "", parse_mode="Markdown")
   
   async def handler_help(self, update: Update, _) -> None:
     await update.message.reply_text('''*Возникли вопросы?*\nМы всегда готовы помочь вам с любые задачи и решение всех интересующих вопросов.\nПросто напишите нам: @slon_feedback''')
@@ -455,7 +498,7 @@ class SlonBot():
         offset = query_array[2]
       if opt_old != None:
         if isinstance(opt_old['booking_date'], str):
-          booking_date_old += '_' + opt_old['booking_date']
+          booking_date_old += opt_old['booking_date']
 
       data = {'booking_date': booking_date_old + '_' + query_array[1]}
       opt = opt_set(user_id, data)
@@ -469,8 +512,19 @@ class SlonBot():
       await query.edit_message_text('Выберите доступные для брони слоты:', reply_markup=reply_markup)
 
     elif query_array[0] == 'time':
-      data = {'placement_time': query_array[1]}
-      opt_set(user_id, data)
+      placement_time_old = ""
+      opt_old = opt_get(user_id)
+      if opt_old != None:
+        if isinstance(opt_old['placement_time'], str):
+          placement_time_old += opt_old['placement_time']
+
+      data = {'placement_time': placement_time_old + '_' + query_array[1]}
+      opt = opt_set(user_id, data)
+
+      bookeds = opt['placement_time'].split('_')
+
+      reply_markup = get_reservation_time_table(bookeds)
+      await query.edit_message_text('Выберите допустимое время размещений:', reply_markup=reply_markup)
 
     elif query_array[0] == 'watch':
       req = requests.get(

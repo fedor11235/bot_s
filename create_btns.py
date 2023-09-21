@@ -2,7 +2,6 @@ import requests
 from datetime import datetime
 from calendar import monthrange
 from telegram import InlineKeyboardButton, InlineKeyboardMarkup
-import sys
 
 data_reservation = ['01.07', '02.07', '03.07', '04.07', '05.07', '06.07', '07.07', '08.07', '09.07', '10.07']
 data_reservation_time = [
@@ -68,17 +67,19 @@ def get_reservation_more_table(bookeds=[], offset = 0):
   keyboard = []
   keyboard.append([InlineKeyboardButton("Дата", callback_data='test'), InlineKeyboardButton("Утро", callback_data='test'), InlineKeyboardButton("День", callback_data='test'), InlineKeyboardButton("Вечер", callback_data='test')])
 
-  for index, data in enumerate(dates):
+  for data in dates:
     keyboard.append([InlineKeyboardButton(data, callback_data='test'), InlineKeyboardButton(check_morning(data, bookeds) , callback_data='reservation_morning/' + data + "_" +str(offset)), InlineKeyboardButton(check_day(data, bookeds), callback_data='reservation_day/' + data + "_" +str(offset)), InlineKeyboardButton(check_evening(data, bookeds), callback_data='reservation_evening/' + data + "_" +str(offset))])
   keyboard.append([InlineKeyboardButton("Больше дат", callback_data='reservation_more_' + str(offset)), InlineKeyboardButton("Потдвердить", callback_data='opt_confirm')])
   return InlineKeyboardMarkup(keyboard)
 
-def get_reservation_time_table():
+def get_reservation_time_table(bookeds=[]):
   keyboard = []
   keyboard.append([InlineKeyboardButton("Утро", callback_data='test'), InlineKeyboardButton("День", callback_data='test'), InlineKeyboardButton("Вечер", callback_data='test')])
   for data_row in data_reservation_time:
     row = []
     for data in data_row:
+      if data in bookeds:
+        data = "✅ " + data
       row.append(InlineKeyboardButton(data, callback_data='time_' + data))
     keyboard.append(row)
   keyboard.append([InlineKeyboardButton("Потдвердить", callback_data='opt_time')])
@@ -95,8 +96,6 @@ def get_btns_pay():
 
 def get_user_chanels(chanels_array):
   keyboard = []
-  sys.stdout.write("Hello")
-  # sys.stdout.write(chanels_array)
   for chanel in chanels_array:
     keyboard.append([InlineKeyboardButton(chanel['idChanel'], callback_data='opt_init_' + chanel['idChanel'])])
   return InlineKeyboardMarkup(keyboard)
@@ -132,7 +131,6 @@ def query_parse(name, query):
   return name + '_' + query
 
 def set_filters(query, mode_callback):
-  print('query', query)
   keyboard = []
   if mode_callback:
     keyboard = [
