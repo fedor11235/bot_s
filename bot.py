@@ -69,10 +69,11 @@ class SlonBot():
     ]
     reply_markup = ReplyKeyboardMarkup(keyboard)
     if user_stat == 'empty':
+      user_change_message_mod(update.message.chat.id, 'chanel')
       await update.message.reply_text('''*Создайте профиль и добавьте канал*\n\nЧтобы начать использовать бота, сделайте @SlonRobot администратором в канале, а затем пришлите сюда ссылку на канал или просто перешлите из него любое сообщение.\nБоту можно не выдавать никаких прав. Данная процедура нужна чтобы подтвердить, что вы являетесь владельцем канала.\nДругие полезные команды:\n/partners — сгенерировать уникальный промокод, чтобы вы могли приглашать других пользователей и получать бонусы\n/help — связь со службой поддержки и ответы на часто задаваемые вопросы''',
         reply_markup=reply_markup, parse_mode="Markdown")
     else:
-      await update.message.reply_text('''\nДругие полезные команды:\n/partners — сгенерировать уникальный промокод, чтобы вы могли приглашать других пользователей и получать бонусы\n/help — связь со службой поддержки и ответы на часто задаваемые вопросы''', 
+      await update.message.reply_text('''\nВоспользуйтесь кнопками ниже или основным меню для работы с ботом:''', 
         reply_markup=reply_markup, parse_mode="Markdown")
 
   async def handler_new_slon(self, update: Update, _) -> None:
@@ -205,14 +206,7 @@ class SlonBot():
       except:
         await update.message.reply_text("Упс произошла ошибка")
       return
-    
-
-
-
-
-
-
-
+    #кнопки на клавиатуре
     if update.message.text == 'Каталог':
       user_stat = user_check(user_id)
       if user_stat == 'empty':
@@ -257,30 +251,45 @@ class SlonBot():
         reply_markup = InlineKeyboardMarkup(keyboard)
         await update.message.reply_text('*Slon Business* «— это инструмент автоматической масштабной закупки рекламы в топовых telegram-каналах по уникальным ценам.', reply_markup=reply_markup, parse_mode="Markdown")
       return
-    try:
-      if update.message.forward_from_chat:
-        idChanel = update.message.forward_from_chat.id
-        await context.bot.get_chat_member(user_id=6423584132, chat_id=str(idChanel))
-        req = requests.get(
-          'http://localhost:3001/chanel/create' +
-          '?idUser=' + str(user_id) +
-          '&idChanel=' + str(idChanel)
-        )
-      else:
-        await context.bot.get_chat_member(user_id=6423584132, chat_id=update.message.text)
-        req = requests.get(
-          'http://localhost:3001/chanel/create' +
-          '?idUser=' + str(user_id) +
-          '&idChanel=' + update.message.text
-        )
-      if req.text == 'exist':
-        await update.message.reply_text('Ваш канал уже зарегистрирован')
-      elif req.text == 'created':
-        await update.message.reply_text('Ваш канал успешно зарегистрирован')
-        await update.message.reply_text('''*Создайте профиль и добавьте канал*\n\nТеперь зайдите в профиль, для этого отправьте команду /profile\nДругие полезные команды:\n/partners — сгенерировать уникальный промокод, чтобы вы могли приглашать других пользователей и получать бонусы\n/help — связь со службой поддержки и ответы на часто задаваемые вопросы''',
-        parse_mode="Markdown")
-    except:
-      await update.message.reply_text('Не верные введенные данные, либо вы не добавили бота в канал')
+    #добавление канала
+    elif mode == 'chanel':
+      try:
+        if update.message.forward_from_chat:
+          idChanel = update.message.forward_from_chat.id
+          await context.bot.get_chat_member(user_id=6423584132, chat_id=str(idChanel))
+          req = requests.get(
+            'http://localhost:3001/chanel/create' +
+            '?idUser=' + str(user_id) +
+            '&idChanel=' + str(idChanel)
+          )
+          status = req.json()
+          user_change_message_mod(update.message.chat.id, 'standart')
+          if status == 'exist':
+            await update.message.reply_text('Такой канал уже добавлен')
+            return
+          elif status == 'created':
+            await update.message.reply_text('Ваш канал успешно зарегистрирован')
+            return
+        else:
+          await context.bot.get_chat_member(user_id=6423584132, chat_id=update.message.text)
+          req = requests.get(
+            'http://localhost:3001/chanel/create' +
+            '?idUser=' + str(user_id) +
+            '&idChanel=' + update.message.text
+          )
+          status = req.json()
+        user_change_message_mod(update.message.chat.id, 'standart')
+        if status == 'exist':
+          await update.message.reply_text('Такой канал уже добавлен')
+          return
+        elif status == 'created':
+          await update.message.reply_text('Ваш канал успешно зарегистрирован')
+          return
+
+      except:
+        user_change_message_mod(update.message.chat.id, 'standart')
+        await update.message.reply_text('Не верные введенные данные, либо вы не добавили бота в канал')
+        return
 
 
 
@@ -310,6 +319,7 @@ class SlonBot():
     if user_stat == 'empty':
       await update.message.reply_text('''*Сначала создайте профиль*\n\nЧтобы начать использовать бота, сделайте @SlonRobot администратором в канале, а затем пришлите сюда ссылку на канал или просто перешлите из него любое сообщение.\nБоту можно не выдавать никаких прав. Данная процедура нужна чтобы подтвердить, что вы являетесь владельцем канала.\nДругие полезные команды:\n/partners — сгенерировать уникальный промокод, чтобы вы могли приглашать других пользователей и получать бонусы\n/help — связь со службой поддержки и ответы на часто задаваемые вопросы''', parse_mode="Markdown")
     else:
+      user_change_message_mod(update.message.chat.id, 'chanel')
       await update.message.reply_text('''Чтобы добавить канал введите в поле ниже\n''')
 
   async def handler_pay(self, update: Update, _) -> None:
@@ -378,7 +388,6 @@ class SlonBot():
       )
       user = req.json()
       filter = parse_filter(user['filter'])
-      print(filter)
       reply_markup =  set_filters(query_array[1], filter)
       await query.edit_message_text('Фильтры', reply_markup=reply_markup)
     elif query_array[0] in filters_type:

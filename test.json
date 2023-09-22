@@ -106,6 +106,7 @@ Traceback (most recent call last):
 
 режимы сообщений юзера
 standart
+chanel
 opt-retail-price - опт стоимость размещения розничная
 opt-wholesale-cost - оптстоимость оптовая
 opt-minimum-permissible-value - минимально допустимое значение мест в опте
