@@ -100,15 +100,17 @@ def get_user_chanels(chanels_array):
     keyboard.append([InlineKeyboardButton(chanel['idChanel'], callback_data='opt_init_' + chanel['idChanel'])])
   return InlineKeyboardMarkup(keyboard)
 
-def get_categories(category_type, start_cut, finish_cut, page):
+def get_categories(category_type, start_cut, finish_cut, page, idUser, filter=""):
   categoriesBtns = []
   req = requests.get(
     'http://localhost:3001/chanel/categories' +
-    '?category=' + category_type
+    '?category=' + category_type +
+    '&filter=' + filter +
+    '&idUser=' + str(idUser)
     )
   categoriesArray =  req.json()
   if len(categoriesArray) != 0:
-    categoriesBtns = parse_categories(categoriesArray[start_cut:finish_cut], category_type, page)
+    categoriesBtns = parse_categories(categoriesArray[start_cut-1:finish_cut], category_type, page)
   return categoriesBtns
 
 def set_catalog():
@@ -128,38 +130,49 @@ def set_catalog():
   return InlineKeyboardMarkup(keyboard)
 
 def query_parse(name, query):
+  # return name + '_' + query
   return name + '_' + query
 
-def set_filters(query, mode_callback):
+def check_filter(name, query):
+  if(name in query):
+    return " ✅"
+  return ""
+
+def set_filters(query, check=""):
   keyboard = []
-  if mode_callback:
-    keyboard = [
-      [InlineKeyboardButton("Фильтры", callback_data=query + '_static_0')],
-      [InlineKeyboardButton("Рейтинг", callback_data=query_parse('rating', query))],
-      [InlineKeyboardButton("Охват", callback_data=query_parse('coverage', query))],
-      [InlineKeyboardButton("Кол-во подписчиков", callback_data=query_parse('numberSubscribers', query))],
-      [InlineKeyboardButton("Прирост за месяц", callback_data=query_parse('growthMonth', query))],
-      [InlineKeyboardButton("Прирост за неделю", callback_data=query_parse('growthWeek', query))],
-      [InlineKeyboardButton("Прирост за день", callback_data=query_parse('growthDay', query))],
-      [InlineKeyboardButton("Сначала новые", callback_data=query_parse('new', query))],
-      [InlineKeyboardButton("Сначала старые", callback_data=query_parse('old', query))],
-      [InlineKeyboardButton("Подтвержденные", callback_data=query_parse('confirm', query))],
-      [InlineKeyboardButton("Применить", callback_data=query_parse('apply', query))]
-    ]
-  else:
-    keyboard = [
-      [InlineKeyboardButton("Фильтры", callback_data='static_0')],
-      [InlineKeyboardButton("Рейтинг", callback_data='rating_' + query)],
-      [InlineKeyboardButton("Охват", callback_data='coverage_' + query)],
-      [InlineKeyboardButton("Кол-во подписчиков", callback_data='numberSubscribers_' + query)],
-      [InlineKeyboardButton("Прирост за месяц", callback_data='growthMonth_' + query)],
-      [InlineKeyboardButton("Прирост за неделю", callback_data='growthWeek_' + query)],
-      [InlineKeyboardButton("Прирост за день", callback_data='growthDay_' + query)],
-      [InlineKeyboardButton("Сначала новые", callback_data='new_' + query)],
-      [InlineKeyboardButton("Сначала старые", callback_data='old_' + query)],
-      [InlineKeyboardButton("Подтвержденные", callback_data='confirm_' + query)],
-      [InlineKeyboardButton("Применить", callback_data='apply_' + query)]
-    ]
+  # if mode_callback:
+  keyboard = [
+    [InlineKeyboardButton("Фильтры", callback_data=query + '_static_0')],
+    [InlineKeyboardButton("Количество подписчиков"+ check_filter('numberSubscribers', check), callback_data=query_parse('numberSubscribers', query))],
+    [InlineKeyboardButton("Индекс цитирования"+ check_filter('indexSay', check), callback_data=query_parse('indexSay', query))],
+    [InlineKeyboardButton("Сумарный дневной охват"+ check_filter('coverageDay', check), callback_data=query_parse('coverageDay', query))],
+    [InlineKeyboardButton("Средний охват публикаций"+ check_filter('coveragePub', check), callback_data=query_parse('coveragePub', query))],
+    [InlineKeyboardButton("Количнсвто репостов в другие каналы"+ check_filter('repost', check), callback_data=query_parse('repost', query))],
+    # [InlineKeyboardButton("Рейтинг"+ check_filter('rating', check), callback_data=query_parse('rating', query))],
+    # [InlineKeyboardButton("Охват"+ check_filter('coverage', check), callback_data=query_parse('coverage', query))],
+    # [InlineKeyboardButton("Кол-во подписчиков"+ check_filter('numberSubscribers', check), callback_data=query_parse('numberSubscribers', query))],
+    # [InlineKeyboardButton("Прирост за месяц"+ check_filter('growthMonth', check), callback_data=query_parse('growthMonth', query))],
+    # [InlineKeyboardButton("Прирост за неделю"+ check_filter('growthWeek', check), callback_data=query_parse('growthWeek', query))],
+    # [InlineKeyboardButton("Прирост за день"+ check_filter('growthDay', check), callback_data=query_parse('growthDay', query))],
+    # [InlineKeyboardButton("Сначала новые"+ check_filter('new', check), callback_data=query_parse('new', query))],
+    # [InlineKeyboardButton("Сначала старые"+ check_filter('old', check), callback_data=query_parse('old', query))],
+    # [InlineKeyboardButton("Подтвержденные"+ check_filter('confirm', check), callback_data=query_parse('confirm', query))],
+    [InlineKeyboardButton("Применить", callback_data='apply' + "_" + query + "_"+ check)]
+  ]
+  # else:
+  #   keyboard = [
+  #     [InlineKeyboardButton("Фильтры", callback_data='static_0')],
+  #     [InlineKeyboardButton("Рейтинг", callback_data='rating_' + query)],
+  #     [InlineKeyboardButton("Охват", callback_data='coverage_' + query)],
+  #     [InlineKeyboardButton("Кол-во подписчиков", callback_data='numberSubscribers_' + query)],
+  #     [InlineKeyboardButton("Прирост за месяц", callback_data='growthMonth_' + query)],
+  #     [InlineKeyboardButton("Прирост за неделю", callback_data='growthWeek_' + query)],
+  #     [InlineKeyboardButton("Прирост за день", callback_data='growthDay_' + query)],
+  #     [InlineKeyboardButton("Сначала новые", callback_data='new_' + query)],
+  #     [InlineKeyboardButton("Сначала старые", callback_data='old_' + query)],
+  #     [InlineKeyboardButton("Подтвержденные", callback_data='confirm_' + query)],
+  #     [InlineKeyboardButton("Применить", callback_data='apply_' + query)]
+  #   ]
   return InlineKeyboardMarkup(keyboard)
 
 
@@ -192,7 +205,7 @@ def go_chanel_opt(category_type, start_cut, finish_cut, page):
 
 def parse_categories_opt(categoriesArray, category_type, page):
   if len(categoriesArray) == 0:
-    return 'каналов по запросу нет'
+    return False
   arrayBtns = [[InlineKeyboardButton('Фильтры', callback_data='filters_' + category_type +'_'+ str(page))]]
   for category in categoriesArray:
     arrayBtns.append([InlineKeyboardButton(category['username'] + ' ' + str(category['participants_count']), callback_data='opt_' + category['username'] + '_' + category_type)])
@@ -201,7 +214,7 @@ def parse_categories_opt(categoriesArray, category_type, page):
 
 def parse_categories(categoriesArray, category_type, page):
   if len(categoriesArray) == 0:
-    return 'каналов по запросу нет'
+    return False
   arrayBtns = [[InlineKeyboardButton('Фильтры', callback_data='filters_' + category_type +'_'+ str(page))]]
   for category in categoriesArray:
     arrayBtns.append([InlineKeyboardButton(category['username'] + ' ' + str(category['participants_count']), callback_data=category['username'] + '_' + category_type)])

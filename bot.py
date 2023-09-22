@@ -12,6 +12,7 @@ from requests_data import (
   opt_create,
   opt_set,
   opt_get,
+  parse_filter,
 )
 
 from create_btns import (
@@ -35,6 +36,7 @@ logging.basicConfig(
 logger = logging.getLogger(__name__)
 
 filters_type = ['rating', 'coverage', 'numberSubscribers', 'growthMonth', 'growthWeek', 'new', 'old', 'confirm']
+filters_type = ['repost', 'numberSubscribers', 'coveragePub', 'coverageDay', 'indexSay']
 category_type = ['all', 'education', 'finance', 'health', 'news', 'tech', 'entertainment', 'psychology', 'video', 'author', 'other']
 
 class SlonBot():
@@ -363,21 +365,27 @@ class SlonBot():
         start_cut = ((page - 2) * 10) + 1
         finish_cut = (page - 1) * 10
         page = page - 1
-      categoriesArray = get_categories(query_array[0], start_cut, finish_cut, page)
+      categoriesArray = get_categories(query_array[0], start_cut, finish_cut, page, user_id)
       try:
         await query.edit_message_text('все каналы', reply_markup=categoriesArray)
       except:
-        await query.edit_message_text('нет каналов такой категории')
+        await query.answer()
     #!ФИЛЬТРЫ
     elif query_array[0] == 'filters':
-      reply_markup =  set_filters(query_array[1], False)
+      req = requests.get(
+        'http://localhost:3001/user/profile' +
+        '?idUser=' + str(user_id)
+      )
+      user = req.json()
+      filter = parse_filter(user['filter'])
+      print(filter)
+      reply_markup =  set_filters(query_array[1], filter)
       await query.edit_message_text('Фильтры', reply_markup=reply_markup)
     elif query_array[0] in filters_type:
-      reply_markup =  set_filters(query.data, True)
+      reply_markup =  set_filters(query_array[1], query_array[0])
       await query.edit_message_text('Фильтры', reply_markup=reply_markup)
     elif query_array[0] == 'apply':
-      categoriesArray = get_categories(query_array[-1], 1, 10, 0)
-      #TODO тут вставить запрос на сохранение фильтров
+      categoriesArray = get_categories(query_array[1], 1, 10, 1, user_id, filter=query_array[2])
       await query.edit_message_text('все каналы', reply_markup=categoriesArray)
     #!Каналы
     elif '@' in query_array[0]:
@@ -398,7 +406,7 @@ class SlonBot():
 
         await query.edit_message_text(reply_text, reply_markup=reply_markup)
       except:
-        query.edit_message_text("Упс произошла ошибка")
+        await query.edit_message_text("Упс произошла ошибка")
     #!Опт
     elif query_array[0] == 'opt':
       if query_array[1] == 'confirm':

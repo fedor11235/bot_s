@@ -1,5 +1,18 @@
 import requests
 
+def parse_filter(name):
+  if name == 'forwards_count':
+    return 'repost'
+  elif name == 'participants_count':
+    return 'numberSubscribers'
+  elif name == 'avg_post_reach':
+    return 'coveragePub'
+  elif name == 'daily_reach':
+    return 'coverageDay'
+  elif name == 'ci_index':
+    return 'indexSay'
+  
+
 # user
 def user_check(id):
   req = requests.get(
