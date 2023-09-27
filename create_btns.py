@@ -2,6 +2,7 @@ import requests
 from datetime import datetime
 from calendar import monthrange
 from telegram import InlineKeyboardButton, InlineKeyboardMarkup
+from requests_data import recommendations_get
 
 data_reservation = ['01.07', '02.07', '03.07', '04.07', '05.07', '06.07', '07.07', '08.07', '09.07', '10.07']
 data_reservation_time = [
@@ -140,7 +141,6 @@ def check_filter(name, query):
 
 def set_filters(query, check=""):
   keyboard = []
-  # if mode_callback:
   keyboard = [
     [InlineKeyboardButton("Фильтры", callback_data=query + '_static_0')],
     [InlineKeyboardButton("Количество подписчиков"+ check_filter('numberSubscribers', check), callback_data=query_parse('numberSubscribers', query))],
@@ -159,22 +159,37 @@ def set_filters(query, check=""):
     # [InlineKeyboardButton("Подтвержденные"+ check_filter('confirm', check), callback_data=query_parse('confirm', query))],
     [InlineKeyboardButton("Применить", callback_data='apply' + "_" + query + "_"+ check)]
   ]
-  # else:
-  #   keyboard = [
-  #     [InlineKeyboardButton("Фильтры", callback_data='static_0')],
-  #     [InlineKeyboardButton("Рейтинг", callback_data='rating_' + query)],
-  #     [InlineKeyboardButton("Охват", callback_data='coverage_' + query)],
-  #     [InlineKeyboardButton("Кол-во подписчиков", callback_data='numberSubscribers_' + query)],
-  #     [InlineKeyboardButton("Прирост за месяц", callback_data='growthMonth_' + query)],
-  #     [InlineKeyboardButton("Прирост за неделю", callback_data='growthWeek_' + query)],
-  #     [InlineKeyboardButton("Прирост за день", callback_data='growthDay_' + query)],
-  #     [InlineKeyboardButton("Сначала новые", callback_data='new_' + query)],
-  #     [InlineKeyboardButton("Сначала старые", callback_data='old_' + query)],
-  #     [InlineKeyboardButton("Подтвержденные", callback_data='confirm_' + query)],
-  #     [InlineKeyboardButton("Применить", callback_data='apply_' + query)]
-  #   ]
   return InlineKeyboardMarkup(keyboard)
 
+def set_filters_opt(query, check=""):
+  keyboard = []
+  keyboard = [
+    [InlineKeyboardButton("Фильтры", callback_data=query + '_static_0')],
+    [InlineKeyboardButton("Количество подписчиков"+ check_filter('numberSubscribers', check), callback_data=query_parse('numberSubscribers', query))],
+    [InlineKeyboardButton("Индекс цитирования"+ check_filter('indexSay', check), callback_data=query_parse('indexSay', query))],
+    [InlineKeyboardButton("Сумарный дневной охват"+ check_filter('coverageDay', check), callback_data=query_parse('coverageDay', query))],
+    [InlineKeyboardButton("Средний охват публикаций"+ check_filter('coveragePub', check), callback_data=query_parse('coveragePub', query))],
+    [InlineKeyboardButton("Количнсвто репостов в другие каналы"+ check_filter('repost', check), callback_data=query_parse('repost', query))],
+    # [InlineKeyboardButton("Рейтинг"+ check_filter('rating', check), callback_data=query_parse('rating', query))],
+    # [InlineKeyboardButton("Охват"+ check_filter('coverage', check), callback_data=query_parse('coverage', query))],
+    # [InlineKeyboardButton("Кол-во подписчиков"+ check_filter('numberSubscribers', check), callback_data=query_parse('numberSubscribers', query))],
+    # [InlineKeyboardButton("Прирост за месяц"+ check_filter('growthMonth', check), callback_data=query_parse('growthMonth', query))],
+    # [InlineKeyboardButton("Прирост за неделю"+ check_filter('growthWeek', check), callback_data=query_parse('growthWeek', query))],
+    # [InlineKeyboardButton("Прирост за день"+ check_filter('growthDay', check), callback_data=query_parse('growthDay', query))],
+    # [InlineKeyboardButton("Сначала новые"+ check_filter('new', check), callback_data=query_parse('new', query))],
+    # [InlineKeyboardButton("Сначала старые"+ check_filter('old', check), callback_data=query_parse('old', query))],
+    # [InlineKeyboardButton("Подтвержденные"+ check_filter('confirm', check), callback_data=query_parse('confirm', query))],
+    [InlineKeyboardButton("Применить", callback_data='apply' + "_" + query + "_"+ check)]
+  ]
+  return InlineKeyboardMarkup(keyboard)
+
+
+def user_get_btns_into(category_type):
+  keyboard = [
+    [InlineKeyboardButton("<<назад", callback_data='opt_into_'+ category_type +'_init')],
+    [InlineKeyboardButton("Выбрать даты", callback_data='opt_into_'+ category_type +'_data')],
+  ]
+  return InlineKeyboardMarkup(keyboard)
 
 def go_into_opt():
   keyboard = [
@@ -192,6 +207,22 @@ def go_into_opt():
   ]
   return InlineKeyboardMarkup(keyboard)
 
+def go_into_opt_user():
+  keyboard = [
+    [InlineKeyboardButton("Все тематики", callback_data='opt_into_all_init')],
+    [InlineKeyboardButton("Образование", callback_data='opt_into_education_init')],
+    [InlineKeyboardButton("Финансы", callback_data='opt_into_finance_init')],
+    [InlineKeyboardButton("Здоровье", callback_data='opt_into_health_init')],
+    [InlineKeyboardButton("Новости", callback_data='opt_into_news_init')],
+    [InlineKeyboardButton("IT", callback_data='opt_into_tech_init')],
+    [InlineKeyboardButton("Развлечения", callback_data='opt_into_entertainment_init')],
+    [InlineKeyboardButton("Психология", callback_data='opt_into_psychology_init')],
+    [InlineKeyboardButton("Видосики", callback_data='opt_into_video_init')],
+    [InlineKeyboardButton("Авторские", callback_data='opt_into_author_init')],
+    [InlineKeyboardButton("Другое", callback_data='opt_into_other_init')],
+  ]
+  return InlineKeyboardMarkup(keyboard)
+
 def go_chanel_opt(category_type, start_cut, finish_cut, page):
   categoriesBtns = []
   req = requests.get(
@@ -200,15 +231,34 @@ def go_chanel_opt(category_type, start_cut, finish_cut, page):
     )
   categoriesArray =  req.json()
   if len(categoriesArray) != 0:
-    categoriesBtns = parse_categories_opt(categoriesArray[start_cut:finish_cut], category_type, page)
+    categoriesBtns = parse_categories_opt(categoriesArray[start_cut-1:finish_cut], category_type, page)
   return categoriesBtns
+
+def go_chanel_opt_into(category_type, start_cut, finish_cut, page, filter, idUser):
+  categoriesBtns = []
+  req = requests.get(
+    'http://localhost:3001/opt/categories' +
+    '?category=' + category_type +
+    '&filter=' + filter +
+    '&idUser=' + str(idUser)
+    )
+  categoriesArray =  req.json()
+  categoriesBtns = parse_categories_opt_into(categoriesArray[start_cut-1:finish_cut], category_type, page)
+  return categoriesBtns
+
+def parse_categories_opt_into(categoriesArray, category_type, page):
+  arrayBtns = [[InlineKeyboardButton('Фильтры', callback_data='opt_into_'+ category_type +'_filters_' + category_type +'_'+ str(page))]]
+  for category in categoriesArray:
+    arrayBtns.append([InlineKeyboardButton(category['chanel'], callback_data='opt_into_'+ category_type +'_old_' + category['chanel'] + '_' + category_type)])
+  arrayBtns.append([InlineKeyboardButton('<<Назад', callback_data=('opt_into_' + category_type +'_back_' + str(page))), InlineKeyboardButton('Далее>>', callback_data=('opt_into_' + category_type +'_next_' + str(page)))])
+  return InlineKeyboardMarkup(arrayBtns)
 
 def parse_categories_opt(categoriesArray, category_type, page):
   if len(categoriesArray) == 0:
     return False
   arrayBtns = [[InlineKeyboardButton('Фильтры', callback_data='filters_' + category_type +'_'+ str(page))]]
   for category in categoriesArray:
-    arrayBtns.append([InlineKeyboardButton(category['username'] + ' ' + str(category['participants_count']), callback_data='opt_' + category['username'] + '_' + category_type)])
+    arrayBtns.append([InlineKeyboardButton(category['chanel'], callback_data='opt_old_' + category['chanel'] + '_' + category_type)])
   arrayBtns.append([InlineKeyboardButton('<<Назад', callback_data=('opt_' + category_type +'_back_' + str(page))), InlineKeyboardButton('Далее>>', callback_data=('opt_' + category_type +'_next_' + str(page)))])
   return InlineKeyboardMarkup(arrayBtns)
 
@@ -218,7 +268,6 @@ def parse_categories(categoriesArray, category_type, page):
   arrayBtns = [[InlineKeyboardButton('Фильтры', callback_data='filters_' + category_type +'_'+ str(page))]]
   for category in categoriesArray:
     arrayBtns.append([InlineKeyboardButton(category['username'] + ' ' + str(category['participants_count']), callback_data=category['username'] + '_' + category_type)])
-    # output += category['username'] + ' количество подписчиков: ' + str(category['participants_count']) + ' суммарный дневной охват: ' + str(category['daily_reach']) + ' количнсвто репостов в другие каналы: ' + str(category['forwards_count']) + '\n'
   arrayBtns.append([InlineKeyboardButton('<<Назад', callback_data=(category_type +'_back_' + str(page))), InlineKeyboardButton('Далее>>', callback_data=(category_type +'_next_' + str(page)))])
   return InlineKeyboardMarkup(arrayBtns)
 
@@ -228,4 +277,11 @@ def opt_reservation():
   for data in data_reservation:
     keyboard.append([InlineKeyboardButton(data, callback_data='test'), InlineKeyboardButton(" ", callback_data='opt_reservation_data_morning_' + data), InlineKeyboardButton(" ", callback_data='opt_reservation_day_' + data), InlineKeyboardButton(" ", callback_data='opt_reservation_evening_' + data)])
   keyboard.append([InlineKeyboardButton("Больше дат", callback_data='test'), InlineKeyboardButton("Потдвердить", callback_data='opt_reservation_confirm')])
+  return InlineKeyboardMarkup(keyboard)
+
+def btns_recommendations_get():
+  keyboard = []
+  recommendations = recommendations_get()
+  for data in recommendations:
+    keyboard.append([InlineKeyboardButton(data['username'] +" "+ data['price_standart'] + "тыс.₽", callback_data='watch_chanel_' + str(data['id']))])
   return InlineKeyboardMarkup(keyboard)

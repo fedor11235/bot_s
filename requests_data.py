@@ -14,12 +14,36 @@ def parse_filter(name):
   
 
 # user
+def get_profile(user_id):
+  req = requests.get(
+    'http://localhost:3001/user/profile' +
+    '?idUser=' + str(user_id)
+  )
+  profile = req.json()
+  return profile
+
+def create_chanel(idUser, idChanel):
+  req = requests.get(
+  'http://localhost:3001/chanel/create' +
+  '?idUser=' + str(idUser) +
+  '&idChanel=' + str(idChanel)
+  )
+  status = req.json()
+  return status
+
 def user_check(id):
   req = requests.get(
     'http://localhost:3001/user/check' +
     '?idUser=' + str(id)
   )
   return req.text
+
+def user_get_stat_opt(chanel):
+  req = requests.get(
+    'http://localhost:3001/opt/stat' +
+    '?chanel=' + str(chanel)
+  )
+  return req.json()
 
 def user_change_message_mod(id, mode):
   requests.get(
@@ -58,5 +82,18 @@ def opt_get(id):
   req = requests.get(
     'http://localhost:3001/opt/get' +
     '?idUser=' + str(id)
+  )
+  return req.json()
+
+def recommendations_get():
+  req = requests.get(
+    'http://localhost:3001/recommendations/get'
+  )
+  return req.json()
+
+def recommendations_ind_get(id):
+  req = requests.get(
+    'http://localhost:3001/recommendations/individual' +
+    '?idRecommendation=' + str(id)
   )
   return req.json()
