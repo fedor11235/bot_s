@@ -86,13 +86,29 @@ def get_reservation_time_table(bookeds=[]):
   keyboard.append([InlineKeyboardButton("Потдвердить", callback_data='opt_time')])
   return InlineKeyboardMarkup(keyboard)
 
-def get_btns_pay():
-  keyboard = [
-    [InlineKeyboardButton("Ввести промокод", callback_data='promocode_enter')],
-    [InlineKeyboardButton("30 дней за 0", callback_data='test')],
-    [InlineKeyboardButton("90 дней за 0", callback_data='test')],
-    [InlineKeyboardButton("365 дней за 0", callback_data='test')],
-  ]
+def get_btns_pay(mode):
+  keyboard = []
+  if mode == 'lite':
+    keyboard = [
+      [InlineKeyboardButton("Ввести промокод", callback_data='promocode_enter')],
+      [InlineKeyboardButton("30 дней за 290₽", callback_data='pay_check_lite_litle')],
+      [InlineKeyboardButton("90 дней за 783₽", callback_data='pay_check_lite_middle')],
+      [InlineKeyboardButton("365 дней за 2784", callback_data='pay_check_lite_big')],
+    ]
+  elif mode == 'pro':
+    keyboard = [
+      [InlineKeyboardButton("Ввести промокод", callback_data='promocode_enter')],
+      [InlineKeyboardButton("30 дней за 890₽", callback_data='pay_check_pro_litle')],
+      [InlineKeyboardButton("90 дней за 2403₽", callback_data='pay_check_pro_middle')],
+      [InlineKeyboardButton("365 дней за 8544₽", callback_data='pay_check_pro_big')],
+    ]
+  elif mode == 'business':
+    keyboard = [
+      [InlineKeyboardButton("Ввести промокод", callback_data='promocode_enter')],
+      [InlineKeyboardButton("30 дней за 3890₽", callback_data='pay_check_business_litle')],
+      [InlineKeyboardButton("90 дней за 10503₽", callback_data='pay_check_business_middle')],
+      [InlineKeyboardButton("365 дней за 37344₽", callback_data='pay_check_business_big')],
+    ]
   return InlineKeyboardMarkup(keyboard)
 
 def get_user_chanels(chanels_array):

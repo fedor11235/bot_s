@@ -72,7 +72,6 @@ class SlonBot():
     application.run_polling()
 
   async def handler_start(self, update: Update, _) -> None:
-    print('ИИИ ЧЕ')
     user_stat = user_check(update.message.chat.id)
     keyboard = [
       [KeyboardButton("Каталог")],
@@ -80,10 +79,7 @@ class SlonBot():
       [KeyboardButton("Подборки"), KeyboardButton("Профиль")],
     ]
     reply_markup = ReplyKeyboardMarkup(keyboard)
-    print('user_stat')
-    print(user_stat)
     if user_stat == 'empty':
-      user_change_message_mod(update.message.chat.id, 'chanel')
       await update.message.reply_text('''*Создайте профиль и добавьте канал*\n\nЧтобы начать использовать бота, сделайте @SlonRobot администратором в канале, а затем пришлите сюда ссылку на канал или просто перешлите из него любое сообщение.\nБоту можно не выдавать никаких прав. Данная процедура нужна чтобы подтвердить, что вы являетесь владельцем канала.\nДругие полезные команды:\n/partners — сгенерировать уникальный промокод, чтобы вы могли приглашать других пользователей и получать бонусы\n/help — связь со службой поддержки и ответы на часто задаваемые вопросы''',
         reply_markup=reply_markup, parse_mode="Markdown")
     else:
@@ -240,32 +236,69 @@ class SlonBot():
         # await update.message.reply_text("*Вы пока что не добавили ни одного канала.* Чтобы его добавить, введите команду /channel или нажмите кнопку ниже.", reply_markup=reply_markup, parse_mode="Markdown")
       
       else:
-        req = requests.get(
-          'http://localhost:3001/chanel/user' +
-          '?idUser=' + str(user_id)
-          )
-        chanels = req.json()
-        reply_markup = get_user_chanels(chanels)
-        await update.message.reply_text('Выберите канал в котором хотите собрать опт:\n', reply_markup=reply_markup)
+        user = get_profile(user_id)
+        tariff_plan = user['tariffPlan']
+
+        if tariff_plan == 'base':
+          keyboard = [
+            [InlineKeyboardButton("Lite — 290₽/мес.", callback_data='pay_lite')],
+            [InlineKeyboardButton("Pro — 890₽/мес.", callback_data='pay_pro')],
+            [InlineKeyboardButton("Business — 3890₽/мес.", callback_data='pay_business')],
+          ]
+          reply_markup = InlineKeyboardMarkup(keyboard)
+          await update.message.reply_text('''*Lite*\n• доступ к полному функционалу каталога\n• подключение до 2 каналов к боту\n• создание до 2 оптов в месяц\n• до 10 мест в каждом созданном опте\n• покупка до 10 оптов в месяц\n• статус подтвержденного канала в каталоге\n*Pro*\n• доступ к полному функционалу каталога\n• безлимит на подключение каналов\n• безлимит на создание оптов\n• до 20 мест в каждом созданном опте\n• безлимит на покупку оптов\n• статус подтвержденного канала в каталоге\n*Business*\n• все вышеперечисленные функции\n• до 30 мест в каждом созданном опте\n• доступ к уникальным подборкам в крупнейших и авторских каналах от команды Slon''', reply_markup=reply_markup, parse_mode="Markdown")
+
+        else:
+          req = requests.get(
+            'http://localhost:3001/chanel/user' +
+            '?idUser=' + str(user_id)
+            )
+          chanels = req.json()
+          reply_markup = get_user_chanels(chanels)
+          await update.message.reply_text('Выберите канал в котором хотите собрать опт:\n', reply_markup=reply_markup)
       return
     elif update.message.text == 'Зайти в опт':
       user_stat = user_check(user_id)
       if user_stat == 'empty':
         await update.message.reply_text('''*Сначала создайте профиль*\n\nЧтобы начать использовать бота, сделайте @SlonRobot администратором в канале, а затем пришлите сюда ссылку на канал или просто перешлите из него любое сообщение.\nБоту можно не выдавать никаких прав. Данная процедура нужна чтобы подтвердить, что вы являетесь владельцем канала.\nДругие полезные команды:\n/partners — сгенерировать уникальный промокод, чтобы вы могли приглашать других пользователей и получать бонусы\n/help — связь со службой поддержки и ответы на часто задаваемые вопросы''', parse_mode="Markdown")
       else:
-        reply_markup = go_into_opt_user()
-        await update.message.reply_text('Зайти в опт', reply_markup=reply_markup)
+        user = get_profile(user_id)
+        tariff_plan = user['tariffPlan']
+
+        if tariff_plan == 'base':
+          keyboard = [
+            [InlineKeyboardButton("Lite — 290₽/мес.", callback_data='pay_lite')],
+            [InlineKeyboardButton("Pro — 890₽/мес.", callback_data='pay_pro')],
+            [InlineKeyboardButton("Business — 3890₽/мес.", callback_data='pay_business')],
+          ]
+          reply_markup = InlineKeyboardMarkup(keyboard)
+          await update.message.reply_text('''*Lite*\n• доступ к полному функционалу каталога\n• подключение до 2 каналов к боту\n• создание до 2 оптов в месяц\n• до 10 мест в каждом созданном опте\n• покупка до 10 оптов в месяц\n• статус подтвержденного канала в каталоге\n*Pro*\n• доступ к полному функционалу каталога\n• безлимит на подключение каналов\n• безлимит на создание оптов\n• до 20 мест в каждом созданном опте\n• безлимит на покупку оптов\n• статус подтвержденного канала в каталоге\n*Business*\n• все вышеперечисленные функции\n• до 30 мест в каждом созданном опте\n• доступ к уникальным подборкам в крупнейших и авторских каналах от команды Slon''', reply_markup=reply_markup, parse_mode="Markdown")
+        else:
+          reply_markup = go_into_opt_user()
+          await update.message.reply_text('Зайти в опт', reply_markup=reply_markup)
       return
     elif update.message.text == 'Подборки':
       user_stat = user_check(user_id)
       if user_stat == 'empty':
         await update.message.reply_text('''*Сначала создайте профиль*\n\nЧтобы начать использовать бота, сделайте @SlonRobot администратором в канале, а затем пришлите сюда ссылку на канал или просто перешлите из него любое сообщение.\nБоту можно не выдавать никаких прав. Данная процедура нужна чтобы подтвердить, что вы являетесь владельцем канала.\nДругие полезные команды:\n/partners — сгенерировать уникальный промокод, чтобы вы могли приглашать других пользователей и получать бонусы\n/help — связь со службой поддержки и ответы на часто задаваемые вопросы''', parse_mode="Markdown")
       else:
-        keyboard = [
-          [InlineKeyboardButton("<<Назад", callback_data='testtest'), InlineKeyboardButton("Смотреть предложения", callback_data='watch_see')]
-        ]
-        reply_markup = InlineKeyboardMarkup(keyboard)
-        await update.message.reply_text('*Slon Business* «— это инструмент автоматической масштабной закупки рекламы в топовых telegram-каналах по уникальным ценам.', reply_markup=reply_markup, parse_mode="Markdown")
+        user = get_profile(user_id)
+        tariff_plan = user['tariffPlan']
+
+        if tariff_plan == 'base':
+          keyboard = [
+            [InlineKeyboardButton("Lite — 290₽/мес.", callback_data='pay_lite')],
+            [InlineKeyboardButton("Pro — 890₽/мес.", callback_data='pay_pro')],
+            [InlineKeyboardButton("Business — 3890₽/мес.", callback_data='pay_business')],
+          ]
+          reply_markup = InlineKeyboardMarkup(keyboard)
+          await update.message.reply_text('''*Lite*\n• доступ к полному функционалу каталога\n• подключение до 2 каналов к боту\n• создание до 2 оптов в месяц\n• до 10 мест в каждом созданном опте\n• покупка до 10 оптов в месяц\n• статус подтвержденного канала в каталоге\n*Pro*\n• доступ к полному функционалу каталога\n• безлимит на подключение каналов\n• безлимит на создание оптов\n• до 20 мест в каждом созданном опте\n• безлимит на покупку оптов\n• статус подтвержденного канала в каталоге\n*Business*\n• все вышеперечисленные функции\n• до 30 мест в каждом созданном опте\n• доступ к уникальным подборкам в крупнейших и авторских каналах от команды Slon''', reply_markup=reply_markup, parse_mode="Markdown")
+        else:
+          keyboard = [
+            [InlineKeyboardButton("<<Назад", callback_data='testtest'), InlineKeyboardButton("Смотреть предложения", callback_data='watch_see')]
+          ]
+          reply_markup = InlineKeyboardMarkup(keyboard)
+          await update.message.reply_text('*Slon Business* «— это инструмент автоматической масштабной закупки рекламы в топовых telegram-каналах по уникальным ценам.', reply_markup=reply_markup, parse_mode="Markdown")
       return
     elif update.message.text == "Профиль":
       user_stat = user_check(user_id)
@@ -273,13 +306,14 @@ class SlonBot():
         await update.message.reply_text('''*Сначала создайте профиль*\n\nЧтобы начать использовать бота, сделайте @SlonRobot администратором в канале, а затем пришлите сюда ссылку на канал или просто перешлите из него любое сообщение.\nБоту можно не выдавать никаких прав. Данная процедура нужна чтобы подтвердить, что вы являетесь владельцем канала.\nДругие полезные команды:\n/partners — сгенерировать уникальный промокод, чтобы вы могли приглашать других пользователей и получать бонусы\n/help — связь со службой поддержки и ответы на часто задаваемые вопросы''', parse_mode="Markdown")
       else:
         profile = get_profile(update.message.chat.id)
-        await update.message.reply_text("*Здесь собирается информация, показывающая насколько вы Slon.*\nПодписка " + profile['tariffPlan'] + " действует до: "+ profile['subscriptionEndDate'] +"\nВаши каналы: " + str(profile['channels']) + "\nСоздано оптов: " + str(profile['createdOpt']) + " на сумму " + str(profile['totalSavings']) + "\nКуплено оптов: " + str(profile['byOpt']) + " на сумму " + str(profile['totalEarned']) + "\nВсего сэкономлено:  "+ str(profile['totalEarned']) + "\nПриглашено пользователей: "+ str(profile['totalEarned']) + "\nВсего заработано: "+ str(profile['totalEarned'] )+ "", parse_mode="Markdown")    
+        await update.message.reply_text("*Здесь собирается информация, показывающая насколько вы Slon.*\nПодписка " + profile['tariffPlan'] + " действует до: "+ profile['subscriptionEndDate'] +"\nВаши каналы: " + str(profile['userNumber']) + "\nСоздано оптов: " + str(profile['createdOpt']) + " на сумму " + str(profile['totalSavings']) + "\nКуплено оптов: " + str(profile['byOpt']) + " на сумму " + str(profile['totalEarned']) + "\nВсего сэкономлено:  "+ str(profile['totalEarned']) + "\nПриглашено пользователей: "+ str(profile['totalEarned']) + "\nВсего заработано: "+ str(profile['totalEarned'] )+ "", parse_mode="Markdown")    
+      return
     #добавление канала
     elif mode == 'chanel':
       try:
         if update.message.forward_from_chat:
           idChanel = update.message.forward_from_chat.id
-          await context.bot.get_chat_member(user_id=6423584132, chat_id=str(idChanel))
+          await context.bot.get_chat_member(user_id=6569483795, chat_id=str(idChanel))
           status = create_chanel(user_id, idChanel)
           user_change_message_mod(update.message.chat.id, 'standart')
           if status == 'exist':
@@ -289,7 +323,7 @@ class SlonBot():
             await update.message.reply_text('Ваш канал успешно зарегистрирован')
             return
         else:
-          await context.bot.get_chat_member(user_id=6423584132, chat_id=update.message.text)
+          await context.bot.get_chat_member(user_id=6569483795, chat_id=update.message.text)
           status = create_chanel(user_id, update.message.text)
         user_change_message_mod(update.message.chat.id, 'standart')
         if status == 'exist':
@@ -304,11 +338,24 @@ class SlonBot():
         await update.message.reply_text('Не верные введенные данные, либо вы не добавили бота в канал')
         return
 
-
-
-
-
-
+    user_stat = user_check(user_id)
+    if user_stat == 'empty':
+      status
+      try:
+        if update.message.forward_from_chat:
+          idChanel = update.message.forward_from_chat.id
+          await context.bot.get_chat_member(user_id=6569483795, chat_id=str(idChanel))
+          status = create_chanel(user_id, idChanel)
+        else:
+          await context.bot.get_chat_member(user_id=6569483795, chat_id=update.message.text)
+          status = create_chanel(user_id, update.message.text)
+        if status == "created":
+          await update.message.reply_text('Ваш канал успешно зарегистрирован')
+        else:
+          await update.message.reply_text('Не верные введенные данные, либо вы не добавили бота в канал')
+      except:
+        await update.message.reply_text('Не верные введенные данные, либо вы не добавили бота в канал')
+      return
 
 
 
@@ -318,7 +365,7 @@ class SlonBot():
       await update.message.reply_text('''*Сначала создайте профиль*\n\nЧтобы начать использовать бота, сделайте @SlonRobot администратором в канале, а затем пришлите сюда ссылку на канал или просто перешлите из него любое сообщение.\nБоту можно не выдавать никаких прав. Данная процедура нужна чтобы подтвердить, что вы являетесь владельцем канала.\nДругие полезные команды:\n/partners — сгенерировать уникальный промокод, чтобы вы могли приглашать других пользователей и получать бонусы\n/help — связь со службой поддержки и ответы на часто задаваемые вопросы''', parse_mode="Markdown")
     else:
       profile = get_profile(update.message.chat.id)
-      await update.message.reply_text("*Здесь собирается информация, показывающая насколько вы Slon.*\nПодписка " + profile['tariffPlan'] + " действует до: "+ profile['subscriptionEndDate'] +"\nВаши каналы: " + str(profile['channels']) + "\nСоздано оптов: " + str(profile['createdOpt']) + " на сумму " + str(profile['totalSavings']) + "\nКуплено оптов: " + str(profile['byOpt']) + " на сумму " + str(profile['totalEarned']) + "\nВсего сэкономлено:  "+ str(profile['totalEarned']) + "\nПриглашено пользователей: "+ str(profile['totalEarned']) + "\nВсего заработано: "+ str(profile['totalEarned'] )+ "", parse_mode="Markdown")
+      await update.message.reply_text("*Здесь собирается информация, показывающая насколько вы Slon.*\nПодписка " + profile['tariffPlan'] + " действует до: "+ profile['subscriptionEndDate'] +"\nВаши каналы: " + str(profile['userNumber']) + "\nСоздано оптов: " + str(profile['createdOpt']) + " на сумму " + str(profile['totalSavings']) + "\nКуплено оптов: " + str(profile['byOpt']) + " на сумму " + str(profile['totalEarned']) + "\nВсего сэкономлено:  "+ str(profile['totalEarned']) + "\nПриглашено пользователей: "+ str(profile['totalEarned']) + "\nВсего заработано: "+ str(profile['totalEarned'] )+ "", parse_mode="Markdown")
   
   async def handler_help(self, update: Update, _) -> None:
     await update.message.reply_text('''*Возникли вопросы?*\nМы всегда готовы помочь вам с любые задачи и решение всех интересующих вопросов.\nПросто напишите нам: @slon_feedback''')
@@ -353,8 +400,7 @@ class SlonBot():
       await update.message.reply_text('Выберите тематику:',reply_markup=reply_markup)
   
   # all education health news tech entertainment psychology author other
-  async def handler_callback(self, update: Update, _):
-    print(update.callback_query)
+  async def handler_callback(self, update: Update, context):
 
     query = update.callback_query
     query_array = query.data.split('_')
@@ -362,14 +408,60 @@ class SlonBot():
 
     #!Подписчки
     if query_array[0] == 'pay':
-      reply_markup = get_btns_pay()
       await query.answer()
       if query_array[1] == 'lite':
-        await query.edit_message_text(text='Выберите срокна который хотите продлить подписку Lite\nВаша скидка: 0%',  reply_markup=reply_markup)
+        reply_markup = get_btns_pay('lite')
+        await query.edit_message_text(text='Выберите слона который хотите продлить подписку Lite\nВаша скидка: 0%',  reply_markup=reply_markup)
+        return
       elif query_array[1] == 'pro':
-        await query.edit_message_text(text='Выберите срокна который хотите продлить подписку Pro\nВаша скидка: 0%',  reply_markup=reply_markup)
+        reply_markup = get_btns_pay('pro')
+        await query.edit_message_text(text='Выберите слона который хотите продлить подписку Pro\nВаша скидка: 0%',  reply_markup=reply_markup)
+        return
       elif query_array[1] == 'business':
-        await query.edit_message_text(text='Выберите срокна который хотите продлить подписку Business\nВаша скидка: 0%',  reply_markup=reply_markup)
+        reply_markup = get_btns_pay('business')
+        await query.edit_message_text(text='Выберите слона который хотите продлить подписку Business\nВаша скидка: 0%',  reply_markup=reply_markup)
+        return
+      elif query_array[1] == 'check':
+        label = ''
+        price = 0
+        if query_array[2] == 'lite':
+          if query_array[3] == 'litle':
+            label = 'Lite — 290₽/мес.'
+            price = 29000
+          elif query_array[3] == 'middle':
+            label = 'Lite — 783₽/3мес.'
+            price = 78300
+          elif query_array[3] == 'big':
+            label = 'Lite — 2784₽/год.'
+            price = 278400
+            
+        elif query_array[2] == 'pro':
+          if query_array[3] == 'litle':
+            label = 'Pro — 890₽/мес.'
+            price = 89000
+          elif query_array[3] == 'middle':
+            label = 'Pro — 2403₽/3мес.'
+            price = 240300
+          elif query_array[3] == 'big':
+            label = 'Pro — 8544₽/год.'
+            price = 854400
+          
+        elif query_array[2] == 'business':
+          if query_array[3] == 'litle':
+            label = 'Business — 3890₽/мес.'
+            price = 389000
+          elif query_array[3] == 'middle':
+            label = 'Business — 10503₽/3мес.'
+            price = 1050300
+          elif query_array[3] == 'big':
+            label = 'Business — 37344₽/год.'
+            price = 3734400
+        await context.bot.send_invoice(chat_id=query.message.chat_id, title="Оплата подписки", description="Для того чтобы оплатить нажмите кнопку ниже:", payload="payload",
+          provider_token="390540012:LIVE:40517", start_parameter="", currency="RUB",
+          prices=[
+            LabeledPrice(label, price),
+        ])
+        return
     #!КАТЕГОРИИ
     elif query_array[0] in category_type:
       start_cut = 1
@@ -613,7 +705,7 @@ class SlonBot():
 ''', reply_markup=reply_markup)
         
     elif query_array[0] == 'lol':
-      await query.edit_message_text('''Вы разработке''')
+      await query.edit_message_text('''В разработке''')
 
 
 
@@ -623,18 +715,10 @@ class SlonBot():
 
 
   async def handler_checkout(self, update: Update, context) -> None:
-    # print(update.callback_query.edit_message_text)
     total_amount = update.pre_checkout_query.total_amount
     # id = update.pre_checkout_query.id
-    if total_amount == 29000:
-      await update.pre_checkout_query.answer(ok=True)
-      # await context.bot.answer_pre_checkout_query(id, ok=True)
-      # await update.message.reply_text("User said:")
-      # await update.pre_checkout_query.edit_message_text("Вы купили подписку Lite")
-    # elif total_amount == 89000:
-    #   await update.message.reply_text("Вы купили подписку Pro")
-    # elif total_amount == 389000:
-    #   await update.message.reply_text("Вы купили подписку Business")
+    await update.pre_checkout_query.answer(ok=True)
+    # await context.bot.answer_pre_checkout_query(id, ok=True)
     return
 
 
@@ -648,11 +732,9 @@ class SlonBot():
     #   provider_token="390540012:LIVE:40517", start_parameter="", currency="RUB",
     #   prices=[LabeledPrice('тестовая сумма', 20000)])
     await context.bot.send_invoice(chat_id=update.message.chat_id, title="Оплата подписки", description="Для того чтобы оплатить нажмите кнопку ниже:", payload="payload",
-      provider_token="381764678:TEST:67635", start_parameter="", currency="RUB",
+      provider_token="390540012:LIVE:40517", start_parameter="", currency="RUB",
       prices=[
         LabeledPrice('Lite — 290₽/мес.', 29000),
-        # LabeledPrice('Pro — 890₽/мес.', 89000),
-        # LabeledPrice('Business — 3890₽/мес.', 389000)
       ])
 
 def main() -> None:
