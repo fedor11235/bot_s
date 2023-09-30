@@ -98,3 +98,12 @@ def recommendations_ind_get(id):
   )
   return req.json()
 
+def set_tariff_profile(id, tariffPlan, time):
+  req = requests.get(
+    'http://localhost:3001/user/set' +
+    '?idUser=' + str(id) +
+    '&tariffPlan=' + tariffPlan +
+    '&time=' + str(time)
+  )
+  return req.json()
+

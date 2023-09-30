@@ -6,6 +6,7 @@ from telegram.ext import Application, CommandHandler, MessageHandler, filters, C
 from dotenv import load_dotenv
 import os
 from requests_data import (
+  set_tariff_profile,
   user_get_stat_opt,
   user_check,
   user_change_message_mod,
@@ -56,6 +57,10 @@ class SlonBot():
   def run_bot(self) -> None:
     application = Application.builder().token(self.token).build()
     application.add_handler(CommandHandler("test", self.handler_test))
+    application.add_handler(CommandHandler("test_secret_profile_base", self.handler_secret_profile_base))
+    application.add_handler(CommandHandler("test_secret_profile_lite", self.handler_secret_profile_lite))
+    application.add_handler(CommandHandler("test_secret_profile_pro", self.handler_secret_profile_pro))
+    application.add_handler(CommandHandler("test_secret_profile_business", self.handler_secret_profile_business))
     application.add_handler(PreCheckoutQueryHandler(self.handler_checkout))
     application.add_handler(CallbackQueryHandler(self.handler_callback))
     application.add_handler(CommandHandler("start", self.handler_start))
@@ -677,17 +682,17 @@ class SlonBot():
       if query_array[1] == 'see':
         profile = get_profile(user_id)
         if profile['tariffPlan'] == 'base':
-          # keyboard = [
-          #   [InlineKeyboardButton("Lite — 290₽/мес.", callback_data='pay_lite')],
-          #   [InlineKeyboardButton("Pro — 890₽/мес.", callback_data='pay_pro')],
-          #   [InlineKeyboardButton("Business — 3890₽/мес.", callback_data='pay_business')],
-          # ]
-          # reply_markup = InlineKeyboardMarkup(keyboard)
-          reply_markup = btns_recommendations_get()
-          # await query.edit_message_text('''*Lite*\n• доступ к полному функционалу каталога\n• подключение до 2 каналов к боту\n• создание до 2 оптов в месяц\n• до 10 мест в каждом созданном опте\n• покупка до 10 оптов в месяц\n• статус подтвержденного канала в каталоге\n*Pro*\n• доступ к полному функционалу каталога\n• безлимит на подключение каналов\n• безлимит на создание оптов\n• до 20 мест в каждом созданном опте\n• безлимит на покупку оптов\n• статус подтвержденного канала в каталоге\n*Business*\n• все вышеперечисленные функции\n• до 30 мест в каждом созданном опте\n• доступ к уникальным подборкам в крупнейших и авторских каналах от команды Slon''', reply_markup=reply_markup, parse_mode="Markdown")
-          await query.edit_message_text('''Каталог доступных предложений:''', reply_markup=reply_markup, parse_mode="Markdown")
+          keyboard = [
+            [InlineKeyboardButton("Lite — 290₽/мес.", callback_data='pay_lite')],
+            [InlineKeyboardButton("Pro — 890₽/мес.", callback_data='pay_pro')],
+            [InlineKeyboardButton("Business — 3890₽/мес.", callback_data='pay_business')],
+          ]
+          reply_markup = InlineKeyboardMarkup(keyboard)
+          await query.edit_message_text('''*Lite*\n• доступ к полному функционалу каталога\n• подключение до 2 каналов к боту\n• создание до 2 оптов в месяц\n• до 10 мест в каждом созданном опте\n• покупка до 10 оптов в месяц\n• статус подтвержденного канала в каталоге\n*Pro*\n• доступ к полному функционалу каталога\n• безлимит на подключение каналов\n• безлимит на создание оптов\n• до 20 мест в каждом созданном опте\n• безлимит на покупку оптов\n• статус подтвержденного канала в каталоге\n*Business*\n• все вышеперечисленные функции\n• до 30 мест в каждом созданном опте\n• доступ к уникальным подборкам в крупнейших и авторских каналах от команды Slon''', reply_markup=reply_markup, parse_mode="Markdown")
         else:
-          await query.edit_message_text('''[(Название канала с вшитой ссылкой) (Стоимость рекламного места)тыс.₽]''')
+          reply_markup = btns_recommendations_get()
+          await query.edit_message_text('''Каталог доступных предложений:''', reply_markup=reply_markup, parse_mode="Markdown")
+          # await query.edit_message_text('''[(Название канала с вшитой ссылкой) (Стоимость рекламного места)тыс.₽]''')
           return
       elif query_array[1] == 'chanel':
         recommendation = recommendations_ind_get(query_array[2])
@@ -736,6 +741,24 @@ class SlonBot():
       prices=[
         LabeledPrice('Lite — 290₽/мес.', 29000),
       ])
+
+  async def handler_secret_profile_base(self, update: Update, context) -> None:
+    id = update.message.chat.id
+    set_tariff_profile(id, 'base', 'never')
+    await update.message.reply_text('У вас подписка base')
+
+  async def handler_secret_profile_lite(self, update: Update, context) -> None:
+    id = update.message.chat.id
+    set_tariff_profile(id, 'lite', 30)
+    await update.message.reply_text('У вас подписка lite')
+  async def handler_secret_profile_pro(self, update: Update, context) -> None:
+    id = update.message.chat.id
+    set_tariff_profile(id, 'pro', 30)
+    await update.message.reply_text('У вас подписка pro')
+  async def handler_secret_profile_business(self, update: Update, context) -> None:
+    id = update.message.chat.id
+    set_tariff_profile(id, 'busines', 30)
+    await update.message.reply_text('У вас подписка busines')
 
 def main() -> None:
   load_dotenv()
