@@ -340,7 +340,7 @@ class SlonBot():
 
     user_stat = user_check(user_id)
     if user_stat == 'empty':
-      status
+      status = ''
       try:
         if update.message.forward_from_chat:
           idChanel = update.message.forward_from_chat.id
