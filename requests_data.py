@@ -36,7 +36,7 @@ def user_check(id):
     'http://localhost:3001/user/check' +
     '?idUser=' + str(id)
   )
-  return req.text
+  return req.json()
 
 def user_get_stat_opt(chanel):
   req = requests.get(
@@ -66,7 +66,7 @@ def opt_create(id, chanel):
     '?idUser=' + str(id) +
     '&chanel=' + str(chanel)
   )
-  return req.text
+  return req.json()
 
 # def opt_set(id, chanel, data):
 def opt_set(id, data):
@@ -97,3 +97,4 @@ def recommendations_ind_get(id):
     '?idRecommendation=' + str(id)
   )
   return req.json()
+
