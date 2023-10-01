@@ -60,28 +60,29 @@ def generate_date(offset = 0):
     if day >= days_in_month:
       month = month_now + 1
       day -= days_in_month
-    dates.append(str(month) + '.' + str(day))
+    dates.append(str(day) + '.' + str(month))
   return dates
 
 def get_reservation_more_table(bookeds=[], offset = 0):
   dates = generate_date(offset)
   keyboard = []
-  keyboard.append([InlineKeyboardButton("Дата", callback_data='test'), InlineKeyboardButton("Утро", callback_data='test'), InlineKeyboardButton("День", callback_data='test'), InlineKeyboardButton("Вечер", callback_data='test')])
+  keyboard.append([InlineKeyboardButton("Дата", callback_data='test'), InlineKeyboardButton("Утро", callback_data='empty'), InlineKeyboardButton("День", callback_data='empty'), InlineKeyboardButton("Вечер", callback_data='empty')])
 
   for data in dates:
-    keyboard.append([InlineKeyboardButton(data, callback_data='test'), InlineKeyboardButton(check_morning(data, bookeds) , callback_data='reservation_morning/' + data + "_" +str(offset)), InlineKeyboardButton(check_day(data, bookeds), callback_data='reservation_day/' + data + "_" +str(offset)), InlineKeyboardButton(check_evening(data, bookeds), callback_data='reservation_evening/' + data + "_" +str(offset))])
+    keyboard.append([InlineKeyboardButton(data, callback_data='empty'), InlineKeyboardButton(check_morning(data, bookeds) , callback_data='reservation_morning/' + data + "_" +str(offset)), InlineKeyboardButton(check_day(data, bookeds), callback_data='reservation_day/' + data + "_" +str(offset)), InlineKeyboardButton(check_evening(data, bookeds), callback_data='reservation_evening/' + data + "_" +str(offset))])
   keyboard.append([InlineKeyboardButton("Больше дат", callback_data='reservation_more_' + str(offset)), InlineKeyboardButton("Потдвердить", callback_data='opt_confirm')])
   return InlineKeyboardMarkup(keyboard)
 
 def get_reservation_time_table(bookeds=[]):
   keyboard = []
-  keyboard.append([InlineKeyboardButton("Утро", callback_data='test'), InlineKeyboardButton("День", callback_data='test'), InlineKeyboardButton("Вечер", callback_data='test')])
+  keyboard.append([InlineKeyboardButton("Утро", callback_data='empty'), InlineKeyboardButton("День", callback_data='empty'), InlineKeyboardButton("Вечер", callback_data='empty')])
   for data_row in data_reservation_time:
     row = []
     for data in data_row:
       if data in bookeds:
-        data = "✅ " + data
-      row.append(InlineKeyboardButton(data, callback_data='time_' + data))
+        row.append(InlineKeyboardButton("✅ " +data, callback_data='time_' + data))
+      else:
+        row.append(InlineKeyboardButton(data, callback_data='time_' + data))
     keyboard.append(row)
   keyboard.append([InlineKeyboardButton("Потдвердить", callback_data='opt_time')])
   return InlineKeyboardMarkup(keyboard)

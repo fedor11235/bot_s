@@ -1,3 +1,5 @@
+from collections import Counter
+from functools import reduce
 import logging
 import requests
 from telegram import Update, LabeledPrice
@@ -6,6 +8,7 @@ from telegram.ext import Application, CommandHandler, MessageHandler, filters, C
 from dotenv import load_dotenv
 import os
 from requests_data import (
+  parse_view_date,
   set_tariff_profile,
   user_get_stat_opt,
   user_check,
@@ -156,7 +159,14 @@ class SlonBot():
       return
     elif mode == 'opt-wholesale-cost':
       try:
+        profile = get_profile(user_id)
+        # print(profile['opt_chanel_create'])
+        opt = opt_get(user_id)
         wholesale_cost = int(update.message.text)
+
+        if int(opt['retail_price']) * 0.9 < wholesale_cost:
+          await update.message.reply_text("Неверная оптовая стоимость. Разница с розничной должна быть не менее 10%:")
+          return
         data = {'wholesale_cost': wholesale_cost}
         opt_set(user_id, data)
         user_change_message_mod(user_id, 'opt-minimum-permissible-value')
@@ -171,7 +181,16 @@ class SlonBot():
           data = {'min_places': str(opt_minimum)}
           opt_set(user_id, data)
           user_change_message_mod(user_id, 'opt-maximum-permissible-value')
-          await update.message.reply_text("Введите максимальное допустимое количество мест в опте(до x):")
+          profile = get_profile(user_id)
+          tariff_plan = profile['tariffPlan']
+          max = ''
+          if tariff_plan == 'lite':
+            max = '10'
+          elif tariff_plan == 'pro':
+            max = '20'
+          elif tariff_plan == 'business':
+            max = '30'
+          await update.message.reply_text("Введите максимальное допустимое количество мест в опте(до "+max+"):")
         else:
           await update.message.reply_text("вы ввели неверные данные, повторите ввод")
       except:
@@ -179,7 +198,24 @@ class SlonBot():
       return
     elif mode == 'opt-maximum-permissible-value':
       try:
+        profile = get_profile(user_id)
+        tariff_plan = profile['tariffPlan']
+        max = 0
+        if tariff_plan == 'lite':
+          max = 10
+        elif tariff_plan == 'pro':
+          max = 20
+        elif tariff_plan == 'business':
+          max = 30
         opt_maximum = int(update.message.text)
+        opt_old = opt_set(user_id, {})
+        mini = opt_old['min_places']
+        if opt_maximum > max:
+          await update.message.reply_text("Выв ввели число мест больше вашего лимита: "+str(max)+" введите повторно")
+          return
+        elif opt_maximum < int(mini):
+          await update.message.reply_text("Выв ввели число мест меньше вашего лимита: "+str(mini)+" введите повторно")
+          return
         data = {'max_places': str(opt_maximum)}
         opt_set(user_id, data)
         user_change_message_mod(user_id, 'opt-available-reservation')
@@ -205,13 +241,15 @@ class SlonBot():
         data = {'requisites': requisites}
         opt = opt_set(user_id, data)
         reply_markup = get_opt_create()
+        booking_date = opt['booking_date'].split('_')
+        booking_date_parse = parse_view_date(booking_date)
         await update.message.reply_text('''
 Опт от '''+'1.07'+''' в канале *'''+opt['chanel']+'''*
 Розничная цена: '''+ str(opt['retail_price']) + ''' \n
 Оптовая цена: '''+ str(opt['wholesale_cost']) + '''\n
 Минимум постов: '''+ str(opt['min_places']) + '''\n
 Максимум постов: '''+ str(opt['max_places']) + '''\n
-Список дат: '''+ opt['booking_date'] + '''\n
+Список дат: \n'''+ booking_date_parse + '''\n
 Дедлайн: '''+ opt['deadline_date'] + '''\n
 Реквизиты: '''+ opt['requisites'] + '''\n
 Владелец: '''+ str(opt['idUser'])
@@ -527,7 +565,7 @@ class SlonBot():
         return
       elif query_array[1] == 'save':
         user_change_message_mod(user_id, 'deadline-wholesale-formation')
-        await query.message.reply_text('Укажите крайнюю дату формирования опта в формате [01.07]. По наступлении этой даты, если опт не будет собран, он будет отменен.')
+        await query.message.reply_text('Укажите крайнюю дату формирования опта в формате 31.12. По наступлении этой даты, если опт не будет собран, он будет отменен.')
         return
       elif query_array[1] == 'time':
         user_change_message_mod(user_id, 'opt-send-details')
@@ -596,6 +634,7 @@ class SlonBot():
         return
       elif query_array[1] == 'init':
         opt_create(user_id, str(query_array[2]))
+
         user_change_message_mod(user_id, 'opt-retail-price')
 
         await query.message.reply_text('Создаем опт для канала '+ str(query_array[2]) +'. Напишите стандартную(розничную) стоимость размещения: ')
@@ -616,12 +655,14 @@ class SlonBot():
           elif query_array[3] == 'old':
             opt = user_get_stat_opt(query_array[4])
             reply_markup = user_get_btns_into(query_array[2])
+            booking_date = opt['booking_date'].split('_')
+            booking_date_parse = parse_view_date(booking_date)
             await query.message.reply_text('''
 Розничная цена: '''+ str(opt['retail_price']) +'''
 Оптовая цена: '''+ str(opt['wholesale_cost']) +'''
 Минимум постов: '''+ str(opt['min_places']) +'''
 Максимум постов: '''+ str(opt['max_places']) +'''
-Список дат: '''+ str(opt['booking_date']) +'''
+Список дат: \n'''+ booking_date_parse +'''
 Дедлайн: '''+ str(opt['deadline_date']) +'''
 Реквизиты: '''+ str(opt['requisites']) +'''
 Владелец: '''+ str(opt['user_id']) +'''
@@ -648,20 +689,29 @@ class SlonBot():
           offset = offset_old
       else:
         offset = query_array[2]
-      if opt_old != None:
-        if isinstance(opt_old['booking_date'], str):
-          booking_date_old += opt_old['booking_date']
+        if opt_old != None:
+          if isinstance(opt_old['booking_date'], str):
+            booking_date_old += opt_old['booking_date']
+        booking_date = booking_date_old + '_' + query_array[1]
+        array_booking_date = booking_date.split('_')
 
-      data = {'booking_date': booking_date_old + '_' + query_array[1]}
-      opt = opt_set(user_id, data)
-      # opt = opt_get(user_id)
-      bookeds = []
-      if opt != None:
-        if isinstance(opt['booking_date'], str):
-          bookeds = opt['booking_date'].split('_')
-      
-      reply_markup = get_reservation_more_table(bookeds, offset)
-      await query.edit_message_text('Выберите доступные для брони слоты:', reply_markup=reply_markup)
+        repeated_elements = [item for item, count in Counter(array_booking_date).items() if count > 1]
+
+        c = list(set(array_booking_date) ^ set(repeated_elements))
+        c = [s for s in c if s]
+
+        final = reduce(lambda x, y: x + '_' + y, c)
+
+        data = {'booking_date': final}
+        opt = opt_set(user_id, data)
+
+        bookeds = []
+        if opt != None:
+          if isinstance(opt['booking_date'], str):
+            bookeds = opt['booking_date'].split('_')
+        
+        reply_markup = get_reservation_more_table(bookeds, offset)
+        await query.edit_message_text('Выберите доступные для брони слоты:', reply_markup=reply_markup)
 
     elif query_array[0] == 'time':
       placement_time_old = ""
@@ -670,7 +720,20 @@ class SlonBot():
         if isinstance(opt_old['placement_time'], str):
           placement_time_old += opt_old['placement_time']
 
-      data = {'placement_time': placement_time_old + '_' + query_array[1]}
+      booking_date = placement_time_old + '_' + query_array[1]
+      array_booking_date = booking_date.split('_')
+
+      repeated_elements = [item for item, count in Counter(array_booking_date).items() if count > 1]
+
+      c = list(set(array_booking_date) ^ set(repeated_elements))
+      c = [s for s in c if s]
+
+      print(array_booking_date)
+      print(repeated_elements)
+
+      final = reduce(lambda x, y: x + '_' + y, c)
+
+      data = {'placement_time': final}
       opt = opt_set(user_id, data)
 
       bookeds = opt['placement_time'].split('_')
@@ -712,7 +775,8 @@ class SlonBot():
     elif query_array[0] == 'lol':
       await query.edit_message_text('''В разработке''')
 
-
+    elif query_array[0] == 'empty':
+      await query.answer()
 
 
 

@@ -1,4 +1,5 @@
 import requests
+from functools import reduce
 
 def parse_filter(name):
   if name == 'forwards_count':
@@ -106,4 +107,27 @@ def set_tariff_profile(id, tariffPlan, time):
     '&time=' + str(time)
   )
   return req.json()
+
+def map_en(word):
+  if word == 'morning':
+    return 'утро'
+  elif word == 'day':
+    return 'день'
+  elif word == 'evening':
+    return 'вечер'
+
+def parse_view_date(date_array):
+  test = list(map(lambda x: x.split('/'), date_array))
+  test = list(map(lambda x: x[1] + ' ('+ map_en(x[0])+ ')', test))
+  test = reduce(lambda x, y: x + '\n' + y, test)
+  return test
+  # reduce(lambda x, y: x + '\n' + y, booking_date)
+
+# def set_profile_opt_chanel(id, chanel):
+#   req = requests.get(
+#     'http://localhost:3001/user/set' +
+#     '?idUser=' + str(id) +
+#     '&chanel=' + chanel
+#   )
+#   return req.json() 
 
