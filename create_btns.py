@@ -93,21 +93,21 @@ def get_btns_pay(mode):
   if mode == 'lite':
     keyboard = [
       [InlineKeyboardButton("Ввести промокод", callback_data='promocode_enter')],
-      [InlineKeyboardButton("30 дней за 290₽", callback_data='pay_check_lite_litle')],
+      [InlineKeyboardButton("30 дней за 290₽ (0% скидка)", callback_data='pay_check_lite_litle')],
       [InlineKeyboardButton("90 дней за 783₽ (10% скидка)", callback_data='pay_check_lite_middle')],
       [InlineKeyboardButton("365 дней за 2784 (20% скидка)", callback_data='pay_check_lite_big')],
     ]
   elif mode == 'pro':
     keyboard = [
       [InlineKeyboardButton("Ввести промокод", callback_data='promocode_enter')],
-      [InlineKeyboardButton("30 дней за 890₽", callback_data='pay_check_pro_litle')],
+      [InlineKeyboardButton("30 дней за 890₽ (0% скидка)", callback_data='pay_check_pro_litle')],
       [InlineKeyboardButton("90 дней за 2403₽ (10% скидка)", callback_data='pay_check_pro_middle')],
       [InlineKeyboardButton("365 дней за 8544₽ (20% скидка)", callback_data='pay_check_pro_big')],
     ]
   elif mode == 'business':
     keyboard = [
       [InlineKeyboardButton("Ввести промокод", callback_data='promocode_enter')],
-      [InlineKeyboardButton("30 дней за 3890₽", callback_data='pay_check_business_litle')],
+      [InlineKeyboardButton("30 дней за 3890₽ (0% скидка)", callback_data='pay_check_business_litle')],
       [InlineKeyboardButton("90 дней за 10503₽ (10% скидка)", callback_data='pay_check_business_middle')],
       [InlineKeyboardButton("365 дней за 37344₽ (20% скидка)", callback_data='pay_check_business_big')],
     ]
