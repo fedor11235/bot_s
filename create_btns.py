@@ -18,7 +18,7 @@ def get_opt_create():
   return InlineKeyboardMarkup(keyboard)
 
 def get_reservation_table():
-  keyboard = [[InlineKeyboardButton("Потдвердить", callback_data='opt_save'), InlineKeyboardButton("Изменить", callback_data='test')]]
+  keyboard = [[InlineKeyboardButton("Потдвердить", callback_data='opt_save'), InlineKeyboardButton("Изменить", callback_data='opt_change')]]
   return InlineKeyboardMarkup(keyboard)
 
 
@@ -60,13 +60,14 @@ def generate_date(offset = 0):
     if day >= days_in_month:
       month = month_now + 1
       day -= days_in_month
+      day += 1
     dates.append(str(day) + '.' + str(month))
   return dates
 
 def get_reservation_more_table(bookeds=[], offset = 0):
   dates = generate_date(offset)
   keyboard = []
-  keyboard.append([InlineKeyboardButton("Дата", callback_data='test'), InlineKeyboardButton("Утро", callback_data='empty'), InlineKeyboardButton("День", callback_data='empty'), InlineKeyboardButton("Вечер", callback_data='empty')])
+  keyboard.append([InlineKeyboardButton("Дата", callback_data='empty'), InlineKeyboardButton("Утро", callback_data='empty'), InlineKeyboardButton("День", callback_data='empty'), InlineKeyboardButton("Вечер", callback_data='empty')])
 
   for data in dates:
     keyboard.append([InlineKeyboardButton(data, callback_data='empty'), InlineKeyboardButton(check_morning(data, bookeds) , callback_data='reservation_morning/' + data + "_" +str(offset)), InlineKeyboardButton(check_day(data, bookeds), callback_data='reservation_day/' + data + "_" +str(offset)), InlineKeyboardButton(check_evening(data, bookeds), callback_data='reservation_evening/' + data + "_" +str(offset))])
@@ -93,29 +94,29 @@ def get_btns_pay(mode):
     keyboard = [
       [InlineKeyboardButton("Ввести промокод", callback_data='promocode_enter')],
       [InlineKeyboardButton("30 дней за 290₽", callback_data='pay_check_lite_litle')],
-      [InlineKeyboardButton("90 дней за 783₽", callback_data='pay_check_lite_middle')],
-      [InlineKeyboardButton("365 дней за 2784", callback_data='pay_check_lite_big')],
+      [InlineKeyboardButton("90 дней за 783₽ (10% скидка)", callback_data='pay_check_lite_middle')],
+      [InlineKeyboardButton("365 дней за 2784 (20% скидка)", callback_data='pay_check_lite_big')],
     ]
   elif mode == 'pro':
     keyboard = [
       [InlineKeyboardButton("Ввести промокод", callback_data='promocode_enter')],
       [InlineKeyboardButton("30 дней за 890₽", callback_data='pay_check_pro_litle')],
-      [InlineKeyboardButton("90 дней за 2403₽", callback_data='pay_check_pro_middle')],
-      [InlineKeyboardButton("365 дней за 8544₽", callback_data='pay_check_pro_big')],
+      [InlineKeyboardButton("90 дней за 2403₽ (10% скидка)", callback_data='pay_check_pro_middle')],
+      [InlineKeyboardButton("365 дней за 8544₽ (20% скидка)", callback_data='pay_check_pro_big')],
     ]
   elif mode == 'business':
     keyboard = [
       [InlineKeyboardButton("Ввести промокод", callback_data='promocode_enter')],
       [InlineKeyboardButton("30 дней за 3890₽", callback_data='pay_check_business_litle')],
-      [InlineKeyboardButton("90 дней за 10503₽", callback_data='pay_check_business_middle')],
-      [InlineKeyboardButton("365 дней за 37344₽", callback_data='pay_check_business_big')],
+      [InlineKeyboardButton("90 дней за 10503₽ (10% скидка)", callback_data='pay_check_business_middle')],
+      [InlineKeyboardButton("365 дней за 37344₽ (20% скидка)", callback_data='pay_check_business_big')],
     ]
   return InlineKeyboardMarkup(keyboard)
 
 def get_user_chanels(chanels_array):
   keyboard = []
   for chanel in chanels_array:
-    keyboard.append([InlineKeyboardButton(chanel['idChanel'], callback_data='opt_init_' + chanel['idChanel'])])
+    keyboard.append([InlineKeyboardButton(chanel['title'], callback_data='opt_init_' + chanel['idChanel'])])
   return InlineKeyboardMarkup(keyboard)
 
 def get_categories(category_type, start_cut, finish_cut, page, idUser, filter=""):
@@ -296,9 +297,26 @@ def opt_reservation():
   keyboard.append([InlineKeyboardButton("Больше дат", callback_data='test'), InlineKeyboardButton("Потдвердить", callback_data='opt_reservation_confirm')])
   return InlineKeyboardMarkup(keyboard)
 
-def btns_recommendations_get():
+def btns_recommendations_get(offset = 0):
   keyboard = []
   recommendations = recommendations_get()
-  for data in recommendations:
-    keyboard.append([InlineKeyboardButton(data['username'] +" "+ data['price_standart'] + "тыс.₽", callback_data='watch_chanel_' + str(data['id']))])
+  recommendations_filter = recommendations[offset: offset+10]
+  for data in recommendations_filter:
+    keyboard.append([InlineKeyboardButton(data['username'] +" "+ str(data['price_now']) + "тыс.₽", callback_data='watch_chanel_' + str(data['id']))])
+  keyboard.append([InlineKeyboardButton("Назад", callback_data='watch_back_' + str(offset)), InlineKeyboardButton("Вперед", callback_data='watch_next_' + str(offset))])
+  return InlineKeyboardMarkup(keyboard)
+
+
+
+
+
+# таблица для выбор дат вход в опт
+def get_reservation_into_table(bookeds=[], offset = 0, username=""):
+  dates = generate_date(offset)
+  keyboard = []
+  keyboard.append([InlineKeyboardButton("Дата", callback_data='empty'), InlineKeyboardButton("Утро", callback_data='empty'), InlineKeyboardButton("День", callback_data='empty'), InlineKeyboardButton("Вечер", callback_data='empty')])
+
+  for data in dates:
+    keyboard.append([InlineKeyboardButton(data, callback_data='empty'), InlineKeyboardButton(check_morning(data, bookeds) , callback_data='opt-into_' + username + '_morning/' + data + "_" +str(offset)), InlineKeyboardButton(check_day(data, bookeds), callback_data='opt-into_' + username + '_day/' + data + "_" +str(offset)), InlineKeyboardButton(check_evening(data, bookeds), callback_data='opt-into_' + username + '_evening/' + data + "_" +str(offset))])
+  keyboard.append([InlineKeyboardButton("Больше дат", callback_data='opt-into_' + username + '_more_' + str(offset)), InlineKeyboardButton("Потдвердить", callback_data='opt-into_' + username + '_confirm')])
   return InlineKeyboardMarkup(keyboard)

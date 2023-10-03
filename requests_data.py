@@ -23,11 +23,12 @@ def get_profile(user_id):
   profile = req.json()
   return profile
 
-def create_chanel(idUser, idChanel):
+def create_chanel(idUser, idChanel, title):
   req = requests.get(
   'http://localhost:3001/chanel/create' +
   '?idUser=' + str(idUser) +
-  '&idChanel=' + str(idChanel)
+  '&idChanel=' + str(idChanel) +
+  '&title=' + str(title)
   )
   status = req.json()
   return status
@@ -105,6 +106,22 @@ def set_tariff_profile(id, tariffPlan, time):
     '?idUser=' + str(id) +
     '&tariffPlan=' + tariffPlan +
     '&time=' + str(time)
+  )
+  return req.json()
+
+def get_opt_into(id):
+  req = requests.get(
+    'http://localhost:3001/opt/into/get' +
+    '?idOpt=' + str(id)
+  )
+  return req.json()
+
+def set_opt_into(id, idOpt, time):
+  req = requests.post(
+    'http://localhost:3001/opt/into/set' +
+    '?idUser=' + str(id) +
+    '&idOpt=' + str(idOpt) +
+    '&bookingDate=' + str(time),
   )
   return req.json()
 
