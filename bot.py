@@ -1,3 +1,5 @@
+import time
+from datetime import datetime
 from collections import Counter
 import re
 from functools import reduce
@@ -245,16 +247,28 @@ class SlonBot():
       booking_date = booking_date.split('_')
       booking_date = list(map(lambda x: x.split('/')[1], booking_date))
       test = list(map(lambda x: float(x.split('.')[1] +'.'+x.split('.')[0]), booking_date))
-      date_max = max(test) 
+      date_max = str(max(test))
+      date_min = str(min(test) )
+
+      date_max = date_max.split('.')[1] + '.' + date_max.split('.')[0]
+      date_min = date_min.split('.')[1] + '.' + date_min.split('.')[0]
       deadline_date = update.message.text
-      pattern = "[-+]?(?:\d+(?:\.\d*)?|\.\d+)(?:[eE][-+]?\d+)?"
-      match = re.fullmatch(pattern, deadline_date)
-      if match == None:
+      # pattern = "[-+]?(?:\d+(?:\.\d*)?|\.\d+)(?:[eE][-+]?\d+)?"
+      # match = re.fullmatch(pattern, deadline_date)
+      try:
+        valid_date = time.strptime(deadline_date, '%d.%m')
+      except:
         await update.message.reply_text('Вы ввели некоректные данные, повторите ввод:')
         return
-      date_for_test = float(deadline_date.split('.')[1] +'.'+deadline_date.split('.')[0])
-      if date_for_test > date_max:
+      date_max = time.strptime(date_max, '%d.%m')
+      date_min = time.strptime(date_min, '%d.%m')
+
+      # date_for_test = float(deadline_date.split('.')[1] +'.'+deadline_date.split('.')[0])
+      if valid_date > date_max:
         await update.message.reply_text('Вы ввели дату больше крайней даты брони, повторите ввод:')
+        return
+      elif valid_date < date_min:
+        await update.message.reply_text('Вы ввели дату меньшей крайней даты брони, повторите ввод:')
         return
       data = {'deadline_date': deadline_date}
       opt_set(user_id, data)
@@ -269,8 +283,14 @@ class SlonBot():
         reply_markup = get_opt_create()
         booking_date = opt['booking_date'].split('_')
         booking_date_parse = parse_view_date(booking_date)
+        current_datetime = datetime.now()
+        month_now = current_datetime.month
+        day_now = current_datetime.day
+        date = str(day_now) + '.' + str(month_now)
+        first_name = update.message.chat.first_name
+        username = update.message.chat.username
         await update.message.reply_text('''
-Опт от '''+'1.07'+''' в канале *'''+opt['chanel']+'''*
+Опт от '''+ date +''' в канале ['''+opt['title']+'''](https://t.me/'''+opt['chanel'][1:]+''')\n
 Розничная цена: '''+ str(opt['retail_price']) + ''' \n
 Оптовая цена: '''+ str(opt['wholesale_cost']) + '''\n
 Минимум постов: '''+ str(opt['min_places']) + '''\n
@@ -278,9 +298,11 @@ class SlonBot():
 Список дат: \n'''+ booking_date_parse + '''\n
 Дедлайн: '''+ opt['deadline_date'] + '''\n
 Реквизиты: '''+ opt['requisites'] + '''\n
-Владелец: '''+ str(opt['idUser'])
+Владелец: ['''+first_name+'''](https://t.me/'''+username+''')'''
         ,
-        reply_markup=reply_markup
+        reply_markup=reply_markup,
+        parse_mode="Markdown",
+        disable_web_page_preview=None
       )
       except:
         await update.message.reply_text("Упс произошла ошибка")
@@ -481,7 +503,7 @@ class SlonBot():
       await update.message.reply_text('''*Сначала создайте профиль*\n\nЧтобы начать использовать бота, сделайте @SlonRobot администратором в канале, а затем пришлите сюда ссылку на канал или просто перешлите из него любое сообщение.\n\nБоту можно не выдавать никаких прав. Данная процедура нужна чтобы подтвердить, что вы являетесь владельцем канала.\n\nДругие полезные команды:\n/partners — сгенерировать уникальный промокод, чтобы вы могли приглашать других пользователей и получать бонусы\n/help — связь со службой поддержки и ответы на часто задаваемые вопросы''', parse_mode="Markdown")
     else:
       user_change_message_mod(update.message.chat.id, 'chanel')
-      await update.message.reply_text('''Чтобы добавить канал введите в поле ниже\n''')
+      await update.message.reply_text('''Чтобы добавить канал, сделайте @SlonRobot администратором в канале, а затем пришлите сюда ссылку на канал или просто перешлите из него любое сообщение.\n\nБоту можно не выдавать никаких прав. Данная процедура нужна чтобы подтвердить, что вы являетесь владельцем канала.\n''')
 
   async def handler_pay(self, update: Update, _) -> None:
     user_stat = user_check(update.message.chat.id)
