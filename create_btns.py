@@ -13,7 +13,7 @@ data_reservation_time = [
   ['12:10', '17:10', '22:10'],
 ]
 
-categories = ['Образование', 'Финансы', 'Здоровье', 'Новости', 'IT', 'Развлечения', 'Психология', 'Видео', 'Авторские', 'Другое']
+categories = ['Образование', 'Финансы', 'Здоровье', 'Новости', 'IT', 'Досуг', 'Психология', 'Видео', 'Авторские', 'Другое']
 
 def get_btns_categories():
   keyboard=[]
@@ -176,7 +176,7 @@ def query_parse(name, query):
   return name + '_' + query
 
 def check_filter(name, query):
-  if(name in query):
+  if name in query:
     return " ✅"
   return ""
 
@@ -203,6 +203,7 @@ def set_filters(query, check=""):
   return InlineKeyboardMarkup(keyboard)
 
 def set_filters_opt(query, check=""):
+  print(query)
   keyboard = []
   keyboard = [
     [InlineKeyboardButton("Фильтры", callback_data=query + '_static_0')],
@@ -249,18 +250,19 @@ def go_into_opt():
   return InlineKeyboardMarkup(keyboard)
 
 def go_into_opt_user():
+  print('111')
   keyboard = [
     [InlineKeyboardButton("Все тематики", callback_data='opt_into_all_init')],
-    [InlineKeyboardButton("Образование", callback_data='opt_into_education_init')],
-    [InlineKeyboardButton("Финансы", callback_data='opt_into_finance_init')],
-    [InlineKeyboardButton("Здоровье", callback_data='opt_into_health_init')],
-    [InlineKeyboardButton("Новости", callback_data='opt_into_news_init')],
-    [InlineKeyboardButton("IT", callback_data='opt_into_tech_init')],
-    [InlineKeyboardButton("Развлечения", callback_data='opt_into_entertainment_init')],
-    [InlineKeyboardButton("Психология", callback_data='opt_into_psychology_init')],
-    [InlineKeyboardButton("Видосики", callback_data='opt_into_video_init')],
-    [InlineKeyboardButton("Авторские", callback_data='opt_into_author_init')],
-    [InlineKeyboardButton("Другое", callback_data='opt_into_other_init')],
+    [InlineKeyboardButton("Образование", callback_data='opt_into_Образование_init')],
+    [InlineKeyboardButton("Финансы", callback_data='opt_into_Финансы_init')],
+    [InlineKeyboardButton("Здоровье", callback_data='opt_into_Здоровье_init')],
+    [InlineKeyboardButton("Новости", callback_data='opt_into_Новости_init')],
+    [InlineKeyboardButton("IT", callback_data='opt_into_IT_init')],
+    [InlineKeyboardButton("Досуг", callback_data='opt_into_Досуг_init')],
+    [InlineKeyboardButton("Психология", callback_data='opt_into_Психология_init')],
+    [InlineKeyboardButton("Видосики", callback_data='opt_into_Видосики_init')],
+    [InlineKeyboardButton("Авторские", callback_data='opt_into_Авторские_init')],
+    [InlineKeyboardButton("Другое", callback_data='opt_into_Другое_init')],
   ]
   return InlineKeyboardMarkup(keyboard)
 

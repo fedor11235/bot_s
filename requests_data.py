@@ -23,12 +23,13 @@ def get_profile(user_id):
   profile = req.json()
   return profile
 
-def create_chanel(idUser, idChanel, title):
+def create_chanel(idUser, idChanel, title, username=''):
   req = requests.get(
   'http://localhost:3001/chanel/create' +
   '?idUser=' + str(idUser) +
   '&idChanel=' + str(idChanel) +
-  '&title=' + str(title)
+  '&title=' + str(title) +
+  '&username=' + str(username)
   )
   status = req.json()
   return status
