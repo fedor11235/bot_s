@@ -13,6 +13,14 @@ data_reservation_time = [
   ['12:10', '17:10', '22:10'],
 ]
 
+categories = ['Образование', 'Финансы', 'Здоровье', 'Новости', 'IT', 'Развлечения', 'Психология', 'Видео', 'Авторские', 'Другое']
+
+def get_btns_categories():
+  keyboard=[]
+  for category in categories:
+    keyboard.append([InlineKeyboardButton(category, callback_data='set-category_' + category)])
+  return InlineKeyboardMarkup(keyboard)
+
 def get_opt_create(chanel):
   keyboard = [[InlineKeyboardButton("Потдвердить", callback_data='opt_create'), InlineKeyboardButton("Изменить", callback_data='opt_init_' + chanel)]]
   return InlineKeyboardMarkup(keyboard)

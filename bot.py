@@ -32,6 +32,7 @@ from requests_data import (
 )
 
 from create_btns import (
+  get_btns_categories,
   get_reservation_into_table,
   btns_recommendations_get,
   set_filters_opt,
@@ -418,11 +419,11 @@ class SlonBot():
         await update.message.reply_text("*Здесь собирается информация, показывающая насколько вы Slon.*\n\nПодписка " + profile['tariffPlan'] + " действует до: "+ profile['subscriptionEndDate'] +"\nВаши каналы: " + str(profile['userNumber']) + "\nСоздано оптов: " + str(profile['optNumber']) + " на сумму " + str(profile['totalSavings']) + "\nКуплено оптов: " + str(profile['byOpt']) + " на сумму " + str(profile['totalEarned']) + "\nВсего сэкономлено:  "+ str(profile['totalEarned']) + "\nПриглашено пользователей: "+ str(profile['totalEarned']) + "\nВсего заработано: "+ str(profile['totalEarned'] )+ "", parse_mode="Markdown")    
       return
     #добавление канала
-    elif mode == 'type-chanel':
-      category = update.message.text
-      set_channel(user_id, category)
-      await update.message.reply_text('Ваш канал успешно загрегестрирован')
-      user_change_message_mod(update.message.chat.id, 'standart')
+    # elif mode == 'type-chanel':
+    #   category = update.message.text
+    #   set_channel(user_id, category)
+    #   await update.message.reply_text('Ваш канал успешно загрегестрирован')
+    #   user_change_message_mod(update.message.chat.id, 'standart')
       
       
     elif mode == 'chanel':
@@ -441,8 +442,9 @@ class SlonBot():
             await update.message.reply_text('Такой канал уже добавлен')
             return
           elif status == 'created':
-            await update.message.reply_text('Введите категорию канала: ')
-            user_change_message_mod(update.message.chat.id, 'type-chanel')
+            reply_markup = get_btns_categories()
+            await update.message.reply_text('Введите категорию канала: ', reply_markup=reply_markup)
+            # user_change_message_mod(update.message.chat.id, 'type-chanel')
             return
         else:
           text = update.message.text
@@ -469,8 +471,9 @@ class SlonBot():
           user_change_message_mod(update.message.chat.id, 'standart')
           return
         elif status == 'created':
-          await update.message.reply_text('Введите категорию канала: ')
-          user_change_message_mod(update.message.chat.id, 'type-chanel')
+          reply_markup = get_btns_categories()
+          await update.message.reply_text('Введите категорию канала: ', reply_markup=reply_markup)
+          # user_change_message_mod(update.message.chat.id, 'type-chanel')
           return
         user_change_message_mod(update.message.chat.id, 'standart')
 
@@ -489,15 +492,17 @@ class SlonBot():
 
           chat_info = await context.bot.get_chat(chat_id=idChanel)
           status = create_chanel(user_id, idChanel, chat_info.title)
-          user_change_message_mod(update.message.chat.id, 'type-chanel')
+          # user_change_message_mod(update.message.chat.id, 'type-chanel')
         else:
           await context.bot.get_chat_member(user_id=6569483795, chat_id=update.message.text)
           chat_info = await context.bot.get_chat(chat_id=update.message.text)
           status = create_chanel(user_id, update.message.text, chat_info.title)
-          user_change_message_mod(update.message.chat.id, 'type-chanel')
+          # user_change_message_mod(update.message.chat.id, 'type-chanel')
         if status == "created":
-          user_change_message_mod(update.message.chat.id, 'type-chanel')
-          await update.message.reply_text('Ваш канал успешно зарегистрирован')
+          reply_markup = get_btns_categories()
+          await update.message.reply_text('Введите категорию канала: ', reply_markup=reply_markup)
+          # user_change_message_mod(update.message.chat.id, 'type-chanel')
+          # await update.message.reply_text('Ваш канал успешно зарегистрирован')
         else:
           await update.message.reply_text('Не верные введенные данные, либо вы не добавили бота в канал')
       except:
@@ -620,6 +625,11 @@ class SlonBot():
         ])
         return
     #!КАТЕГОРИИ
+    elif query_array[0] == 'set-category':
+      category = query_array[1]
+      set_channel(user_id, category)
+      await query.message.reply_text('Ваш канал успешно загрегестрирован')
+      user_change_message_mod(query.message.chat.id, 'standart')
     elif query_array[0] in category_type:
       start_cut = 1
       finish_cut = 10
