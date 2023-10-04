@@ -109,6 +109,14 @@ def set_tariff_profile(id, tariffPlan, time):
   )
   return req.json()
 
+def set_tariff_temp_profile(id, tariffPlan):
+  req = requests.get(
+    'http://localhost:3001/user/set/tariff-temp' +
+    '?idUser=' + str(id) +
+    '&tariffPlan=' + tariffPlan
+  )
+  return req.json()
+
 def get_opt_into(id):
   req = requests.get(
     'http://localhost:3001/opt/into/get' +
@@ -122,6 +130,22 @@ def set_opt_into(id, idOpt, time):
     '?idUser=' + str(id) +
     '&idOpt=' + str(idOpt) +
     '&bookingDate=' + str(time),
+  )
+  return req.json()
+
+def upload_promocode(id, promocode):
+  req = requests.get(
+    'http://localhost:3001/user/upload/promocode' +
+    '?idUser=' + str(id) +
+    '&promocode=' + str(promocode)
+  )
+  return req.json()
+
+def set_channel(id, category):
+  req = requests.get(
+    'http://localhost:3001/chanel/user/set-channel' +
+    '?idUser=' + str(id) +
+    '&category=' + str(category)
   )
   return req.json()
 

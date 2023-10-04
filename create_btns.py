@@ -2,7 +2,7 @@ import requests
 from datetime import datetime
 from calendar import monthrange
 from telegram import InlineKeyboardButton, InlineKeyboardMarkup
-from requests_data import recommendations_get
+from requests_data import recommendations_get, set_tariff_temp_profile
 
 data_reservation = ['01.07', '02.07', '03.07', '04.07', '05.07', '06.07', '07.07', '08.07', '09.07', '10.07']
 data_reservation_time = [
@@ -13,8 +13,8 @@ data_reservation_time = [
   ['12:10', '17:10', '22:10'],
 ]
 
-def get_opt_create():
-  keyboard = [[InlineKeyboardButton("Потдвердить", callback_data='opt_create'), InlineKeyboardButton("Изменить", callback_data='test')]]
+def get_opt_create(chanel):
+  keyboard = [[InlineKeyboardButton("Потдвердить", callback_data='opt_create'), InlineKeyboardButton("Изменить", callback_data='opt_init_' + chanel)]]
   return InlineKeyboardMarkup(keyboard)
 
 def get_reservation_table():
@@ -88,28 +88,43 @@ def get_reservation_time_table(bookeds=[]):
   keyboard.append([InlineKeyboardButton("Потдвердить", callback_data='opt_time')])
   return InlineKeyboardMarkup(keyboard)
 
-def get_btns_pay(mode):
+def get_btns_pay(mode, discount, user_id):
   keyboard = []
+  days_three = 10 + discount
+  year = 20 + discount
+  
   if mode == 'lite':
+    set_tariff_temp_profile(user_id, 'lite')
+    prise_m = int(290 * ((100 - discount) / 100))
+    prise_three_m = int((290 * 3) * ((100 - days_three) / 100))
+    prise_y = int((290 * 12) * ((100 - year) / 100))
     keyboard = [
       [InlineKeyboardButton("Ввести промокод", callback_data='promocode_enter')],
-      [InlineKeyboardButton("30 дней за 290₽ (0% скидка)", callback_data='pay_check_lite_litle')],
-      [InlineKeyboardButton("90 дней за 783₽ (10% скидка)", callback_data='pay_check_lite_middle')],
-      [InlineKeyboardButton("365 дней за 2784 (20% скидка)", callback_data='pay_check_lite_big')],
+      [InlineKeyboardButton("30 дней за "+ str(prise_m) +"₽ (" + str(discount) + "% скидка)", callback_data='pay_check_lite_litle_'+ str(prise_m))],
+      [InlineKeyboardButton("90 дней за "+ str(prise_three_m) +"₽ (" + str(days_three) + "% скидка)", callback_data='pay_check_lite_middle_'+ str(prise_three_m))],
+      [InlineKeyboardButton("365 дней за "+ str(prise_y) +"₽ (" + str(year) + "% скидка)", callback_data='pay_check_lite_big_'+ str(prise_y))],
     ]
   elif mode == 'pro':
+    set_tariff_temp_profile(user_id, 'pro')
+    prise_m = int(890 * ((100 - discount) / 100))
+    prise_three_m = int((890 * 3) * ((100 - days_three) / 100))
+    prise_y = int((890 * 12) * ((100 - year) / 100))
     keyboard = [
       [InlineKeyboardButton("Ввести промокод", callback_data='promocode_enter')],
-      [InlineKeyboardButton("30 дней за 890₽ (0% скидка)", callback_data='pay_check_pro_litle')],
-      [InlineKeyboardButton("90 дней за 2403₽ (10% скидка)", callback_data='pay_check_pro_middle')],
-      [InlineKeyboardButton("365 дней за 8544₽ (20% скидка)", callback_data='pay_check_pro_big')],
+      [InlineKeyboardButton("30 дней за "+ str(prise_m) +"₽ (" + str(discount) + "% скидка)", callback_data='pay_check_pro_litle_'+ str(prise_m))],
+      [InlineKeyboardButton("90 дней за "+ str(prise_three_m) +"₽ (" + str(days_three) + "% скидка)", callback_data='pay_check_pro_middle_'+ str(prise_three_m))],
+      [InlineKeyboardButton("365 дней за "+ str(prise_y) +"₽ (" + str(year) + "% скидка)", callback_data='pay_check_pro_big_'+ str(prise_y))],
     ]
   elif mode == 'business':
+    set_tariff_temp_profile(user_id, 'business')
+    prise_m = int(3890 * ((100 - discount) / 100))
+    prise_three_m = int((3890 * 3) * ((100 - days_three) / 100))
+    prise_y = int((3890 * 12) * ((100 - year) / 100))
     keyboard = [
       [InlineKeyboardButton("Ввести промокод", callback_data='promocode_enter')],
-      [InlineKeyboardButton("30 дней за 3890₽ (0% скидка)", callback_data='pay_check_business_litle')],
-      [InlineKeyboardButton("90 дней за 10503₽ (10% скидка)", callback_data='pay_check_business_middle')],
-      [InlineKeyboardButton("365 дней за 37344₽ (20% скидка)", callback_data='pay_check_business_big')],
+      [InlineKeyboardButton("30 дней за "+ str(prise_m) +"₽ (" + str(discount) + "% скидка)", callback_data='_'+ str(prise_m))],
+      [InlineKeyboardButton("90 дней за "+ str(prise_three_m) +"₽ (" + str(days_three) + "% скидка)", callback_data='pay_check_business_middle_'+ str(prise_three_m))],
+      [InlineKeyboardButton("365 дней за "+ str(prise_y) +"₽ (" + str(year) + "% скидка)", callback_data='pay_check_business_big_'+ str(prise_y))],
     ]
   return InlineKeyboardMarkup(keyboard)
 

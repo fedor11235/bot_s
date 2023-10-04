@@ -11,6 +11,7 @@ from telegram.ext import Application, CommandHandler, MessageHandler, filters, C
 from dotenv import load_dotenv
 import os
 from requests_data import (
+  upload_promocode,
   get_opt_into,
   set_opt_into,
   parse_view_date,
@@ -26,7 +27,8 @@ from requests_data import (
   create_chanel,
   get_profile,
   recommendations_get,
-  recommendations_ind_get
+  recommendations_ind_get,
+  set_channel
 )
 
 from create_btns import (
@@ -109,7 +111,11 @@ class SlonBot():
       await update.message.reply_text('''*Создайте профиль и добавьте канал*\n\nЧтобы начать использовать бота, сделайте @SlonRobot администратором в канале, а затем пришлите сюда ссылку на канал или просто перешлите из него любое сообщение.\n\nБоту можно не выдавать никаких прав. Данная процедура нужна чтобы подтвердить, что вы являетесь владельцем канала.\n\nДругие полезные команды:\n/partners — сгенерировать уникальный промокод, чтобы вы могли приглашать других пользователей и получать бонусы\n/help — связь со службой поддержки и ответы на часто задаваемые вопросы''', parse_mode="Markdown")
     else:
       req = requests.get('http://localhost:3001/user/promocode' + '?idUser=' + str(update.message.chat.id))
-      await update.message.reply_text(req.json())
+      res = req.json()
+      if res == 'no':
+        await update.message.reply_text('Вы исчерпали лимит генерации промокодов')
+      else:
+        await update.message.reply_text(req.json())
 
   async def handler_business(self, update: Update, _) -> None:
     user_stat = user_check(update.message.chat.id)
@@ -120,7 +126,7 @@ class SlonBot():
         [InlineKeyboardButton("<<Назад", callback_data='testtest'), InlineKeyboardButton("Смотреть предложения", callback_data='watch_see')]
       ]
       reply_markup = InlineKeyboardMarkup(keyboard)
-      await update.message.reply_text('*Подборки* «— это инструмент автоматической масштабной закупки рекламы в топовых telegram-каналах по уникальным ценам.', reply_markup=reply_markup, parse_mode="Markdown")
+      await update.message.reply_text('*Подборки* — это инструмент автоматической масштабной закупки рекламы в топовых telegram-каналах по уникальным ценам.', reply_markup=reply_markup, parse_mode="Markdown")
 
   async def handler_newopt(self, update: Update, _) -> None:
     user_stat = user_check(update.message.chat.id)
@@ -280,7 +286,7 @@ class SlonBot():
         requisites = update.message.text
         data = {'requisites': requisites}
         opt = opt_set(user_id, data)
-        reply_markup = get_opt_create()
+        reply_markup = get_opt_create(opt['chanel'])
         booking_date = opt['booking_date'].split('_')
         booking_date_parse = parse_view_date(booking_date)
         current_datetime = datetime.now()
@@ -306,6 +312,18 @@ class SlonBot():
       )
       except:
         await update.message.reply_text("Упс произошла ошибка")
+      return
+    elif mode == 'promocode':
+      promocode = update.message.text
+      user_change_message_mod(update.message.chat.id, 'standart')
+      res = upload_promocode(user_id, promocode)
+      profile = get_profile(user_id)
+      reply_markup = get_btns_pay(profile['tariffPlan_temp'], profile['discount'], user_id)
+      if res == 'not-exist':
+        await update.message.reply_text(text='Такого промокода не существует')
+      elif res == 'expired':
+        await update.message.reply_text(text='Просроченный промокод')
+      await update.message.reply_text(text='Выберите слона который хотите продлить подписку ' + profile['tariffPlan_temp'].title() + '\n: ',  reply_markup=reply_markup)
       return
     #кнопки на клавиатуре
     if update.message.text == 'Каталог':
@@ -389,7 +407,7 @@ class SlonBot():
             [InlineKeyboardButton("<<Назад", callback_data='testtest'), InlineKeyboardButton("Смотреть предложения", callback_data='watch_see')]
           ]
           reply_markup = InlineKeyboardMarkup(keyboard)
-          await update.message.reply_text('*Подборки* «— это инструмент автоматической масштабной закупки рекламы в топовых telegram-каналах по уникальным ценам.', reply_markup=reply_markup, parse_mode="Markdown")
+          await update.message.reply_text('*Подборки* — это инструмент автоматической масштабной закупки рекламы в топовых telegram-каналах по уникальным ценам.', reply_markup=reply_markup, parse_mode="Markdown")
       return
     elif update.message.text == "Профиль":
       user_stat = user_check(user_id)
@@ -401,6 +419,8 @@ class SlonBot():
       return
     #добавление канала
     elif mode == 'type-chanel':
+      category = update.message.text
+      set_channel(user_id, category)
       await update.message.reply_text('Ваш канал успешно загрегестрирован')
       user_change_message_mod(update.message.chat.id, 'standart')
       
@@ -535,76 +555,61 @@ class SlonBot():
 
     #!Подписчки
     if query_array[0] == 'pay':
+      profile = get_profile(user_id)
       await query.answer()
       if query_array[1] == 'lite':
-        reply_markup = get_btns_pay('lite')
+        reply_markup = get_btns_pay('lite', profile['discount'], user_id)
         await query.edit_message_text(text='Выберите слона который хотите продлить подписку Lite\n: ',  reply_markup=reply_markup)
         return
       elif query_array[1] == 'pro':
-        reply_markup = get_btns_pay('pro')
+        reply_markup = get_btns_pay('pro', profile['discount'], user_id)
         await query.edit_message_text(text='Выберите слона который хотите продлить подписку Pro\n: ',  reply_markup=reply_markup)
         return
       elif query_array[1] == 'business':
-        reply_markup = get_btns_pay('business')
+        reply_markup = get_btns_pay('business', profile['discount'], user_id)
         await query.edit_message_text(text='Выберите слона который хотите продлить подписку Business\n: ',  reply_markup=reply_markup)
         return
       elif query_array[1] == 'check':
         label = ''
-        price = 0
-        value = ''
         sub = ''
         day = ''
+        price = int(query_array[4] + '00')
+        value = query_array[4] + '.00'
         if query_array[2] == 'lite':
           sub = 'lite'
           if query_array[3] == 'litle':
-            label = 'Lite — 290₽/мес.'
-            price = 29000
-            value = '290.00'
+            label = 'Lite — '+query_array[4]+'₽/мес.'
             day = '30'
           elif query_array[3] == 'middle':
-            label = 'Lite — 783₽/3мес.'
-            price = 78300
-            value = 783
+            label = 'Lite — '+query_array[4]+'₽/3мес.'
             day = '90'
           elif query_array[3] == 'big':
-            label = 'Lite — 2784₽/год.'
-            price = 278400
-            value = '2784.00'
+            label = 'Lite — '+query_array[4]+'₽/год.'
             day = '365'
             
         elif query_array[2] == 'pro':
           sub = 'pro'
           if query_array[3] == 'litle':
-            label = 'Pro — 890₽/мес.'
-            price = 89000
-            value = '890.00'
+            label = 'Pro — '+query_array[4]+'₽/мес.'
             day = '30'
           elif query_array[3] == 'middle':
-            label = 'Pro — 2403₽/3мес.'
+            label = 'Pro — '+query_array[4]+'₽/3мес.'
             price = 240300
             day = '90'
           elif query_array[3] == 'big':
-            label = 'Pro — 8544₽/год.'
-            price = 854400
-            value = '8544.00'
+            label = 'Pro — '+query_array[4]+'₽/год.'
             day = '365'
           
         elif query_array[2] == 'business':
           sub = 'business'
           if query_array[3] == 'litle':
-            label = 'Business — 3890₽/мес.'
-            price = 389000
-            value = '3890.00'
+            label = 'Business — '+query_array[4]+'₽/мес.'
             day = '30'
           elif query_array[3] == 'middle':
-            label = 'Business — 10503₽/3мес.'
-            price = 1050300
-            value = '10503.00'
+            label = 'Business — '+query_array[4]+'₽/3мес.'
             day = '90'
           elif query_array[3] == 'big':
-            label = 'Business — 37344₽/год.'
-            price = 3734400
-            value = '37344.00'
+            label = 'Business — '+query_array[4]+'₽/год.'
             day = '365'
         set_tariff_profile(user_id, sub, day)
         await context.bot.send_invoice(chat_id=query.message.chat_id, title="Оплата подписки", description="Для того чтобы оплатить нажмите кнопку ниже:", payload="payload",
@@ -912,10 +917,10 @@ class SlonBot():
     elif query_array[0] == 'lol':
       await query.edit_message_text('''В разработке''')
 
-    # elif query_array[0] == 'promocode':
-    #   if query_array[1] == 'enter':
-    #     await query.edit_message_text('''Вводите промокод: ''',  parse_mode="Markdown")
-    #     user_change_message_mod(user_id, 'standart')
+    elif query_array[0] == 'promocode':
+      if query_array[1] == 'enter':
+        await query.edit_message_text('''Вводите промокод: ''',  parse_mode="Markdown")
+        user_change_message_mod(user_id, 'promocode')
 
     elif query_array[0] == 'empty':
       await query.answer()
