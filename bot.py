@@ -11,6 +11,7 @@ from telegram.ext import Application, CommandHandler, MessageHandler, filters, C
 from dotenv import load_dotenv
 import os
 from requests_data import (
+  set_opt_recommendation_into,
   upload_promocode,
   get_opt_into,
   set_opt_into,
@@ -90,7 +91,8 @@ class SlonBot():
     application.run_polling()
 
   async def handler_start(self, update: Update, _) -> None:
-    user_stat = user_check(update.message.chat.id)
+    user_id = update.message.chat.id
+    user_stat = user_check(user_id)
     keyboard = [
       # [KeyboardButton("Каталог")],
       [KeyboardButton("Создать опт"), KeyboardButton("Зайти в опт")],
@@ -101,6 +103,7 @@ class SlonBot():
       await update.message.reply_text('''*Создайте профиль и добавьте канал*\n\nЧтобы начать использовать бота, сделайте @SlonRobot администратором в канале, а затем пришлите сюда ссылку на канал или просто перешлите из него любое сообщение.\n\nБоту можно не выдавать никаких прав. Данная процедура нужна чтобы подтвердить, что вы являетесь владельцем канала.\n\nДругие полезные команды:\n/partners — сгенерировать уникальный промокод, чтобы вы могли приглашать других пользователей и получать бонусы\n/help — связь со службой поддержки и ответы на часто задаваемые вопросы''',
         reply_markup=reply_markup, parse_mode="Markdown")
     else:
+      user_change_message_mod(user_id, 'standart')
       await update.message.reply_text('''\nВоспользуйтесь кнопками ниже или основным меню для работы с ботом:''', 
         reply_markup=reply_markup, parse_mode="Markdown")
 
@@ -131,7 +134,8 @@ class SlonBot():
       await update.message.reply_text('*Подборки* — это инструмент автоматической масштабной закупки рекламы в топовых telegram-каналах по уникальным ценам.', reply_markup=reply_markup, parse_mode="Markdown")
 
   async def handler_newopt(self, update: Update, _) -> None:
-    user_stat = user_check(update.message.chat.id)
+    user_id = update.message.chat.id
+    user_stat = user_check(user_id)
     if user_stat == 'empty':
       keyboard = [
         [InlineKeyboardButton("Добавить канал", callback_data='chanelAdd')],
@@ -139,13 +143,24 @@ class SlonBot():
       reply_markup =  InlineKeyboardMarkup(keyboard)
       await update.message.reply_text('''*Сначала создайте профиль*\n\nЧтобы начать использовать бота, сделайте @SlonRobot администратором в канале, а затем пришлите сюда ссылку на канал или просто перешлите из него любое сообщение.\n\nБоту можно не выдавать никаких прав. Данная процедура нужна чтобы подтвердить, что вы являетесь владельцем канала.\n\nДругие полезные команды:\n/partners — сгенерировать уникальный промокод, чтобы вы могли приглашать других пользователей и получать бонусы\n/help — связь со службой поддержки и ответы на часто задаваемые вопросы''', parse_mode="Markdown")
     else:
-      req = requests.get(
-        'http://localhost:3001/chanel/user' +
-        '?idUser=' + str(update.message.chat.id)
-        )
-      chanels = req.json()
-      reply_markup = get_user_chanels(chanels)
-      await update.message.reply_text('Выберите канал в котором хотите собрать опт:', reply_markup=reply_markup)
+      user = get_profile(user_id)
+      tariff_plan = user['tariffPlan']
+      if tariff_plan == 'base':
+          keyboard = [
+            [InlineKeyboardButton("Lite — 290₽/мес.", callback_data='pay_lite')],
+            [InlineKeyboardButton("Pro — 890₽/мес.", callback_data='pay_pro')],
+            [InlineKeyboardButton("Business — 3890₽/мес.", callback_data='pay_business')],
+          ]
+          reply_markup = InlineKeyboardMarkup(keyboard)
+          await update.message.reply_text('''*Lite*\n• доступ к полному функционалу каталога\n• подключение до 2 каналов к боту\n• создание до 2 оптов в месяц\n• до 10 мест в каждом созданном опте\n• покупка до 10 оптов в месяц\n• статус подтвержденного канала в каталоге\n\n*Pro*\n• доступ к полному функционалу каталога\n• безлимит на подключение каналов\n• безлимит на создание оптов\n• до 20 мест в каждом созданном опте\n• безлимит на покупку оптов\n• статус подтвержденного канала в каталоге\n\n*Business*\n• все вышеперечисленные функции\n• до 30 мест в каждом созданном опте\n• доступ к уникальным подборкам в крупнейших и авторских каналах от команды Slon''', reply_markup=reply_markup, parse_mode="Markdown")
+      else:
+        req = requests.get(
+          'http://localhost:3001/chanel/user' +
+          '?idUser=' + str(update.message.chat.id)
+          )
+        chanels = req.json()
+        reply_markup = get_user_chanels(chanels)
+        await update.message.reply_text('Выберите канал в котором хотите собрать опт:', reply_markup=reply_markup)
     return
 
   async def handler_getopt(self, update: Update, _) -> None:
@@ -174,7 +189,6 @@ class SlonBot():
     elif mode == 'opt-wholesale-cost':
       try:
         profile = get_profile(user_id)
-        # print(profile['opt_chanel_create'])
         opt = opt_get(user_id)
         wholesale_cost = int(update.message.text)
 
@@ -253,13 +267,13 @@ class SlonBot():
       opt = opt_get(user_id)
       booking_date = opt['booking_date']
       booking_date = booking_date.split('_')
-      booking_date = list(map(lambda x: x.split('/')[1], booking_date))
-      test = list(map(lambda x: float(x.split('.')[1] +'.'+x.split('.')[0]), booking_date))
-      date_max = str(max(test))
-      date_min = str(min(test) )
+      booking_date = list(map(lambda x: time.strptime(x.split('/')[1], '%d.%m'), booking_date))
+      # test = list(map(lambda x: float(x.split('.')[1] +'.'+x.split('.')[0]), booking_date))
+      date_max = max(booking_date)
+      date_min = min(booking_date)
 
-      date_max = date_max.split('.')[1] + '.' + date_max.split('.')[0]
-      date_min = date_min.split('.')[1] + '.' + date_min.split('.')[0]
+      # date_max = date_max.split('.')[1] + '.' + date_max.split('.')[0]
+      # date_min = date_min.split('.')[1] + '.' + date_min.split('.')[0]
       deadline_date = update.message.text
       # pattern = "[-+]?(?:\d+(?:\.\d*)?|\.\d+)(?:[eE][-+]?\d+)?"
       # match = re.fullmatch(pattern, deadline_date)
@@ -268,8 +282,11 @@ class SlonBot():
       except:
         await update.message.reply_text('Вы ввели некоректные данные, повторите ввод:')
         return
-      date_max = time.strptime(date_max, '%d.%m')
-      date_min = time.strptime(date_min, '%d.%m')
+      print(booking_date)
+      print('самая большая дата ' + str(date_max))
+      print('самая маленькая дата ' + str(date_min))
+      # date_max = time.strptime(date_max, '%d.%m')
+      # date_min = time.strptime(date_min, '%d.%m')
 
       # date_for_test = float(deadline_date.split('.')[1] +'.'+deadline_date.split('.')[0])
       if valid_date > date_max:
@@ -436,8 +453,6 @@ class SlonBot():
           chat_info = await context.bot.get_chat(chat_id=idChanel)
           
           status = create_chanel(user_id, idChanel, chat_info.title)
-          
-          print(idChanel = update.message.forward_from_chat)
 
           if status == 'exist':
             await update.message.reply_text('Такой канал уже добавлен')
@@ -495,7 +510,6 @@ class SlonBot():
           status = create_chanel(user_id, idChanel, chat_info.title, update.message.from_user.username)
           # user_change_message_mod(update.message.chat.id, 'type-chanel')
         else:
-          print(update.message.from_user.username)
           if 'https' in update.message.text:
             username = '@' + update.message.text.split('/')[-1]
 
@@ -673,7 +687,6 @@ class SlonBot():
       reply_markup =  set_filters(query_array[1], query_array[0])
       await query.edit_message_text('Фильтры', reply_markup=reply_markup)
     elif query_array[0] == 'apply':
-      print(query_array)
       profile = get_profile(user_id)
       categoriesArray = go_chanel_opt_into(query_array[1], 1, 10, 1, profile['filter_opt'], user_id)
       await query.edit_message_text('все каналы', reply_markup=categoriesArray)
@@ -798,11 +811,28 @@ class SlonBot():
             reply_markup = go_into_opt_user()
             await query.message.reply_text('Зайти в опт', reply_markup=reply_markup)
           if query_array[3] == 'data':
-            print(query.from_user.username)
-            username = query.from_user.username
-            reply_markup = get_reservation_into_table(bookeds={}, offset = 0, username=username)
+            # username = query.from_user.username
+            opt_old = set_opt_into(user_id, query_array[4],  {})
+
+            bookeds = []
+            booked_send = ''
+            if opt_old != None:
+              if isinstance(opt_old['booking_date'], str):
+                booked_send = opt_old['booking_date']
+                bookeds = booked_send.split('_')
+
+            repeated_elements = [item for item, count in Counter(bookeds).items() if count > 1]
+
+            c = list(set(bookeds) ^ set(repeated_elements))
+            c = [s for s in c if s]
+
+            str_booked = '_'.join(c)
+
+            opt = set_opt_into(user_id, query_array[1],  {'booking_date': str_booked})
+
+            # reply_markup = get_reservation_into_table(bookeds=c, offset = offset, channel=query_array[1])
+            reply_markup = get_reservation_into_table(bookeds=c, offset = 0, channel=query_array[4])
             await query.edit_message_text('Выберите доступные для брони слоты:', reply_markup=reply_markup)
-            print('data')
           elif query_array[3] == 'next':
             old = int(query_array[4])
             start_cut = old * 10
@@ -813,8 +843,6 @@ class SlonBot():
             await query.edit_message_text('Выберите опт', reply_markup=reply_markup)
             return
           elif query_array[3] == 'filters':
-            print('filters')
-            print(query_array)
             user = get_profile(user_id)
             filter = parse_filter(user['filter_opt'])
             if not filter:
@@ -823,8 +851,7 @@ class SlonBot():
             await query.message.reply_text('Фильтры:', reply_markup=reply_markup)
           elif query_array[3] == 'old':
             opt = user_get_stat_opt(query_array[4])
-            reply_markup = user_get_btns_into(query_array[2])
-            print(opt)
+            reply_markup = user_get_btns_into(query_array[2], opt['chanel'] )
             booking_date = opt['booking_date'].split('_')
             booking_date_parse = parse_view_date(booking_date)
             profile = get_profile(opt['user_id'])
@@ -839,8 +866,6 @@ class SlonBot():
 Владелец: '''+ str(profile['username']) +'''
 ''', reply_markup=reply_markup)
           elif query_array[3] == 'init':
-            # print(query_array)
-            # print('init')
             start_cut = 1
             finish_cut = 10
             page = 1
@@ -913,7 +938,7 @@ class SlonBot():
     elif query_array[0] == 'watch':
       if query_array[1] == 'see':
         profile = get_profile(user_id)
-        if profile['tariffPlan'] == 'base':
+        if profile['tariffPlan'] == 'base' or profile['tariffPlan'] == 'lite':
           keyboard = [
             [InlineKeyboardButton("Lite — 290₽/мес.", callback_data='pay_lite')],
             [InlineKeyboardButton("Pro — 890₽/мес.", callback_data='pay_pro')],
@@ -971,8 +996,12 @@ class SlonBot():
 
     elif query_array[0] == 'opt-into':
       new_booket = ''
-      username = query_array[1]
+      # username = query_array[1]
       offset= 0
+      try:
+        offset = query_array[3]
+      except:
+        offset= 0
 
       if query_array[2] == 'more':
         offset_old = int(query_array[3])
@@ -981,18 +1010,17 @@ class SlonBot():
         else:
           offset = offset_old
       elif query_array[2] == 'confirm':
-        keyboard = [
-          [InlineKeyboardButton("Вернуться в предложения", callback_data='test')]
-        ]
-        reply_markup = InlineKeyboardMarkup(keyboard)
+        # keyboard = [
+        #   [InlineKeyboardButton("Вернуться в предложения", callback_data='test')]
+        # ]
+        # reply_markup = InlineKeyboardMarkup(keyboard)
+        opt_old = set_opt_recommendation_into(user_id, query_array[1],  {'status': 'confirm'})
         await query.edit_message_text('Креативы переданы владельцу канала. Вам придет уведомление когда он ответит.')
         return
       elif  'morning' in query_array[2] or 'day' in query_array[2] or 'evening' in query_array[2]:
         new_booket = query_array[2]
 
-      opt_old = get_opt_into(username)
-
-      print(query_array)
+      opt_old = set_opt_recommendation_into(user_id, query_array[1],  {})
 
       bookeds = []
       booked_send = ''
@@ -1007,11 +1035,10 @@ class SlonBot():
       c = [s for s in c if s]
 
       str_booked = '_'.join(c)
-      print(str_booked)
 
-      set_opt_into(user_id, username,  str_booked)
-        
-      reply_markup = get_reservation_into_table(bookeds=c, offset = offset, username=username)
+      opt = set_opt_recommendation_into(user_id, query_array[1],  {'booking_date': str_booked})
+
+      reply_markup = get_reservation_into_table(bookeds=c, offset = offset, channel=query_array[1])
       await query.edit_message_text('Выберите доступные для брони слоты:', reply_markup=reply_markup)
 
 
@@ -1029,11 +1056,9 @@ class SlonBot():
 
   async def handler_test(self, update: Update, context) -> None:
     text = '@aaaaaaaaawd'
-    print(update.callback_query)
     test = await context.bot.get_chat(chat_id=text)
     # test = self.ug.get_user(first_name="Test", last_name="The Bot")
     # test = await update.get_user(text='')
-    print(test.title)
 
   async def handler_secret_profile_base(self, update: Update, context) -> None:
     id = update.message.chat.id
@@ -1050,8 +1075,8 @@ class SlonBot():
     await update.message.reply_text('У вас подписка pro')
   async def handler_secret_profile_business(self, update: Update, context) -> None:
     id = update.message.chat.id
-    set_tariff_profile(id, 'busines', 30)
-    await update.message.reply_text('У вас подписка busines')
+    set_tariff_profile(id, 'business', 30)
+    await update.message.reply_text('У вас подписка business')
 
 def main() -> None:
   load_dotenv()

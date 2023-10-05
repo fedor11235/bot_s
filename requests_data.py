@@ -125,14 +125,24 @@ def get_opt_into(id):
   )
   return req.json()
 
-def set_opt_into(id, idOpt, time):
+def set_opt_into(id, idOpt, payload):
   req = requests.post(
     'http://localhost:3001/opt/into/set' +
     '?idUser=' + str(id) +
-    '&idOpt=' + str(idOpt) +
-    '&bookingDate=' + str(time),
+    '&idOpt=' + str(idOpt),
+    payload
   )
   return req.json()
+
+def set_opt_recommendation_into(id, idOpt, payload):
+  req = requests.post(
+    'http://localhost:3001/opt/into-recommendation/set' +
+    '?idUser=' + str(id) +
+    '&idOpt=' + str(idOpt),
+    payload
+  )
+  return req.json()
+
 
 def upload_promocode(id, promocode):
   req = requests.get(
