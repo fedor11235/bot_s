@@ -282,9 +282,9 @@ class SlonBot():
       except:
         await update.message.reply_text('Вы ввели некоректные данные, повторите ввод:')
         return
-      print(booking_date)
-      print('самая большая дата ' + str(date_max))
-      print('самая маленькая дата ' + str(date_min))
+      # print(booking_date)
+      # print('самая большая дата ' + str(date_max))
+      # print('самая маленькая дата ' + str(date_min))
       # date_max = time.strptime(date_max, '%d.%m')
       # date_min = time.strptime(date_min, '%d.%m')
 
