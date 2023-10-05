@@ -171,6 +171,7 @@ def map_en(word):
 def parse_view_date(date_array):
   test = list(map(lambda x: x.split('/'), date_array))
   test = list(map(lambda x: x[1] + ' ('+ map_en(x[0])+ ')', test))
+  test.sort(reverse=True)
   test = reduce(lambda x, y: x + '\n' + y, test)
   return test
   # reduce(lambda x, y: x + '\n' + y, booking_date)

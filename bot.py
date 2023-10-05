@@ -33,6 +33,7 @@ from requests_data import (
 )
 
 from create_btns import (
+  get_reservation_req_table,
   get_btns_categories,
   get_reservation_into_table,
   btns_recommendations_get,
@@ -205,7 +206,7 @@ class SlonBot():
     elif mode == 'opt-minimum-permissible-value':
       try:
         opt_minimum = int(update.message.text)
-        if opt_minimum > 3 and opt_minimum < 10:
+        if opt_minimum >= 3 and opt_minimum <= 10:
           data = {'min_places': str(opt_minimum)}
           opt_set(user_id, data)
           user_change_message_mod(user_id, 'opt-maximum-permissible-value')
@@ -272,21 +273,12 @@ class SlonBot():
       date_max = max(booking_date)
       date_min = min(booking_date)
 
-      # date_max = date_max.split('.')[1] + '.' + date_max.split('.')[0]
-      # date_min = date_min.split('.')[1] + '.' + date_min.split('.')[0]
       deadline_date = update.message.text
-      # pattern = "[-+]?(?:\d+(?:\.\d*)?|\.\d+)(?:[eE][-+]?\d+)?"
-      # match = re.fullmatch(pattern, deadline_date)
       try:
         valid_date = time.strptime(deadline_date, '%d.%m')
       except:
         await update.message.reply_text('Вы ввели некоректные данные, повторите ввод:')
         return
-      # print(booking_date)
-      # print('самая большая дата ' + str(date_max))
-      # print('самая маленькая дата ' + str(date_min))
-      # date_max = time.strptime(date_max, '%d.%m')
-      # date_min = time.strptime(date_min, '%d.%m')
 
       # date_for_test = float(deadline_date.split('.')[1] +'.'+deadline_date.split('.')[0])
       if valid_date > date_max:
@@ -521,6 +513,7 @@ class SlonBot():
             except:
               await update.message.reply_text('Бот не принимает ссылки на частные каналы и чаты. Отправьте @username или ID канала, или просто перешлите любое сообщение из него прямо сюда.')
               user_change_message_mod(update.message.chat.id, 'standart')
+              return
           else:
             await context.bot.get_chat_member(user_id=6569483795, chat_id=update.message.text)
             chat_info = await context.bot.get_chat(chat_id=update.message.text)
@@ -809,17 +802,19 @@ class SlonBot():
         if query_array[2] in categories:
           if query_array[3] == 'back':
             reply_markup = go_into_opt_user()
-            await query.message.reply_text('Зайти в опт', reply_markup=reply_markup)
+            await query.edit_message_text('Зайти в опт', reply_markup=reply_markup)
           if query_array[3] == 'data':
             # username = query.from_user.username
+            
             opt_old = set_opt_into(user_id, query_array[4],  {})
 
             bookeds = []
             booked_send = ''
+
             if opt_old != None:
-              if isinstance(opt_old['booking_date'], str):
-                booked_send = opt_old['booking_date']
-                bookeds = booked_send.split('_')
+              # if isinstance(opt_old['booking_date'], str):
+              booked_send = opt_old['booking_date']
+              bookeds = booked_send.split('_')
 
             repeated_elements = [item for item, count in Counter(bookeds).items() if count > 1]
 
@@ -827,12 +822,14 @@ class SlonBot():
             c = [s for s in c if s]
 
             str_booked = '_'.join(c)
+            
+            opt = set_opt_into(user_id, query_array[4],  {'booking_date': str_booked})
 
-            opt = set_opt_into(user_id, query_array[1],  {'booking_date': str_booked})
+            allowed_dates = opt['allowed_dates'].split('_')
 
-            # reply_markup = get_reservation_into_table(bookeds=c, offset = offset, channel=query_array[1])
-            reply_markup = get_reservation_into_table(bookeds=c, offset = 0, channel=query_array[4])
+            reply_markup = get_reservation_into_table(bookeds=c, offset = 0, channel=query_array[4], allowed_dates=allowed_dates)
             await query.edit_message_text('Выберите доступные для брони слоты:', reply_markup=reply_markup)
+            return
           elif query_array[3] == 'next':
             old = int(query_array[4])
             start_cut = old * 10
@@ -855,7 +852,7 @@ class SlonBot():
             booking_date = opt['booking_date'].split('_')
             booking_date_parse = parse_view_date(booking_date)
             profile = get_profile(opt['user_id'])
-            await query.message.reply_text('''
+            await query.edit_message_text('''
 Розничная цена: '''+ str(opt['retail_price']) +'''
 Оптовая цена: '''+ str(opt['wholesale_cost']) +'''
 Минимум постов: '''+ str(opt['min_places']) +'''
@@ -936,7 +933,57 @@ class SlonBot():
       await query.edit_message_text('Выберите допустимое время размещений:', reply_markup=reply_markup)
 
     elif query_array[0] == 'watch':
-      if query_array[1] == 'see':
+      if query_array[1] == 'opt-into':
+        new_booket = ''
+        # username = query_array[1]
+        offset= 0
+        try:
+          offset = query_array[4]
+        except:
+          offset= 0
+
+        if query_array[3] == 'more':
+          offset_old = int(query_array[4])
+          if offset_old < 20:
+            offset = offset_old + 10
+          else:
+            offset = offset_old
+        elif query_array[3] == 'confirm':
+          # keyboard = [
+          #   [InlineKeyboardButton("Вернуться в предложения", callback_data='test')]
+          # ]
+          # reply_markup = InlineKeyboardMarkup(keyboard)
+          opt_old = set_opt_recommendation_into(user_id, query_array[1],  {'status': 'confirm'})
+          await query.edit_message_text('Креативы переданы владельцу канала. Вам придет уведомление когда он ответит.')
+          return
+        elif  'morning' in query_array[3] or 'day' in query_array[3] or 'evening' in query_array[3]:
+          new_booket = query_array[3]
+
+        opt_old = set_opt_recommendation_into(user_id, query_array[2],  {})
+
+        print('рекомендации')
+        allowed_dates = opt_old['allowed_dates'].split('_')
+        bookeds = []
+        booked_send = ''
+        if opt_old != None:
+          # if isinstance(opt_old['booking_date'], str):
+          booked_send = opt_old['booking_date'] + '_' + new_booket
+          bookeds = booked_send.split('_')
+
+        repeated_elements = [item for item, count in Counter(bookeds).items() if count > 1]
+
+        c = list(set(bookeds) ^ set(repeated_elements))
+        c = [s for s in c if s]
+
+        str_booked = '_'.join(c)
+
+        opt = set_opt_recommendation_into(user_id, query_array[2],  {'booking_date': str_booked})
+
+        reply_markup = get_reservation_req_table(bookeds=c, offset = offset, channel=query_array[2], allowed_dates=allowed_dates)
+        await query.edit_message_text('Выберите доступные для брони слоты:', reply_markup=reply_markup)
+
+
+      elif query_array[1] == 'see':
         profile = get_profile(user_id)
         if profile['tariffPlan'] == 'base' or profile['tariffPlan'] == 'lite':
           keyboard = [
@@ -954,14 +1001,23 @@ class SlonBot():
         recommendation = recommendations_ind_get(query_array[2])
         keyboard = [
           [InlineKeyboardButton("Назад", callback_data='watch_see')],
-          [InlineKeyboardButton("Выбрать даты", callback_data='opt-into_' + recommendation['username'] + '_init')],
+          [InlineKeyboardButton("Выбрать даты", callback_data='watch_opt-into_' + recommendation['username'] + '_init')],
         ]
         reply_markup = InlineKeyboardMarkup(keyboard)
+        booking_date = recommendation['data_list'].split('_')
+        booking_date_parse = parse_view_date(booking_date)
         await query.edit_message_text('''
-Подписчиков: ??
-Охват: ??
-Стандартная цена: '''+ recommendation['price_standart'] +'''
-Текущая цена: '''+ recommendation['price_now'] +'''
+Подписчиков: '''+ str(recommendation['subscribers']) +'''
+Охват: '''+ str(recommendation['coverage']) +'''
+Стандартная цена: '''+ str(recommendation['price_standart']) +'''
+Текущая цена: '''+ str(recommendation['price_now']) +'''
+Формат: '''+ recommendation['format'] +'''
+Число постов: '''+ str(recommendation['number_posts']) +'''
+Места длля брони: '''+ booking_date_parse +'''
+Ревизиты: '''+ recommendation['requisites'] +'''
+Дедлайн формирования опта: '''+ recommendation['deadline'] +'''
+Юзернейм: '''+ recommendation['username'] +'''
+Информация: '''+ recommendation['info'] +'''
 Контакт для связи: @slon_feedback
 ''', reply_markup=reply_markup)
       elif query_array[1] == 'back':
@@ -1014,20 +1070,21 @@ class SlonBot():
         #   [InlineKeyboardButton("Вернуться в предложения", callback_data='test')]
         # ]
         # reply_markup = InlineKeyboardMarkup(keyboard)
-        opt_old = set_opt_recommendation_into(user_id, query_array[1],  {'status': 'confirm'})
+        opt_old = set_opt_into(user_id, query_array[1],  {'status': 'confirm'})
         await query.edit_message_text('Креативы переданы владельцу канала. Вам придет уведомление когда он ответит.')
         return
       elif  'morning' in query_array[2] or 'day' in query_array[2] or 'evening' in query_array[2]:
         new_booket = query_array[2]
 
-      opt_old = set_opt_recommendation_into(user_id, query_array[1],  {})
-
+      opt_old = set_opt_into(user_id, query_array[1],  {})
+      print('опт')
+      allowed_dates = opt_old['allowed_dates'].split('_')
       bookeds = []
       booked_send = ''
       if opt_old != None:
-        if isinstance(opt_old['booking_date'], str):
-          booked_send = opt_old['booking_date'] + '_' + new_booket
-          bookeds = booked_send.split('_')
+        # if isinstance(opt_old['booking_date'], str):
+        booked_send = opt_old['booking_date'] + '_' + new_booket
+        bookeds = booked_send.split('_')
 
       repeated_elements = [item for item, count in Counter(bookeds).items() if count > 1]
 
@@ -1036,9 +1093,9 @@ class SlonBot():
 
       str_booked = '_'.join(c)
 
-      opt = set_opt_recommendation_into(user_id, query_array[1],  {'booking_date': str_booked})
+      opt = set_opt_into(user_id, query_array[1],  {'booking_date': str_booked})
 
-      reply_markup = get_reservation_into_table(bookeds=c, offset = offset, channel=query_array[1])
+      reply_markup = get_reservation_into_table(bookeds=c, offset = offset, channel=query_array[1], allowed_dates=allowed_dates)
       await query.edit_message_text('Выберите доступные для брони слоты:', reply_markup=reply_markup)
 
 
