@@ -152,6 +152,14 @@ def upload_promocode(id, promocode):
   )
   return req.json()
 
+def set_any_profile(id, data):
+  req = requests.post(
+    'http://localhost:3001/user/set/profile' +
+    '?idUser=' + str(id),
+    data=data
+  )
+  return req.json()
+
 def set_channel(id, category):
   req = requests.get(
     'http://localhost:3001/chanel/user/set-channel' +

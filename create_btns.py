@@ -382,6 +382,7 @@ def get_reservation_into_table(bookeds=[], offset = 0, channel="", allowed_dates
   for data in dates:
     keyboard.append([InlineKeyboardButton(data, callback_data='empty'), InlineKeyboardButton(check_morning_into(data, bookeds, allowed_dates)[0] , callback_data='opt-into_' + channel + '_morning/' + data + "_" +str(offset) if check_morning_into(data, bookeds, allowed_dates)[1] else 'empty'), InlineKeyboardButton(check_day_into(data, bookeds, allowed_dates)[0], callback_data='opt-into_' + channel + '_day/' + data + "_" +str(offset) if check_day_into(data, bookeds, allowed_dates)[1] else 'empty'), InlineKeyboardButton(check_evening_into(data, bookeds, allowed_dates)[0], callback_data='opt-into_' + channel + '_evening/' + data + "_" +str(offset) if check_evening_into(data, bookeds, allowed_dates)[1] else 'empty')])
   keyboard.append([InlineKeyboardButton("Больше дат", callback_data='opt-into_' + channel + '_more_' + str(offset)), InlineKeyboardButton("Потдвердить", callback_data='opt-into_' + channel + '_confirm')])
+  keyboard.append([InlineKeyboardButton("Назад", callback_data='opt_into_all_init')])
   return InlineKeyboardMarkup(keyboard)
 
 
@@ -395,4 +396,5 @@ def get_reservation_req_table(bookeds=[], offset = 0, channel="", allowed_dates=
   for data in dates:
     keyboard.append([InlineKeyboardButton(data, callback_data='empty'), InlineKeyboardButton(check_morning_into(data, bookeds, allowed_dates)[0] , callback_data='watch_opt-into_' + channel + '_morning/' + data + "_" +str(offset) if check_morning_into(data, bookeds, allowed_dates)[1] else 'empty'), InlineKeyboardButton(check_day_into(data, bookeds, allowed_dates)[0], callback_data='watch_opt-into_' + channel + '_day/' + data + "_" +str(offset) if check_day_into(data, bookeds, allowed_dates)[1] else 'empty'), InlineKeyboardButton(check_evening_into(data, bookeds, allowed_dates)[0], callback_data='watch_opt-into_' + channel + '_evening/' + data + "_" +str(offset) if check_evening_into(data, bookeds, allowed_dates)[1] else 'empty')])
   keyboard.append([InlineKeyboardButton("Больше дат", callback_data='watch_opt-into_' + channel + '_more_' + str(offset)), InlineKeyboardButton("Потдвердить", callback_data='watch_opt-into_' + channel + '_confirm')])
+  keyboard.append([InlineKeyboardButton("Назад", callback_data='watch_see')])
   return InlineKeyboardMarkup(keyboard)
