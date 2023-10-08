@@ -1061,38 +1061,63 @@ class SlonBot():
       booking_date_old = ''
       opt_old = opt_get(user_id)
       offset = 0
+      print(query_array)
       if query_array[1] == 'more':
         offset_old = int(query_array[2])
         if offset_old < 20:
           offset = offset_old + 10
         else:
           offset = offset_old
+        if opt_old != None:
+          if isinstance(opt_old['booking_date'], str):
+            booking_date_old += opt_old['booking_date']
+          booking_date = booking_date_old + '_' + query_array[1]
+          array_booking_date = booking_date.split('_')
+
+          repeated_elements = [item for item, count in Counter(array_booking_date).items() if count > 1]
+
+          c = list(set(array_booking_date) ^ set(repeated_elements))
+          c = [s for s in c if s]
+
+          final = reduce(lambda x, y: x + '_' + y, c)
+
+          data = {'booking_date': final}
+          opt = opt_set(user_id, data)
+
+          bookeds = []
+          if opt != None:
+            if isinstance(opt['booking_date'], str):
+              bookeds = opt['booking_date'].split('_')
+          
+          reply_markup = get_reservation_more_table(bookeds, offset)
+          await query.edit_message_text('Выберите доступные для брони слоты:', reply_markup=reply_markup)
       else:
         offset = query_array[2]
-      if opt_old != None:
-        if isinstance(opt_old['booking_date'], str):
-          booking_date_old += opt_old['booking_date']
-      booking_date = booking_date_old + '_' + query_array[1]
-      array_booking_date = booking_date.split('_')
+        if opt_old != None:
+          if isinstance(opt_old['booking_date'], str):
+            booking_date_old += opt_old['booking_date']
+          booking_date = booking_date_old + '_' + query_array[1]
+          array_booking_date = booking_date.split('_')
 
-      repeated_elements = [item for item, count in Counter(array_booking_date).items() if count > 1]
+          repeated_elements = [item for item, count in Counter(array_booking_date).items() if count > 1]
 
-      c = list(set(array_booking_date) ^ set(repeated_elements))
-      c = [s for s in c if s]
+          c = list(set(array_booking_date) ^ set(repeated_elements))
+          c = [s for s in c if s]
 
-      final = reduce(lambda x, y: x + '_' + y, c)
+          final = reduce(lambda x, y: x + '_' + y, c)
 
-      data = {'booking_date': final}
-      opt = opt_set(user_id, data)
+          data = {'booking_date': final}
+          opt = opt_set(user_id, data)
 
-      bookeds = []
-      if opt != None:
-        if isinstance(opt['booking_date'], str):
-          bookeds = opt['booking_date'].split('_')
-      
-      reply_markup = get_reservation_more_table(bookeds, offset)
-      await query.edit_message_text('Выберите доступные для брони слоты:', reply_markup=reply_markup)
+          bookeds = []
+          if opt != None:
+            if isinstance(opt['booking_date'], str):
+              bookeds = opt['booking_date'].split('_')
+          
+          reply_markup = get_reservation_more_table(bookeds, offset)
+          await query.edit_message_text('Выберите доступные для брони слоты:', reply_markup=reply_markup)
 
+      return
     elif query_array[0] == 'time':
       placement_time_old = ""
       opt_old = opt_get(user_id)
