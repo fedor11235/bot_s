@@ -712,6 +712,8 @@ class SlonBot():
     query_array = query.data.split('_')
     user_id = query.message.chat.id
 
+    print(query_array)
+
     # креативы подборок
     if query_array[0] == 'recommendation-creative-two':
       user_change_message_mod(user_id, 'recommendation-creative-three')
@@ -1067,29 +1069,29 @@ class SlonBot():
           offset = offset_old
       else:
         offset = query_array[2]
-        if opt_old != None:
-          if isinstance(opt_old['booking_date'], str):
-            booking_date_old += opt_old['booking_date']
-        booking_date = booking_date_old + '_' + query_array[1]
-        array_booking_date = booking_date.split('_')
+      if opt_old != None:
+        if isinstance(opt_old['booking_date'], str):
+          booking_date_old += opt_old['booking_date']
+      booking_date = booking_date_old + '_' + query_array[1]
+      array_booking_date = booking_date.split('_')
 
-        repeated_elements = [item for item, count in Counter(array_booking_date).items() if count > 1]
+      repeated_elements = [item for item, count in Counter(array_booking_date).items() if count > 1]
 
-        c = list(set(array_booking_date) ^ set(repeated_elements))
-        c = [s for s in c if s]
+      c = list(set(array_booking_date) ^ set(repeated_elements))
+      c = [s for s in c if s]
 
-        final = reduce(lambda x, y: x + '_' + y, c)
+      final = reduce(lambda x, y: x + '_' + y, c)
 
-        data = {'booking_date': final}
-        opt = opt_set(user_id, data)
+      data = {'booking_date': final}
+      opt = opt_set(user_id, data)
 
-        bookeds = []
-        if opt != None:
-          if isinstance(opt['booking_date'], str):
-            bookeds = opt['booking_date'].split('_')
-        
-        reply_markup = get_reservation_more_table(bookeds, offset)
-        await query.edit_message_text('Выберите доступные для брони слоты:', reply_markup=reply_markup)
+      bookeds = []
+      if opt != None:
+        if isinstance(opt['booking_date'], str):
+          bookeds = opt['booking_date'].split('_')
+      
+      reply_markup = get_reservation_more_table(bookeds, offset)
+      await query.edit_message_text('Выберите доступные для брони слоты:', reply_markup=reply_markup)
 
     elif query_array[0] == 'time':
       placement_time_old = ""
@@ -1170,7 +1172,7 @@ class SlonBot():
 
       elif query_array[1] == 'see':
         profile = get_profile(user_id)
-        if profile['tariffPlan'] == 'base' or profile['tariffPlan'] == 'lite':
+        if profile['tariffPlan'] == 'base' or profile['tariffPlan'] == 'lite'  or profile['tariffPlan'] == 'pro':
           keyboard = [
             [InlineKeyboardButton("Lite — 290₽/мес.", callback_data='pay_lite')],
             [InlineKeyboardButton("Pro — 890₽/мес.", callback_data='pay_pro')],
