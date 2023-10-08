@@ -183,7 +183,7 @@ def check_filter(name, query):
 def set_filters(query, check=""):
   keyboard = []
   keyboard = [
-    [InlineKeyboardButton("Фильтры", callback_data=query + '_static_0')],
+    # [InlineKeyboardButton("Фильтры", callback_data=query + '_static_0')],
     [InlineKeyboardButton("Количество подписчиков"+ check_filter('numberSubscribers', check), callback_data=query_parse('numberSubscribers', query))],
     [InlineKeyboardButton("Индекс цитирования"+ check_filter('indexSay', check), callback_data=query_parse('indexSay', query))],
     [InlineKeyboardButton("Сумарный дневной охват"+ check_filter('coverageDay', check), callback_data=query_parse('coverageDay', query))],
@@ -205,7 +205,7 @@ def set_filters(query, check=""):
 def set_filters_opt(query, check=""):
   keyboard = []
   keyboard = [
-    [InlineKeyboardButton("Фильтры", callback_data=query + '_static_0')],
+    # [InlineKeyboardButton("Фильтры", callback_data=query + '_static_0')],
     [InlineKeyboardButton("Количество подписчиков"+ check_filter('numberSubscribers', check), callback_data=query_parse('numberSubscribers', query))],
     [InlineKeyboardButton("Индекс цитирования"+ check_filter('indexSay', check), callback_data=query_parse('indexSay', query))],
     [InlineKeyboardButton("Сумарный дневной охват"+ check_filter('coverageDay', check), callback_data=query_parse('coverageDay', query))],
@@ -288,7 +288,8 @@ def go_chanel_opt_into(category_type, start_cut, finish_cut, page, filter, idUse
   return categoriesBtns
 
 def parse_categories_opt_into(categoriesArray, category_type, page):
-  arrayBtns = [[InlineKeyboardButton('Фильтры', callback_data='opt_into_'+ category_type +'_filters_' + category_type +'_'+ str(page))]]
+  # arrayBtns = [[InlineKeyboardButton('Фильтры', callback_data='opt_into_'+ category_type +'_filters_' + category_type +'_'+ str(page))]]
+  arrayBtns = []
   for category in categoriesArray:
     arrayBtns.append([InlineKeyboardButton(category['chanel'], callback_data='opt_into_'+ category_type +'_old_' + category['chanel'] + '_' + category_type)])
   arrayBtns.append([InlineKeyboardButton('<<Назад', callback_data=('opt_into_' + category_type +'_back_' + str(page))), InlineKeyboardButton('Далее>>', callback_data=('opt_into_' + category_type +'_next_' + str(page)))])
@@ -297,7 +298,8 @@ def parse_categories_opt_into(categoriesArray, category_type, page):
 def parse_categories_opt(categoriesArray, category_type, page):
   if len(categoriesArray) == 0:
     return False
-  arrayBtns = [[InlineKeyboardButton('Фильтры', callback_data='filters_' + category_type +'_'+ str(page))]]
+  # arrayBtns = [[InlineKeyboardButton('Фильтры', callback_data='filters_' + category_type +'_'+ str(page))]]
+  arrayBtns = []
   for category in categoriesArray:
     arrayBtns.append([InlineKeyboardButton(category['chanel'], callback_data='opt_old_' + category['chanel'] + '_' + category_type)])
   arrayBtns.append([InlineKeyboardButton('<<Назад', callback_data=('opt_' + category_type +'_back_' + str(page))), InlineKeyboardButton('Далее>>', callback_data=('opt_' + category_type +'_next_' + str(page)))])
@@ -306,7 +308,8 @@ def parse_categories_opt(categoriesArray, category_type, page):
 def parse_categories(categoriesArray, category_type, page):
   if len(categoriesArray) == 0:
     return False
-  arrayBtns = [[InlineKeyboardButton('Фильтры', callback_data='filters_' + category_type +'_'+ str(page))]]
+  # arrayBtns = [[InlineKeyboardButton('Фильтры', callback_data='filters_' + category_type +'_'+ str(page))]]
+  arrayBtns= []
   for category in categoriesArray:
     arrayBtns.append([InlineKeyboardButton(category['username'] + ' ' + str(category['participants_count']), callback_data=category['username'] + '_' + category_type)])
   arrayBtns.append([InlineKeyboardButton('<<Назад', callback_data=(category_type +'_back_' + str(page))), InlineKeyboardButton('Далее>>', callback_data=(category_type +'_next_' + str(page)))])

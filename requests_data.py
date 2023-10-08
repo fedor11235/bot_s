@@ -125,20 +125,22 @@ def get_opt_into(id):
   )
   return req.json()
 
-def set_opt_into(id, idOpt, payload):
+def set_opt_into(id, idOpt, payload, delete):
   req = requests.post(
     'http://localhost:3001/opt/into/set' +
     '?idUser=' + str(id) +
-    '&idOpt=' + str(idOpt),
+    '&idOpt=' + str(idOpt) +
+    '&isDel=' + str(delete),
     payload
   )
   return req.json()
 
-def set_opt_recommendation_into(id, idOpt, payload):
+def set_opt_recommendation_into(id, idOpt, payload, delete = 'enabled'):
   req = requests.post(
     'http://localhost:3001/opt/into-recommendation/set' +
     '?idUser=' + str(id) +
-    '&idOpt=' + str(idOpt),
+    '&idOpt=' + str(idOpt) +
+    '&isDel=' + str(delete),
     payload
   )
   return req.json()
@@ -168,6 +170,61 @@ def set_channel(id, category):
   )
   return req.json()
 
+def user_opt(id):
+  req = requests.get(
+    'http://localhost:3001/user/opt-user' +
+    '?idUser=' + str(id)
+  )
+  return req.json()
+
+def user_recommendation_into(id):
+  req = requests.get(
+    'http://localhost:3001/user/recommendation-into-user' +
+    '?idUser=' + str(id)
+  )
+  return req.json()
+
+def user_opt_into(id):
+  req = requests.get(
+    'http://localhost:3001/user/opt-into-user' +
+    '?idUser=' + str(id)
+  )
+  return req.json()
+
+
+def recommendation_requisites(username):
+  req = requests.get(
+    'http://localhost:3001/recommendations/requisites' +
+    '?username=' + str(username)
+  )
+  return req.json()
+
+
+def opt_requisites(channel):
+  req = requests.get(
+    'http://localhost:3001/opt/requisites' +
+    '?channel=' + str(channel)
+  )
+  return req.json()
+
+def recommendation_set_check(id, chennel, file_id):
+  req = requests.get(
+    'http://localhost:3001/recommendations/set-check' +
+    '?idUser=' + str(id) +
+    '&chennel=' + str(chennel) +
+    '&check=' + str(file_id)
+  )
+  return req.json()
+
+def opt_set_check(id, chennel, file_id):
+  req = requests.get(
+    'http://localhost:3001/opt/set-check' +
+    '?idUser=' + str(id) +
+    '&chennel=' + str(chennel) +
+    '&check=' + str(file_id)
+  )
+  return req.json()
+
 def map_en(word):
   if word == 'morning':
     return 'утро'
@@ -177,11 +234,15 @@ def map_en(word):
     return 'вечер'
 
 def parse_view_date(date_array):
-  test = list(map(lambda x: x.split('/'), date_array))
-  test = list(map(lambda x: x[1] + ' ('+ map_en(x[0])+ ')', test))
-  test.sort(reverse=True)
-  test = reduce(lambda x, y: x + '\n' + y, test)
-  return test
+  print(date_array)
+  if date_array[0] != '':
+    test = list(map(lambda x: x.split('/'), date_array))
+    test = list(map(lambda x: x[1] + ' ('+ map_en(x[0])+ ')', test))
+    test.sort(reverse=True)
+    test = reduce(lambda x, y: x + '\n' + y, test)
+    return test
+  else:
+    return ''
   # reduce(lambda x, y: x + '\n' + y, booking_date)
 
 # def set_profile_opt_chanel(id, chanel):

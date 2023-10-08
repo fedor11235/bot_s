@@ -10,7 +10,15 @@ from telegram import InlineKeyboardButton, InlineKeyboardMarkup, ReplyKeyboardMa
 from telegram.ext import Application, CommandHandler, MessageHandler, filters, CallbackQueryHandler, PreCheckoutQueryHandler
 from dotenv import load_dotenv
 import os
+
 from requests_data import (
+  opt_set_check,
+  recommendation_set_check,
+  opt_requisites,
+  recommendation_requisites,
+  user_opt,
+  user_recommendation_into,
+  user_opt_into,
   set_any_profile,
   set_opt_recommendation_into,
   upload_promocode,
@@ -64,7 +72,7 @@ logger = logging.getLogger(__name__)
 # filters_type = ['rating', 'coverage', 'numberSubscribers', 'growthMonth', 'growthWeek', 'new', 'old', 'confirm']
 filters_type = ['repost', 'numberSubscribers', 'coveragePub', 'coverageDay', 'indexSay']
 category_type = ['all', 'education', 'finance', 'health', 'news', 'tech', 'entertainment', 'psychology', 'video', 'author', 'other']
-categories = ['all', 'Образование', 'Финансы', 'Здоровье', 'Новости', 'IT', 'Досуг', 'Психология', 'Видео', 'Авторские', 'Другое']
+categories = ['all', 'Образование', 'Финансы', 'Здоровье', 'Новости', 'IT', 'Досуг', 'Психология', 'Видосики', 'Авторские', 'Другое']
 
 class SlonBot():
   def __init__(self, token):
@@ -88,8 +96,10 @@ class SlonBot():
     application.add_handler(CommandHandler("getopt", self.handler_getopt))
     application.add_handler(CommandHandler("business", self.handler_business))
     application.add_handler(CommandHandler("pay", self.handler_pay))
+    # application.add_handler(ImageHandler("getopt", self.image_handler))
     # application.add_handler(CommandHandler("catalog", self.handler_catalog))
     application.add_handler(MessageHandler(filters.TEXT & ~filters.COMMAND, self.response_from__message))
+    application.add_handler(MessageHandler(filters.PHOTO, self.handler_photo))
     application.run_polling()
 
   async def handler_start(self, update: Update, _) -> None:
@@ -111,6 +121,20 @@ class SlonBot():
 
   async def handler_new_slon(self, update: Update, _) -> None:
     await update.message.reply_text('вы вызвали команду new_slon')
+
+  async def handler_photo(self, update: Update, context) -> None:
+    user_id = update.message.chat.id
+    mode = user_get_message_mod(user_id)
+    file_id = update.message.photo[0].file_id
+    profile = get_profile(user_id)
+    if mode == 'recommendation-check':
+      recommendation_set_check(user_id, profile['rec_into_temp'], file_id)
+    elif mode == 'opt-check':
+      opt_set_check(user_id, profile['rec_into_temp'], file_id)
+  
+    await update.message.reply_text('Чек придет владельцу опта')
+    user_change_message_mod(user_id, 'standart')
+    return
 
   async def handler_partners(self, update: Update, _) -> None:
     user_stat = user_check(update.message.chat.id)
@@ -180,50 +204,50 @@ class SlonBot():
     #ввод креативов подборок
     if mode == 'recommendation-creative-one':
       profile = get_profile(user_id)
-      opt_old = set_opt_recommendation_into(user_id, profile['rec_into_temp'],  {})
+      opt_old = set_opt_recommendation_into(user_id, profile['rec_into_temp'],  {}, 'none')
       creatives = opt_old['creatives'] + '///' + update.message.text
-      set_opt_recommendation_into(user_id, profile['rec_into_temp'],  {'creatives': creatives})
-      keyboard = [[InlineKeyboardButton("Добавить", callback_data='recommendation-creative-two'), InlineKeyboardButton("Потдвердить", callback_data='creative-accept')]]
+      set_opt_recommendation_into(user_id, profile['rec_into_temp'],  {'creatives': creatives}, 'none')
+      keyboard = [[InlineKeyboardButton("Добавить", callback_data='recommendation-creative-two'), InlineKeyboardButton("Потдвердить", callback_data='recommendation-creative-accept')]]
       reply_markup = InlineKeyboardMarkup(keyboard)
       await update.message.reply_text("Хотите отправить креатив?:", reply_markup=reply_markup)
       return
     
     elif mode == 'recommendation-creative-two':
       profile = get_profile(user_id)
-      opt_old = set_opt_recommendation_into(user_id, profile['rec_into_temp'],  {})
+      opt_old = set_opt_recommendation_into(user_id, profile['rec_into_temp'],  {}, 'none')
       creatives = opt_old['creatives'] + '///' + update.message.text
-      set_opt_recommendation_into(user_id, profile['rec_into_temp'],  {'creatives': creatives})
-      keyboard = [[InlineKeyboardButton("Добавить", callback_data='recommendation-creative-three'), InlineKeyboardButton("Потдвердить", callback_data='creative-accept')]]
+      set_opt_recommendation_into(user_id, profile['rec_into_temp'],  {'creatives': creatives}, 'none')
+      keyboard = [[InlineKeyboardButton("Добавить", callback_data='recommendation-creative-three'), InlineKeyboardButton("Потдвердить", callback_data='recommendation-creative-accept')]]
       reply_markup = InlineKeyboardMarkup(keyboard)
       await update.message.reply_text("Хотите отправить креатив?:", reply_markup=reply_markup)
       return
     
     elif mode == 'recommendation-creative-three':
       profile = get_profile(user_id)
-      opt_old = set_opt_recommendation_into(user_id, profile['rec_into_temp'],  {})
+      opt_old = set_opt_recommendation_into(user_id, profile['rec_into_temp'],  {}, 'none')
       creatives = opt_old['creatives'] + '///' + update.message.text
-      set_opt_recommendation_into(user_id, profile['rec_into_temp'],  {'creatives': creatives})
-      keyboard = [[InlineKeyboardButton("Добавить", callback_data='recommendation-creative-four'), InlineKeyboardButton("Потдвердить", callback_data='creative-accept')]]
+      set_opt_recommendation_into(user_id, profile['rec_into_temp'],  {'creatives': creatives}, 'none')
+      keyboard = [[InlineKeyboardButton("Добавить", callback_data='recommendation-creative-four'), InlineKeyboardButton("Потдвердить", callback_data='recommendation-creative-accept')]]
       reply_markup = InlineKeyboardMarkup(keyboard)
       await update.message.reply_text("Хотите отправить креатив?:", reply_markup=reply_markup)
       return
     
     elif mode == 'recommendation-creative-four':
       profile = get_profile(user_id)
-      opt_old = set_opt_recommendation_into(user_id, profile['rec_into_temp'],  {})
+      opt_old = set_opt_recommendation_into(user_id, profile['rec_into_temp'],  {}, 'none')
       creatives = opt_old['creatives'] + '///' + update.message.text
-      set_opt_recommendation_into(user_id, profile['rec_into_temp'],  {'creatives': creatives})
-      keyboard = [[InlineKeyboardButton("Добавить", callback_data='recommendation-creative-five'), InlineKeyboardButton("Потдвердить", callback_data='creative-accept')]]
+      set_opt_recommendation_into(user_id, profile['rec_into_temp'],  {'creatives': creatives}, 'none')
+      keyboard = [[InlineKeyboardButton("Добавить", callback_data='recommendation-creative-five'), InlineKeyboardButton("Потдвердить", callback_data='recommendation-creative-accept')]]
       reply_markup = InlineKeyboardMarkup(keyboard)
       await update.message.reply_text("Хотите отправить креатив?:", reply_markup=reply_markup)
       return
     
     elif mode == 'recommendation-creative-five':
       profile = get_profile(user_id)
-      opt_old = set_opt_recommendation_into(user_id, profile['rec_into_temp'],  {})
+      opt_old = set_opt_recommendation_into(user_id, profile['rec_into_temp'],  {}, 'none')
       creatives = opt_old['creatives'] + '///' + update.message.text
-      set_opt_recommendation_into(user_id, profile['rec_into_temp'],  {'creatives': creatives})
-      keyboard = [[InlineKeyboardButton("Потдвердить", callback_data='creative-accept')]]
+      set_opt_recommendation_into(user_id, profile['rec_into_temp'],  {'creatives': creatives}, 'none')
+      keyboard = [[InlineKeyboardButton("Потдвердить", callback_data='recommendation-creative-accept')]]
       reply_markup = InlineKeyboardMarkup(keyboard)
       await update.message.reply_text("Хотите отправить креатив?:", reply_markup=reply_markup)
       return
@@ -232,50 +256,50 @@ class SlonBot():
     #ввод креативов опта
     elif mode == 'opt-creative-one':
       profile = get_profile(user_id)
-      opt_old = set_opt_into(user_id, profile['opt_into_temp'],  {})
+      opt_old = set_opt_into(user_id, profile['opt_into_temp'],  {}, 'none')
       creatives = opt_old['creatives'] + '///' + update.message.text
-      set_opt_into(user_id, profile['opt_into_temp'],  {'creatives': creatives})
-      keyboard = [[InlineKeyboardButton("Добавить", callback_data='opt-creative-two'), InlineKeyboardButton("Потдвердить", callback_data='creative-accept')]]
+      set_opt_into(user_id, profile['opt_into_temp'],  {'creatives': creatives}, 'none')
+      keyboard = [[InlineKeyboardButton("Добавить", callback_data='opt-creative-two'), InlineKeyboardButton("Потдвердить", callback_data='opt-creative-accept')]]
       reply_markup = InlineKeyboardMarkup(keyboard)
       await update.message.reply_text("Хотите отправить креатив?:", reply_markup=reply_markup)
       return
     
     elif mode == 'opt-creative-two':
       profile = get_profile(user_id)
-      opt_old = set_opt_into(user_id, profile['opt_into_temp'],  {})
+      opt_old = set_opt_into(user_id, profile['opt_into_temp'],  {}, 'none')
       creatives = opt_old['creatives'] + '///' + update.message.text
-      set_opt_into(user_id, profile['opt_into_temp'],  {'creatives': creatives})
-      keyboard = [[InlineKeyboardButton("Добавить", callback_data='opt-creative-three'), InlineKeyboardButton("Потдвердить", callback_data='creative-accept')]]
+      set_opt_into(user_id, profile['opt_into_temp'],  {'creatives': creatives}, 'none')
+      keyboard = [[InlineKeyboardButton("Добавить", callback_data='opt-creative-three'), InlineKeyboardButton("Потдвердить", callback_data='opt-creative-accept')]]
       reply_markup = InlineKeyboardMarkup(keyboard)
       await update.message.reply_text("Хотите отправить креатив?:", reply_markup=reply_markup)
       return
     
     elif mode == 'opt-creative-three':
       profile = get_profile(user_id)
-      opt_old = set_opt_into(user_id, profile['opt_into_temp'],  {})
+      opt_old = set_opt_into(user_id, profile['opt_into_temp'],  {}, 'none')
       creatives = opt_old['creatives'] + '///' + update.message.text
-      set_opt_into(user_id, profile['opt_into_temp'],  {'creatives': creatives})
-      keyboard = [[InlineKeyboardButton("Добавить", callback_data='opt-creative-four'), InlineKeyboardButton("Потдвердить", callback_data='creative-accept')]]
+      set_opt_into(user_id, profile['opt_into_temp'],  {'creatives': creatives}, 'none')
+      keyboard = [[InlineKeyboardButton("Добавить", callback_data='opt-creative-four'), InlineKeyboardButton("Потдвердить", callback_data='opt-creative-accept')]]
       reply_markup = InlineKeyboardMarkup(keyboard)
       await update.message.reply_text("Хотите отправить креатив?:", reply_markup=reply_markup)
       return
     
     elif mode == 'opt-creative-four':
       profile = get_profile(user_id)
-      opt_old = set_opt_into(user_id, profile['opt_into_temp'],  {})
+      opt_old = set_opt_into(user_id, profile['opt_into_temp'],  {}, 'none')
       creatives = opt_old['creatives'] + '///' + update.message.text
-      set_opt_into(user_id, profile['opt_into_temp'],  {'creatives': creatives})
-      keyboard = [[InlineKeyboardButton("Добавить", callback_data='opt-creative-five'), InlineKeyboardButton("Потдвердить", callback_data='creative-accept')]]
+      set_opt_into(user_id, profile['opt_into_temp'],  {'creatives': creatives}, 'none')
+      keyboard = [[InlineKeyboardButton("Добавить", callback_data='opt-creative-five'), InlineKeyboardButton("Потдвердить", callback_data='opt-creative-accept')]]
       reply_markup = InlineKeyboardMarkup(keyboard)
       await update.message.reply_text("Хотите отправить креатив?:", reply_markup=reply_markup)
       return
     
     elif mode == 'opt-creative-five':
       profile = get_profile(user_id)
-      opt_old = set_opt_into(user_id, profile['opt_into_temp'],  {})
+      opt_old = set_opt_into(user_id, profile['opt_into_temp'],  {}, 'none')
       creatives = opt_old['creatives'] + '///' + update.message.text
-      set_opt_into(user_id, profile['opt_into_temp'],  {'creatives': creatives})
-      keyboard = [[InlineKeyboardButton("Потдвердить", callback_data='creative-accept')]]
+      set_opt_into(user_id, profile['opt_into_temp'],  {'creatives': creatives}, 'none')
+      keyboard = [[InlineKeyboardButton("Потдвердить", callback_data='opt-creative-accept')]]
       reply_markup = InlineKeyboardMarkup(keyboard)
       await update.message.reply_text("Хотите отправить креатив?:", reply_markup=reply_markup)
       return
@@ -439,7 +463,7 @@ class SlonBot():
         await update.message.reply_text(text='Такого промокода не существует')
       elif res == 'expired':
         await update.message.reply_text(text='Просроченный промокод')
-      await update.message.reply_text(text='Выберите слона который хотите продлить подписку ' + profile['tariffPlan_temp'].title() + '\n: ',  reply_markup=reply_markup)
+      await update.message.reply_text(text='Выберите срок который хотите продлить подписку *' + profile['tariffPlan_temp'].title() + '*\n: ',  reply_markup=reply_markup, parse_mode="Markdown")
       return
     #кнопки на клавиатуре
     if update.message.text == 'Каталог':
@@ -629,12 +653,19 @@ class SlonBot():
         return
 
   async def handler_profile(self, update: Update, _) -> None:
-    user_stat = user_check(update.message.chat.id)
+    user_id = update.message.chat.id
+    user_stat = user_check(user_id)
     if user_stat == 'empty':
-      await update.message.reply_text('''*Сначала создайте профиль*\n\nЧтобы начать использовать бота, сделайте @SlonRobot администратором в канале, а затем пришлите сюда ссылку на канал или просто перешлите из него любое сообщение.\n\nБоту можно не выдавать никаких прав. Данная процедура нужна чтобы подтвердить, что вы являетесь владельцем канала.\n\nДругие полезные команды:\n/partners — сгенерировать уникальный промокод, чтобы вы могли приглашать других пользователей и получать бонусы\n/help — связь со службой поддержки и ответы на часто задаваемые вопросы''', parse_mode="Markdown")
+      await update.message.reply_text('''*Сначала создайте профиль*\n\nЧтобы начать использовать бота, сделайте @SlonRobot администратором в канале, а затем пришлите сюда ссылку на канал или просто перешлите из него любое сообщение.\n\nБоту можно не выдавать никаких прав. Данная процедура нужна чтобы подтвердить, что вы являетесь владельцем канала.\n\nДругие полезные команды:\n/partners — сгенерировать уникальный промокод, чтобы вы могли приглашать других пользователей и получать бонусы\n/help — связь со службой поддержки и ответы на часто задаваемые вопросы''', reply_markup=reply_markup, parse_mode="Markdown")
     else:
-      profile = get_profile(update.message.chat.id)
-      await update.message.reply_text("*Здесь собирается информация, показывающая насколько вы Slon.*\nПодписка " + profile['tariffPlan'] + " действует до: "+ profile['subscriptionEndDate'] +"\nВаши каналы: " + str(profile['userNumber']) + "\nСоздано оптов: " + str(profile['createdOpt']) + " на сумму " + str(profile['totalSavings']) + "\nКуплено оптов: " + str(profile['byOpt']) + " на сумму " + str(profile['totalEarned']) + "\nВсего сэкономлено:  "+ str(profile['totalEarned']) + "\nПриглашено пользователей: "+ str(profile['totalEarned']) + "\nВсего заработано: "+ str(profile['totalEarned'] )+ "", parse_mode="Markdown")
+      keyboard = [
+        [InlineKeyboardButton("Мои опты", callback_data='my-opt')],
+        [InlineKeyboardButton("В оптах в которых участвуешь", callback_data='my-req')],
+        [InlineKeyboardButton("В подборках в которых участвуешь", callback_data='my-opt-into')],
+      ]
+      reply_markup = InlineKeyboardMarkup(keyboard)
+      profile = get_profile(user_id)
+      await update.message.reply_text("*Здесь собирается информация, показывающая насколько вы Slon.*\nПодписка " + profile['tariffPlan'] + " действует до: "+ profile['subscriptionEndDate'] +"\nВаши каналы: " + str(profile['userNumber']) + "\nСоздано оптов: " + str(profile['optNumber']) + " на сумму " + str(profile['totalSavings']) + "\nКуплено оптов: " + str(profile['byOpt']) + " на сумму " + str(profile['totalEarned']) + "\nВсего сэкономлено:  "+ str(profile['totalEarned']) + "\nПриглашено пользователей: "+ str(profile['totalEarned']) + "\nВсего заработано: "+ str(profile['totalEarned'] )+ "", reply_markup=reply_markup, parse_mode="Markdown")
   
   async def handler_help(self, update: Update, _) -> None:
     await update.message.reply_text('''Возникли вопросы?\n\nМы всегда готовы помочь вам с любые задачи и решение всех интересующих вопросов.\nПросто напишите нам: @slon_feedback''')
@@ -712,9 +743,18 @@ class SlonBot():
       return
     
     # одобрение креативов
-    elif query_array[0] == 'creative-accept':
-      user_change_message_mod(user_id, 'standart')
-      await query.edit_message_text('Креативы переданы владельцу канала. Вам придет уведомление когда он ответит.')
+    elif query_array[0] == 'recommendation-creative-accept':
+      profile = get_profile(user_id)
+      rec_old = recommendation_requisites(profile['rec_into_temp'])
+      user_change_message_mod(user_id, 'recommendation-check')
+      await query.edit_message_text('Креативы переданы владельцу канала. Вам придет уведомление когда он ответит.\n Оплатитите присланные реквизиты и пришлите скрин оплаты:\n' + str(rec_old))
+      return
+    
+    elif query_array[0] == 'opt-creative-accept':
+      profile = get_profile(user_id)
+      opt_old = opt_requisites(profile['opt_into_temp'])
+      user_change_message_mod(user_id, 'opt-check')
+      await query.edit_message_text('Креативы переданы владельцу канала. Вам придет уведомление когда он ответит.\n Оплатитите присланные реквизиты и пришлите скрин оплаты\n' + str(opt_old))
       return
 
     #!Подписчки
@@ -723,15 +763,15 @@ class SlonBot():
       await query.answer()
       if query_array[1] == 'lite':
         reply_markup = get_btns_pay('lite', profile['discount'], user_id)
-        await query.edit_message_text(text='Выберите слона который хотите продлить подписку Lite\n: ',  reply_markup=reply_markup)
+        await query.edit_message_text(text='Выберите срок который хотите продлить подписку *Lite*\n: ',  reply_markup=reply_markup, parse_mode="Markdown")
         return
       elif query_array[1] == 'pro':
         reply_markup = get_btns_pay('pro', profile['discount'], user_id)
-        await query.edit_message_text(text='Выберите слона который хотите продлить подписку Pro\n: ',  reply_markup=reply_markup)
+        await query.edit_message_text(text='Выберите срок который хотите продлить подписку *Pro*\n: ',  reply_markup=reply_markup, parse_mode="Markdown")
         return
       elif query_array[1] == 'business':
         reply_markup = get_btns_pay('business', profile['discount'], user_id)
-        await query.edit_message_text(text='Выберите слона который хотите продлить подписку Business\n: ',  reply_markup=reply_markup)
+        await query.edit_message_text(text='Выберите срок который хотите продлить подписку *Business*\n: ',  reply_markup=reply_markup, parse_mode="Markdown")
         return
       elif query_array[1] == 'check':
         label = ''
@@ -944,7 +984,7 @@ class SlonBot():
           if query_array[3] == 'data':
             # username = query.from_user.username
             
-            opt_old = set_opt_into(user_id, query_array[4],  {})
+            opt_old = set_opt_into(user_id, query_array[4],  {}, 'enabled')
 
             bookeds = []
             booked_send = ''
@@ -961,7 +1001,7 @@ class SlonBot():
 
             str_booked = '_'.join(c)
             
-            opt = set_opt_into(user_id, query_array[4],  {'booking_date': str_booked})
+            opt = set_opt_into(user_id, query_array[4],  {'booking_date': str_booked}, 'none')
 
             allowed_dates = opt['allowed_dates'].split('_')
 
@@ -1071,6 +1111,7 @@ class SlonBot():
       await query.edit_message_text('Выберите допустимое время размещений:', reply_markup=reply_markup)
 
     elif query_array[0] == 'watch':
+      delete = 'enabled'
       if query_array[1] == 'opt-into':
         new_booket = ''
         # username = query_array[1]
@@ -1081,6 +1122,7 @@ class SlonBot():
           offset= 0
 
         if query_array[3] == 'more':
+          delete = 'none'
           offset_old = int(query_array[4])
           if offset_old < 20:
             offset = offset_old + 10
@@ -1089,13 +1131,14 @@ class SlonBot():
         elif query_array[3] == 'confirm':
           set_any_profile(user_id, {'rec_into_temp': query_array[2]})
           user_change_message_mod(user_id, 'recommendation-creative-one')
-          opt_old = set_opt_recommendation_into(user_id, query_array[1],  {'status': 'confirm'})
+          opt_old = set_opt_recommendation_into(user_id, query_array[2],  {'status': 'confirm'}, 'none')
           await query.edit_message_text('Ввыедите креативы опта: ')
           return
         elif  'morning' in query_array[3] or 'day' in query_array[3] or 'evening' in query_array[3]:
           new_booket = query_array[3]
+          delete = 'none'
 
-        opt_old = set_opt_recommendation_into(user_id, query_array[2],  {})
+        opt_old = set_opt_recommendation_into(user_id, query_array[2],  {}, delete)
 
         print('рекомендации')
         allowed_dates = opt_old['allowed_dates'].split('_')
@@ -1113,7 +1156,7 @@ class SlonBot():
 
         str_booked = '_'.join(c)
 
-        opt = set_opt_recommendation_into(user_id, query_array[2],  {'booking_date': str_booked})
+        opt = set_opt_recommendation_into(user_id, query_array[2],  {'booking_date': str_booked}, delete)
 
         reply_markup = get_reservation_req_table(bookeds=c, offset = offset, channel=query_array[2], allowed_dates=allowed_dates)
         await query.edit_message_text('Выберите доступные для брони слоты:', reply_markup=reply_markup)
@@ -1187,6 +1230,7 @@ class SlonBot():
       await query.answer()
 
     elif query_array[0] == 'opt-into':
+      delete = 'enabled'
       new_booket = ''
       # username = query_array[1]
       offset= 0
@@ -1202,15 +1246,16 @@ class SlonBot():
         else:
           offset = offset_old
       elif query_array[2] == 'confirm':
-        opt_old = set_opt_into(user_id, query_array[1],  {'status': 'confirm'})
+        opt_old = set_opt_into(user_id, query_array[1],  {'status': 'confirm'}, 'none')
         set_any_profile(user_id, {'opt_into_temp': query_array[1]})
         user_change_message_mod(user_id, 'opt-creative-one')
         await query.edit_message_text('Ввыедите креативы опта: ')
         return
       elif  'morning' in query_array[2] or 'day' in query_array[2] or 'evening' in query_array[2]:
         new_booket = query_array[2]
+        delete = 'none'
 
-      opt_old = set_opt_into(user_id, query_array[1],  {})
+      opt_old = set_opt_into(user_id, query_array[1],  {}, delete)
       print('опт')
       allowed_dates = opt_old['allowed_dates'].split('_')
       bookeds = []
@@ -1227,12 +1272,66 @@ class SlonBot():
 
       str_booked = '_'.join(c)
 
-      opt = set_opt_into(user_id, query_array[1],  {'booking_date': str_booked})
+      opt = set_opt_into(user_id, query_array[1],  {'booking_date': str_booked}, delete)
 
       reply_markup = get_reservation_into_table(bookeds=c, offset = offset, channel=query_array[1], allowed_dates=allowed_dates)
       await query.edit_message_text('Выберите доступные для брони слоты:', reply_markup=reply_markup)
 
+    elif query_array[0] == 'my-opt':
+      opts = user_opt(user_id)
+      opts_str = ''
+      for opt in opts:
+        opts_str += opt['chanel'] + '\n'
+        if len(opt['users']) > 0:
+          opts_str += 'юзернеймы пользователей и их креативы:\n\n'
+          for user in opt['users']:
+            opts_str += 'юзернейм: ' + user['user']['username'] + '\n'
+            opts_str += 'креатив: ' + user['creatives'].replace('///', '\n') + '\n\n'
+            opts_str +='\n'
+            if user['check']:
+              await context.bot.send_photo(user_id, user['check'], caption=opts_str)
+        
+      keyboard = [
+        [InlineKeyboardButton("Назад", callback_data='my-profile')],
+      ]
+      reply_markup = InlineKeyboardMarkup(keyboard)
+      await query.edit_message_text('Мои опты\n' + opts_str, reply_markup=reply_markup)
 
+    elif query_array[0] == 'my-req':
+      opts = user_recommendation_into(user_id)
+      opts_str = ''
+      for opt in opts:
+        opts_str += opt['chanel'] + '\n'
+      keyboard = [
+        [InlineKeyboardButton("Назад", callback_data='my-profile')],
+      ]
+      reply_markup = InlineKeyboardMarkup(keyboard)
+      await query.edit_message_text('В оптах в которых учавствуешь\n' + opts_str, reply_markup=reply_markup)
+
+    elif query_array[0] == 'my-opt-into':
+      opts = user_opt_into(user_id)
+
+      opts_str = ''
+      for opt in opts:
+        opts_str += opt['chanel'] + '\n'
+        
+      keyboard = [
+        [InlineKeyboardButton("Назад", callback_data='my-profile')],
+      ]
+      reply_markup = InlineKeyboardMarkup(keyboard)
+      await query.edit_message_text('В подборках в которых участвуешь\n' + opts_str, reply_markup=reply_markup)
+
+
+    elif query_array[0] == 'my-profile':
+      user_id = query.message.chat.id
+      keyboard = [
+        [InlineKeyboardButton("Мои опты", callback_data='my-opt')],
+        [InlineKeyboardButton("В оптах в которых участвуешь", callback_data='my-req')],
+        [InlineKeyboardButton("В подборках в которых участвуешь", callback_data='my-opt-into')],
+      ]
+      reply_markup = InlineKeyboardMarkup(keyboard)
+      profile = get_profile(user_id)
+      await query.edit_message_text("*Здесь собирается информация, показывающая насколько вы Slon.*\nПодписка " + profile['tariffPlan'] + " действует до: "+ profile['subscriptionEndDate'] +"\nВаши каналы: " + str(profile['userNumber']) + "\nСоздано оптов: " + str(profile['optNumber']) + " на сумму " + str(profile['totalSavings']) + "\nКуплено оптов: " + str(profile['byOpt']) + " на сумму " + str(profile['totalEarned']) + "\nВсего сэкономлено:  "+ str(profile['totalEarned']) + "\nПриглашено пользователей: "+ str(profile['totalEarned']) + "\nВсего заработано: "+ str(profile['totalEarned'] )+ "", reply_markup=reply_markup, parse_mode="Markdown")
 
 
 
