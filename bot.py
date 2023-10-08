@@ -554,9 +554,15 @@ class SlonBot():
       if user_stat == 'empty':
         await update.message.reply_text('''*Сначала создайте профиль*\n\nЧтобы начать использовать бота, сделайте @SlonRobot администратором в канале, а затем пришлите сюда ссылку на канал или просто перешлите из него любое сообщение.\n\nБоту можно не выдавать никаких прав. Данная процедура нужна чтобы подтвердить, что вы являетесь владельцем канала.\n\nДругие полезные команды:\n/partners — сгенерировать уникальный промокод, чтобы вы могли приглашать других пользователей и получать бонусы\n/help — связь со службой поддержки и ответы на часто задаваемые вопросы''', parse_mode="Markdown")
       else:
-        profile = get_profile(update.message.chat.id)
-        await update.message.reply_text("*Здесь собирается информация, показывающая насколько вы Slon.*\n\nПодписка " + profile['tariffPlan'] + " действует до: "+ profile['subscriptionEndDate'] +"\nВаши каналы: " + str(profile['userNumber']) + "\nСоздано оптов: " + str(profile['optNumber']) + " на сумму " + str(profile['totalSavings']) + "\nКуплено оптов: " + str(profile['byOpt']) + " на сумму " + str(profile['totalEarned']) + "\nВсего сэкономлено:  "+ str(profile['totalEarned']) + "\nПриглашено пользователей: "+ str(profile['totalEarned']) + "\nВсего заработано: "+ str(profile['totalEarned'] )+ "", parse_mode="Markdown")    
-      return
+        keyboard = [
+          [InlineKeyboardButton("Мои опты", callback_data='my-opt')],
+          [InlineKeyboardButton("В оптах в которых участвуешь", callback_data='my-req')],
+          [InlineKeyboardButton("В подборках в которых участвуешь", callback_data='my-opt-into')],
+        ]
+        reply_markup = InlineKeyboardMarkup(keyboard)
+        profile = get_profile(user_id)
+        await update.message.reply_text("*Здесь собирается информация, показывающая насколько вы Slon.*\nПодписка " + profile['tariffPlan'] + " действует до: "+ profile['subscriptionEndDate'] +"\nВаши каналы: " + str(profile['userNumber']) + "\nСоздано оптов: " + str(profile['optNumber']) + " на сумму " + str(profile['totalSavings']) + "\nКуплено оптов: " + str(profile['byOpt']) + " на сумму " + str(profile['totalEarned']) + "\nВсего сэкономлено:  "+ str(profile['totalEarned']) + "\nПриглашено пользователей: "+ str(profile['totalEarned']) + "\nВсего заработано: "+ str(profile['totalEarned'] )+ "", reply_markup=reply_markup, parse_mode="Markdown")
+        return
     #добавление канала
     elif mode == 'chanel':
       status = ''
@@ -1297,7 +1303,8 @@ class SlonBot():
       reply_markup = InlineKeyboardMarkup(keyboard)
       await query.edit_message_text('Мои опты\n' + opts_str, reply_markup=reply_markup)
 
-    elif query_array[0] == 'my-req':
+    # в подборках в которых учатсвешь
+    elif query_array[0] == 'my-opt-into':
       opts = user_recommendation_into(user_id)
       opts_str = ''
       for opt in opts:
@@ -1306,9 +1313,10 @@ class SlonBot():
         [InlineKeyboardButton("Назад", callback_data='my-profile')],
       ]
       reply_markup = InlineKeyboardMarkup(keyboard)
-      await query.edit_message_text('В оптах в которых учавствуешь\n' + opts_str, reply_markup=reply_markup)
+      await query.edit_message_text('В подборках в которых учавствуешь\n' + opts_str, reply_markup=reply_markup)
 
-    elif query_array[0] == 'my-opt-into':
+    # в оптах в которых учатсвешь
+    elif query_array[0] == 'my-req':
       opts = user_opt_into(user_id)
 
       opts_str = ''
@@ -1319,7 +1327,7 @@ class SlonBot():
         [InlineKeyboardButton("Назад", callback_data='my-profile')],
       ]
       reply_markup = InlineKeyboardMarkup(keyboard)
-      await query.edit_message_text('В подборках в которых участвуешь\n' + opts_str, reply_markup=reply_markup)
+      await query.edit_message_text('В оптах в которых участвуешь\n' + opts_str, reply_markup=reply_markup)
 
 
     elif query_array[0] == 'my-profile':

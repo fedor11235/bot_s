@@ -226,6 +226,7 @@ def opt_set_check(id, chennel, file_id):
   return req.json()
 
 def map_en(word):
+  print(word)
   if word == 'morning':
     return 'утро'
   elif word == 'day':
@@ -237,6 +238,7 @@ def parse_view_date(date_array):
   print(date_array)
   if date_array[0] != '':
     test = list(map(lambda x: x.split('/'), date_array))
+    print(test)
     test = list(map(lambda x: x[1] + ' ('+ map_en(x[0])+ ')', test))
     test.sort(reverse=True)
     test = reduce(lambda x, y: x + '\n' + y, test)
