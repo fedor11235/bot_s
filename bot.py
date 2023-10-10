@@ -125,12 +125,16 @@ class SlonBot():
   async def handler_photo(self, update: Update, context) -> None:
     user_id = update.message.chat.id
     mode = user_get_message_mod(user_id)
-    file_id = update.message.photo[0].file_id
+    file_id = update.message.photo[-1].file_id
     profile = get_profile(user_id)
+
+    file_info = await context.bot.get_file(file_id)
+    file_path = file_info.file_path
+
     if mode == 'recommendation-check':
-      recommendation_set_check(user_id, profile['rec_into_temp'], file_id)
+      recommendation_set_check(user_id, profile['rec_into_temp'], file_id, file_path)
     elif mode == 'opt-check':
-      opt_set_check(user_id, profile['rec_into_temp'], file_id)
+      opt_set_check(user_id, profile['rec_into_temp'], file_id, file_path)
   
     await update.message.reply_text('Чек придет владельцу опта')
     user_change_message_mod(user_id, 'standart')
@@ -712,8 +716,6 @@ class SlonBot():
     query_array = query.data.split('_')
     user_id = query.message.chat.id
 
-    print(query_array)
-
     # креативы подборок
     if query_array[0] == 'recommendation-creative-two':
       user_change_message_mod(user_id, 'recommendation-creative-three')
@@ -1061,17 +1063,19 @@ class SlonBot():
       booking_date_old = ''
       opt_old = opt_get(user_id)
       offset = 0
-      print(query_array)
       if query_array[1] == 'more':
+        print(query_array)
         offset_old = int(query_array[2])
         if offset_old < 20:
           offset = offset_old + 10
         else:
-          offset = offset_old
+          await query.answer()
+          return
+          # offset = offset_old
         if opt_old != None:
           if isinstance(opt_old['booking_date'], str):
             booking_date_old += opt_old['booking_date']
-          booking_date = booking_date_old + '_' + query_array[1]
+          booking_date = booking_date_old
           array_booking_date = booking_date.split('_')
 
           repeated_elements = [item for item, count in Counter(array_booking_date).items() if count > 1]
@@ -1313,22 +1317,129 @@ class SlonBot():
     elif query_array[0] == 'my-opt':
       opts = user_opt(user_id)
       opts_str = ''
+      keyboard = []
+      # if len(opts) > 0:
+      #   pass
       for opt in opts:
-        opts_str += opt['chanel'] + '\n'
-        if len(opt['users']) > 0:
-          opts_str += 'юзернеймы пользователей и их креативы:\n\n'
-          for user in opt['users']:
-            opts_str += 'юзернейм: ' + user['user']['username'] + '\n'
-            opts_str += 'креатив: ' + user['creatives'].replace('///', '\n') + '\n\n'
-            opts_str +='\n'
-            if user['check']:
-              await context.bot.send_photo(user_id, user['check'], caption=opts_str)
+        keyboard.append([InlineKeyboardButton(opt['chanel'], callback_data='my-opt-chenel_' + opt['chanel'])])
+        # if len(opt['users']) > 0:
+        #   opts_str += 'юзернеймы пользователей и их креативы:\n\n'
+        #   for user in opt['users']:
+        #     opts_str += 'юзернейм: ' + user['user']['username'] + '\n'
+        #     opts_str += 'креатив: ' + user['creatives'].replace('///', '\n') + '\n\n'
+        #     opts_str +='\n'
+        #     if user['check']:
+        #       await context.bot.send_photo(user_id, user['check'], caption=opts_str)
         
-      keyboard = [
-        [InlineKeyboardButton("Назад", callback_data='my-profile')],
-      ]
+      keyboard.append([InlineKeyboardButton("Назад", callback_data='my-profile')])
       reply_markup = InlineKeyboardMarkup(keyboard)
-      await query.edit_message_text('Мои опты\n' + opts_str, reply_markup=reply_markup)
+      await query.edit_message_text('Мои опты:\n', reply_markup=reply_markup)
+
+    elif query_array[0] == 'my-opt-chenel':
+      await query.answer()
+      channel = ''
+      query_array.pop(0)
+      if(len(query_array) > 1):
+        channel = query_array.join('_')
+      else:
+        channel = query_array[0]
+      opts = user_opt(user_id)
+      keyboard = []
+      for opt in opts:
+        if opt['chanel'] == channel:
+
+          for user in opt['users']:
+            keyboard.append([InlineKeyboardButton(user['user']['username'], callback_data='empty'), InlineKeyboardButton('Чек', callback_data='my-opt-check_' + str(user['id']) +'_' + channel), InlineKeyboardButton('Посты', callback_data='my-opt-post_' + str(user['id']) +'_' + channel)])
+
+      keyboard.append([InlineKeyboardButton("Назад", callback_data='my-opt')])
+      reply_markup = InlineKeyboardMarkup(keyboard)
+      await query.message.reply_text('Ник/Чек/Посты\n', reply_markup=reply_markup)
+
+    elif query_array[0] == 'my-opt-check':
+      await query.answer()
+      into_id = int(query_array[1])
+      channel = ''
+      query_array.pop(0)
+      query_array.pop(0)
+      if(len(query_array) > 1):
+        channel = query_array.join('_')
+      else:
+        channel = query_array[0]
+
+      opts = user_opt(user_id)
+      keyboard = []
+      keyboard.append([InlineKeyboardButton("Назад", callback_data='my-opt-chenel_' + channel)])
+      reply_markup = InlineKeyboardMarkup(keyboard)
+      for opt in opts:
+        if opt['chanel'] == channel:
+          for user in opt['users']:
+            if user['id'] == into_id:
+              if user['check'] != None:
+                await context.bot.send_photo(user_id, user['check'], reply_markup=reply_markup)
+              else:
+                await query.message.reply_text('У пользователя нету чеков\n', reply_markup=reply_markup)
+              return
+              
+      await query.message.reply_text('У пользователя нету чеков\n', reply_markup=reply_markup)
+
+
+    elif query_array[0] == 'my-opt-post':
+      await query.answer()
+      into_id = int(query_array[1])
+      channel = ''
+      query_array.pop(0)
+      query_array.pop(0)
+      if(len(query_array) > 1):
+        channel = query_array.join('_')
+      else:
+        channel = query_array[0]
+
+      opts = user_opt(user_id)
+      keyboard = []
+      for opt in opts:
+        if opt['chanel'] == channel:
+          for user in opt['users']:
+            if user['id'] == into_id:
+              creatives =  user['creatives'].split('///')
+              for i, v in enumerate(creatives):
+                if i == 0:
+                  continue
+                keyboard.append([InlineKeyboardButton("Пост №"+str(i), callback_data='my-opt-post-number_' + str(i) + '_' + str(user['id']) +'_' + channel)])
+
+      keyboard.append([InlineKeyboardButton("Назад", callback_data='my-opt-chenel_' + channel)])
+      reply_markup = InlineKeyboardMarkup(keyboard)
+                
+      await query.message.reply_text('У пользователя нету чеков\n', reply_markup=reply_markup)
+
+
+    elif query_array[0] == 'my-opt-post-number':
+      await query.answer()
+      post_id = int(query_array[1])
+      into_id = int(query_array[2])
+      channel = ''
+      query_array.pop(0)
+      query_array.pop(0)
+      query_array.pop(0)
+      if(len(query_array) > 1):
+        channel = query_array.join('_')
+      else:
+        channel = query_array[0]
+
+      opts = user_opt(user_id)
+      keyboard = []
+      keyboard.append([InlineKeyboardButton("Назад", callback_data='my-opt-chenel_' + channel)])
+      reply_markup = InlineKeyboardMarkup(keyboard)
+      for opt in opts:
+        if opt['chanel'] == channel:
+          for user in opt['users']:
+            if user['id'] == into_id:
+              creatives =  user['creatives'].split('///')
+              for i, v in enumerate(creatives):
+                if i == post_id:
+                  await query.message.reply_text(v, reply_markup=reply_markup)
+                  return
+                
+      await query.message.reply_text('Упс :( какая-то ошибка\n', reply_markup=reply_markup)
 
     # в подборках в которых учатсвешь
     elif query_array[0] == 'my-opt-into':

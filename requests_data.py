@@ -207,21 +207,23 @@ def opt_requisites(channel):
   )
   return req.json()
 
-def recommendation_set_check(id, chennel, file_id):
+def recommendation_set_check(id, chennel, file_id, path_check):
   req = requests.get(
     'http://localhost:3001/recommendations/set-check' +
     '?idUser=' + str(id) +
     '&chennel=' + str(chennel) +
-    '&check=' + str(file_id)
+    '&check=' + str(file_id) +
+    '&checkPath=' + str(path_check)
   )
   return req.json()
 
-def opt_set_check(id, chennel, file_id):
+def opt_set_check(id, chennel, file_id, path_check):
   req = requests.get(
     'http://localhost:3001/opt/set-check' +
     '?idUser=' + str(id) +
     '&chennel=' + str(chennel) +
-    '&check=' + str(file_id)
+    '&check=' + str(file_id) +
+    '&checkPath=' + str(path_check)
   )
   return req.json()
 
@@ -235,10 +237,10 @@ def map_en(word):
     return 'вечер'
 
 def parse_view_date(date_array):
-  print(date_array)
+  # print(date_array)
   if date_array[0] != '':
     test = list(map(lambda x: x.split('/'), date_array))
-    print(test)
+    # print(test)
     test = list(map(lambda x: x[1] + ' ('+ map_en(x[0])+ ')', test))
     test.sort(reverse=True)
     test = reduce(lambda x, y: x + '\n' + y, test)
