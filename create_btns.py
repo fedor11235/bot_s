@@ -13,7 +13,7 @@ data_reservation_time = [
   ['12:10', '17:10', '22:10'],
 ]
 
-categories = ['Образование', 'Финансы', 'Здоровье', 'Новости', 'IT', 'Досуг', 'Психология', 'Видосики', 'Авторские', 'Другое']
+categories = ['Образ', 'Финансы', 'Здоровье', 'Новости', 'IT', 'Досуг', 'Психология', 'Видосики', 'Авторские', 'Другое']
 
 def get_btns_categories():
   keyboard=[]
@@ -251,7 +251,7 @@ def go_into_opt():
 def go_into_opt_user():
   keyboard = [
     [InlineKeyboardButton("Все тематики", callback_data='opt_into_all_init')],
-    [InlineKeyboardButton("Образование", callback_data='opt_into_Образование_init')],
+    [InlineKeyboardButton("Образование", callback_data='opt_into_Образ_init')],
     [InlineKeyboardButton("Финансы", callback_data='opt_into_Финансы_init')],
     [InlineKeyboardButton("Здоровье", callback_data='opt_into_Здоровье_init')],
     [InlineKeyboardButton("Новости", callback_data='opt_into_Новости_init')],
