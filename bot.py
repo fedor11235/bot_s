@@ -1470,16 +1470,16 @@ class SlonBot():
                 if i == post_id:
                   textArray = v.split('*')
                   if len(textArray) == 1:
-                    await query.message.reply_text(v, reply_markup=reply_markup)
+                    await query.message.reply_text(v, reply_markup=reply_markup, parse_mode="HTML")
                   else:
                     text = textArray[0]
                     file_id, file_type = textArray[1].split('%')
                     if file_type == 'photo':
-                      await context.bot.send_photo(caption=text, chat_id=query.message.chat.id, photo=file_id, reply_markup=reply_markup)
+                      await context.bot.send_photo(caption=text, chat_id=query.message.chat.id, photo=file_id, reply_markup=reply_markup, parse_mode="HTML")
                     elif file_type == 'video':
-                      await context.bot.send_video(caption=text, chat_id=query.message.chat.id, video=file_id, reply_markup=reply_markup)
+                      await context.bot.send_video(caption=text, chat_id=query.message.chat.id, video=file_id, reply_markup=reply_markup, parse_mode="HTML")
                     elif file_type == 'animation':
-                      await context.bot.send_animation(caption=text, chat_id=query.message.chat.id, animation=file_id, reply_markup=reply_markup)
+                      await context.bot.send_animation(caption=text, chat_id=query.message.chat.id, animation=file_id, reply_markup=reply_markup, parse_mode="HTML")
                   return
                 
       await query.message.reply_text('Упс :( какая-то ошибка\n', reply_markup=reply_markup)

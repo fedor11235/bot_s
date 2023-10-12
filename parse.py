@@ -6,7 +6,7 @@ async def get_text_for_post(update: Update, context):
     file_id = update.message.animation.file_id
     # file_info = await context.bot.get_file(file_id)
     # file_path = file_info.file_path
-    text = update.message.caption
+    text = update.message.caption_html
     if text:
       post = text + '*' + file_id + '%' + 'animation'
     else:
@@ -15,7 +15,7 @@ async def get_text_for_post(update: Update, context):
     file_id = update.message.video.file_id
     # file_info = await context.bot.get_file(file_id)
     # file_path = file_info.file_path
-    text = update.message.caption
+    text = update.message.caption_html
     if text:
       post = text + '*' + file_id + '%' + 'video'
     else:
@@ -24,11 +24,11 @@ async def get_text_for_post(update: Update, context):
     file_id = update.message.photo[-1].file_id
     # file_info = await context.bot.get_file(file_id)
     # file_path = file_info.file_path
-    text = update.message.caption
+    text = update.message.caption_html
     if text:
       post = text + '*' + file_id + '%' + 'photo'
     else:
       post = file_id + '%' + 'photo'
   else:
-    post = update.message.text
+    post = update.message.text_html
   return post
