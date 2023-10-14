@@ -73,8 +73,9 @@ logger = logging.getLogger(__name__)
 
 # filters_type = ['rating', 'coverage', 'numberSubscribers', 'growthMonth', 'growthWeek', 'new', 'old', 'confirm']
 filters_type = ['repost', 'numberSubscribers', 'coveragePub', 'coverageDay', 'indexSay']
-category_type = ['all', 'education', 'finance', 'health', 'news', 'tech', 'entertainment', 'psychology', 'video', 'author', 'other']
-categories = ['all', 'Образ', 'Финансы', 'Здоровье', 'Новости', 'IT', 'Досуг', 'Психология', 'Видосики', 'Авторские', 'Другое']
+# category_type = ['all', 'education', 'finance', 'health', 'news', 'tech', 'entertainment', 'psychology', 'video', 'author', 'other']
+# categories = ['all', 'Образ', 'Финансы', 'Здоровье', 'Новости', 'IT', 'Досуг', 'Психология', 'Видосики', 'Авторские', 'Другое']
+categoriesBd = ['all', 'Education', 'Finance', 'Health', 'News', 'IT', 'Entertainment', 'Psychology', 'Videos', 'Copyright', 'Other']
 
 class SlonBot():
   def __init__(self, token):
@@ -482,14 +483,14 @@ class SlonBot():
         username = update.message.chat.username
         await update.message.reply_text('''
 Опт от '''+ date +''' в канале ['''+opt['title']+'''](https://t.me/'''+opt['chanel'][1:]+''')\n
-Розничная цена: '''+ str(opt['retail_price']) + ''' \n
-Оптовая цена: '''+ str(opt['wholesale_cost']) + '''\n
-Минимум постов: '''+ str(opt['min_places']) + '''\n
-Максимум постов: '''+ str(opt['max_places']) + '''\n
-Список дат: \n'''+ booking_date_parse + '''\n
-Дедлайн: '''+ opt['deadline_date'] + '''\n
-Реквизиты: '''+ opt['requisites'] + '''\n
-Владелец: ['''+first_name+'''](https://t.me/'''+username+''')'''
+*Розничная цена:* '''+ str(opt['retail_price']) + ''' \n
+*Оптовая цена:* '''+ str(opt['wholesale_cost']) + '''\n
+*Минимум постов:* '''+ str(opt['min_places']) + '''\n
+*Максимум постов:* '''+ str(opt['max_places']) + '''\n
+*Список дат:* \n'''+ booking_date_parse + '''\n
+*Дедлайн:* '''+ opt['deadline_date'] + '''\n
+*Реквизиты:* '''+ opt['requisites'] + '''\n
+*Владелец:* ['''+first_name+'''](https://t.me/'''+username+''')'''
         ,
         reply_markup=reply_markup,
         parse_mode="Markdown",
@@ -508,7 +509,7 @@ class SlonBot():
         await update.message.reply_text(text='Такого промокода не существует')
       elif res == 'expired':
         await update.message.reply_text(text='Просроченный промокод')
-      await update.message.reply_text(text='Выберите срок который хотите продлить подписку *' + profile['tariffPlan_temp'].title() + '*\n: ',  reply_markup=reply_markup, parse_mode="Markdown")
+      await update.message.reply_text(text='Выберите срок на который хотите продлить подписку *' + profile['tariffPlan_temp'].title() + '*:\n',  reply_markup=reply_markup, parse_mode="Markdown")
       return
     #кнопки на клавиатуре
     if update.message.text == 'Каталог':
@@ -601,12 +602,12 @@ class SlonBot():
       else:
         keyboard = [
           [InlineKeyboardButton("Мои опты", callback_data='my-opt')],
-          [InlineKeyboardButton("В оптах в которых участвуешь", callback_data='my-req')],
-          [InlineKeyboardButton("В подборках в которых участвуешь", callback_data='my-opt-into')],
+          [InlineKeyboardButton("Опты в которых я участвую", callback_data='my-req')],
+          [InlineKeyboardButton("Подборки в которых я участвую", callback_data='my-opt-into')],
         ]
         reply_markup = InlineKeyboardMarkup(keyboard)
         profile = get_profile(user_id)
-        await update.message.reply_text("*Здесь собирается информация, показывающая насколько вы Slon.*\nПодписка " + profile['tariffPlan'] + " действует до: "+ profile['subscriptionEndDate'] +"\nВаши каналы: " + str(profile['userNumber']) + "\nСоздано оптов: " + str(profile['optNumber']) + " на сумму " + str(profile['totalSavings']) + "\nКуплено оптов: " + str(profile['byOpt']) + " на сумму " + str(profile['totalEarned']) + "\nВсего сэкономлено:  "+ str(profile['totalEarned']) + "\nПриглашено пользователей: "+ str(profile['totalEarned']) + "\nВсего заработано: "+ str(profile['totalEarned'] )+ "", reply_markup=reply_markup, parse_mode="Markdown")
+        await update.message.reply_text("*Здесь собирается информация, показывающая насколько вы Slon.*\n\n*Подписка " + profile['tariffPlan'] + "* действует до: "+ profile['subscriptionEndDate'] +"\n*Ваши каналы:* " + str(profile['userNumber']) + "\n*Создано оптов:* " + str(profile['optNumber']) + " на сумму " + str(profile['totalSavings']) + "\n*Куплено оптов:* " + str(profile['byOpt']) + " на сумму " + str(profile['totalEarned']) + "\n*Всего сэкономлено:*  "+ str(profile['totalEarned']) + "\n*Приглашено пользователей:* "+ str(profile['totalEarned']) + "\n*Всего заработано:* "+ str(profile['totalEarned'] )+ "", reply_markup=reply_markup, parse_mode="Markdown")
         return
     #добавление канала
     elif mode == 'chanel':
@@ -711,15 +712,15 @@ class SlonBot():
     else:
       keyboard = [
         [InlineKeyboardButton("Мои опты", callback_data='my-opt')],
-        [InlineKeyboardButton("В оптах в которых участвуешь", callback_data='my-req')],
-        [InlineKeyboardButton("В подборках в которых участвуешь", callback_data='my-opt-into')],
+        [InlineKeyboardButton("Опты в которых я участвую", callback_data='my-req')],
+        [InlineKeyboardButton("Подборки в которых я участвую", callback_data='my-opt-into')],
       ]
       reply_markup = InlineKeyboardMarkup(keyboard)
       profile = get_profile(user_id)
-      await update.message.reply_text("*Здесь собирается информация, показывающая насколько вы Slon.*\nПодписка " + profile['tariffPlan'] + " действует до: "+ profile['subscriptionEndDate'] +"\nВаши каналы: " + str(profile['userNumber']) + "\nСоздано оптов: " + str(profile['optNumber']) + " на сумму " + str(profile['totalSavings']) + "\nКуплено оптов: " + str(profile['byOpt']) + " на сумму " + str(profile['totalEarned']) + "\nВсего сэкономлено:  "+ str(profile['totalEarned']) + "\nПриглашено пользователей: "+ str(profile['totalEarned']) + "\nВсего заработано: "+ str(profile['totalEarned'] )+ "", reply_markup=reply_markup, parse_mode="Markdown")
+      await update.message.reply_text("*Здесь собирается информация, показывающая насколько вы Slon.*\n\n*Подписка " + profile['tariffPlan'] + "* действует до: "+ profile['subscriptionEndDate'] +"\n*Ваши каналы:* " + str(profile['userNumber']) + "\n*Создано оптов:* " + str(profile['optNumber']) + " на сумму " + str(profile['totalSavings']) + "\n*Куплено оптов:* " + str(profile['byOpt']) + " на сумму " + str(profile['totalEarned']) + "\n*Всего сэкономлено:*  "+ str(profile['totalEarned']) + "\n*Приглашено пользователей:* "+ str(profile['totalEarned']) + "\n*Всего заработано:* "+ str(profile['totalEarned'] )+ "", reply_markup=reply_markup, parse_mode="Markdown")
   
   async def handler_help(self, update: Update, _) -> None:
-    await update.message.reply_text('''Возникли вопросы?\n\nМы всегда готовы помочь вам с любые задачи и решение всех интересующих вопросов.\nПросто напишите нам: @slon_feedback''')
+    await update.message.reply_text('''Возникли вопросы?\n\nМы всегда готовы помочь вам с решением любых задач и ответить на все интересующие вопросы. Просто напишите нам: @slon_feedback''')
 
   async def handler_channel(self, update: Update, _) -> None:
     user_stat = user_check(update.message.chat.id)
@@ -814,15 +815,15 @@ class SlonBot():
       await query.answer()
       if query_array[1] == 'lite':
         reply_markup = get_btns_pay('lite', profile['discount'], user_id)
-        await query.edit_message_text(text='Выберите срок который хотите продлить подписку *Lite*\n: ',  reply_markup=reply_markup, parse_mode="Markdown")
+        await query.edit_message_text(text='Выберите срок на который хотите продлить подписку *Lite*:\n',  reply_markup=reply_markup, parse_mode="Markdown")
         return
       elif query_array[1] == 'pro':
         reply_markup = get_btns_pay('pro', profile['discount'], user_id)
-        await query.edit_message_text(text='Выберите срок который хотите продлить подписку *Pro*\n: ',  reply_markup=reply_markup, parse_mode="Markdown")
+        await query.edit_message_text(text='Выберите срок на который хотите продлить подписку *Pro*:\n',  reply_markup=reply_markup, parse_mode="Markdown")
         return
       elif query_array[1] == 'business':
         reply_markup = get_btns_pay('business', profile['discount'], user_id)
-        await query.edit_message_text(text='Выберите срок который хотите продлить подписку *Business*\n: ',  reply_markup=reply_markup, parse_mode="Markdown")
+        await query.edit_message_text(text='Выберите срок на который хотите продлить подписку *Business*:\n',  reply_markup=reply_markup, parse_mode="Markdown")
         return
       elif query_array[1] == 'check':
         label = ''
@@ -880,7 +881,7 @@ class SlonBot():
       set_channel(user_id, category)
       await query.message.reply_text('Ваш канал успешно загрегестрирован')
       user_change_message_mod(query.message.chat.id, 'standart')
-    elif query_array[0] in category_type:
+    elif query_array[0] in categoriesBd:
       start_cut = 1
       finish_cut = 10
       page = int(query_array[2])
@@ -966,7 +967,7 @@ class SlonBot():
         user_change_message_mod(user_id, 'standart')
         await query.message.reply_text('Поздравляем! Опт успешно создан и добавлен в каталог.')
         return
-      elif query_array[1] in category_type:
+      elif query_array[1] in categoriesBd:
         start_cut = 1
         finish_cut = 10
         page = 1
@@ -1028,7 +1029,7 @@ class SlonBot():
 
         await query.message.reply_text('Создаем опт для канала '+ str(query_array[2]) +'. Напишите стандартную(розничную) стоимость размещения: ')
       elif query_array[1] == 'into':
-        if query_array[2] in categories:
+        if query_array[2] in categoriesBd:
           if query_array[3] == 'back':
             reply_markup = go_into_opt_user()
             await query.edit_message_text('Зайти в опт', reply_markup=reply_markup)
@@ -1082,15 +1083,16 @@ class SlonBot():
             booking_date_parse = parse_view_date(booking_date)
             profile = get_profile(opt['user_id'])
             await query.edit_message_text('''
-Розничная цена: '''+ str(opt['retail_price']) +'''
-Оптовая цена: '''+ str(opt['wholesale_cost']) +'''
-Минимум постов: '''+ str(opt['min_places']) +'''
-Максимум постов: '''+ str(opt['max_places']) +'''
-Список дат: \n'''+ booking_date_parse +'''
-Дедлайн: '''+ str(opt['deadline_date']) +'''
-Реквизиты: '''+ str(opt['requisites']) +'''
-Владелец: '''+ str(profile['username']) +'''
-''', reply_markup=reply_markup)
+*Опт в канале:* ['''+ str(opt['title']) +'''](https://t.me/'''+opt['chanel'][1:]+''')                                 
+*Розничная цена:* '''+ str(opt['retail_price']) +'''
+*Оптовая цена:* '''+ str(opt['wholesale_cost']) +'''
+*Минимум постов:* '''+ str(opt['min_places']) +'''
+*Максимум постов:* '''+ str(opt['max_places']) +'''
+*Список дат:* \n'''+ booking_date_parse +'''
+*Дедлайн:* '''+ str(opt['deadline_date']) +'''
+*Реквизиты:* '''+ str(opt['requisites']) +'''
+*Владелец:* '''+ str(profile['username']) +'''
+''', reply_markup=reply_markup, parse_mode="Markdown")
           elif query_array[3] == 'init':
             start_cut = 1
             finish_cut = 10
@@ -1508,28 +1510,34 @@ class SlonBot():
         [InlineKeyboardButton("Назад", callback_data='my-profile')],
       ]
       reply_markup = InlineKeyboardMarkup(keyboard)
-      await query.edit_message_text('В оптах в которых участвуешь\n' + opts_str, reply_markup=reply_markup)
+      await query.edit_message_text('Опты в которых я участвую\n' + opts_str, reply_markup=reply_markup)
 
 
     elif query_array[0] == 'my-profile':
       user_id = query.message.chat.id
       keyboard = [
         [InlineKeyboardButton("Мои опты", callback_data='my-opt')],
-        [InlineKeyboardButton("В оптах в которых участвуешь", callback_data='my-req')],
-        [InlineKeyboardButton("В подборках в которых участвуешь", callback_data='my-opt-into')],
+        [InlineKeyboardButton("Опты в которых я участвую", callback_data='my-req')],
+        [InlineKeyboardButton("Подборки в которых я участвую", callback_data='my-opt-into')],
       ]
       reply_markup = InlineKeyboardMarkup(keyboard)
       profile = get_profile(user_id)
-      await query.edit_message_text("*Здесь собирается информация, показывающая насколько вы Slon.*\nПодписка " + profile['tariffPlan'] + " действует до: "+ profile['subscriptionEndDate'] +"\nВаши каналы: " + str(profile['userNumber']) + "\nСоздано оптов: " + str(profile['optNumber']) + " на сумму " + str(profile['totalSavings']) + "\nКуплено оптов: " + str(profile['byOpt']) + " на сумму " + str(profile['totalEarned']) + "\nВсего сэкономлено:  "+ str(profile['totalEarned']) + "\nПриглашено пользователей: "+ str(profile['totalEarned']) + "\nВсего заработано: "+ str(profile['totalEarned'] )+ "", reply_markup=reply_markup, parse_mode="Markdown")
+      await query.edit_message_text("*Здесь собирается информация, показывающая насколько вы Slon.*\n\n*Подписка " + profile['tariffPlan'] + "* действует до: "+ profile['subscriptionEndDate'] +"\n*Ваши каналы:* " + str(profile['userNumber']) + "\n*Создано оптов:* " + str(profile['optNumber']) + " на сумму " + str(profile['totalSavings']) + "\n*Куплено оптов:* " + str(profile['byOpt']) + " на сумму " + str(profile['totalEarned']) + "\n*Всего сэкономлено:*  "+ str(profile['totalEarned']) + "\n*Приглашено пользователей:* "+ str(profile['totalEarned']) + "\n*Всего заработано:* "+ str(profile['totalEarned'] )+ "", reply_markup=reply_markup, parse_mode="Markdown")
 
 
 
 
   async def handler_checkout(self, update: Update, context) -> None:
     total_amount = update.pre_checkout_query.total_amount
+    user_id = update.message.chat.id
     # id = update.pre_checkout_query.id
     await update.pre_checkout_query.answer(ok=True)
     # await context.bot.answer_pre_checkout_query(id, ok=True)
+    user = get_profile(user_id)
+    tariff_plan = user['tariffPlan']
+    subscription_end_date = user['subscriptionEndDate']
+
+    await update.message.reply_text('Получилось! Теперь у вас подписка *' + tariff_plan + '*, действующая до ' + subscription_end_date, parse_mode="Markdown")
     return
 
 

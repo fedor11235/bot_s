@@ -13,12 +13,26 @@ data_reservation_time = [
   ['12:10', '17:10', '22:10'],
 ]
 
-categories = ['Образ', 'Финансы', 'Здоровье', 'Новости', 'IT', 'Досуг', 'Психология', 'Видосики', 'Авторские', 'Другое']
+categories = ['Образование', 'Финансы', 'Здоровье', 'Новости', 'IT', 'Развлечения', 'Психология', 'Видосники', 'Авторские', 'Другое']
+categoriesBd = ['Education', 'Finance', 'Health', 'News', 'IT', 'Entertainment', 'Psychology', 'Videos', 'Copyright', 'Other']
+
+mapCategories = {
+  'Образование': 'Education',
+  'Финансы': 'Finance',
+  'Здоровье': 'Health',
+  'Новости': 'News',
+  'IT': 'IT',
+  'Развлечения': 'Entertainment',
+  'Психология': 'Psychology',
+  'Видосники': 'Videos',
+  'Авторские': 'Copyright',
+  'Другое': 'Other',
+}
 
 def get_btns_categories():
   keyboard=[]
   for category in categories:
-    keyboard.append([InlineKeyboardButton(category, callback_data='set-category_' + category)])
+    keyboard.append([InlineKeyboardButton(category, callback_data='set-category_' + mapCategories[category])])
   return InlineKeyboardMarkup(keyboard)
 
 def get_opt_create(chanel):
@@ -156,19 +170,10 @@ def get_categories(category_type, start_cut, finish_cut, page, idUser, filter=""
   return categoriesBtns
 
 def set_catalog():
-  keyboard = [
-    [InlineKeyboardButton("Все тематики", callback_data='all_static_0')],
-    [InlineKeyboardButton("Образование", callback_data='education_static_0')],
-    [InlineKeyboardButton("Финансы", callback_data='finance_static_0')],
-    [InlineKeyboardButton("Здоровье", callback_data='health_static_0')],
-    [InlineKeyboardButton("Новости", callback_data='news_static_0')],
-    [InlineKeyboardButton("IT", callback_data='tech_static_0')],
-    [InlineKeyboardButton("Развлечения", callback_data='entertainment_static_0')],
-    [InlineKeyboardButton("Психология", callback_data='psychology_static_0')],
-    [InlineKeyboardButton("Видосики", callback_data='video_static_0')],
-    [InlineKeyboardButton("Авторские", callback_data='author_static_0')],
-    [InlineKeyboardButton("Другое", callback_data='other_static_0')],
-  ]
+  keyboard=[]
+  keyboard.append([InlineKeyboardButton('Все тематики', callback_data='all_static_0')])
+  for category in categories:
+    keyboard.append([InlineKeyboardButton(category, callback_data=mapCategories[category] + '_static_0')])
   return InlineKeyboardMarkup(keyboard)
 
 def query_parse(name, query):
@@ -233,35 +238,17 @@ def user_get_btns_into(category_type, chanel):
   return InlineKeyboardMarkup(keyboard)
 
 def go_into_opt():
-  keyboard = [
-    [InlineKeyboardButton("Все тематики", callback_data='opt_all')],
-    [InlineKeyboardButton("Образование", callback_data='opt_education')],
-    [InlineKeyboardButton("Финансы", callback_data='opt_finance')],
-    [InlineKeyboardButton("Здоровье", callback_data='opt_health')],
-    [InlineKeyboardButton("Новости", callback_data='opt_news')],
-    [InlineKeyboardButton("IT", callback_data='opt_tech')],
-    [InlineKeyboardButton("Развлечения", callback_data='opt_entertainment')],
-    [InlineKeyboardButton("Психология", callback_data='opt_psychology')],
-    [InlineKeyboardButton("Видосики", callback_data='opt_video')],
-    [InlineKeyboardButton("Авторские", callback_data='opt_author')],
-    [InlineKeyboardButton("Другое", callback_data='opt_other')],
-  ]
+  keyboard=[]
+  keyboard.append([InlineKeyboardButton('Все тематики', callback_data='opt_all')])
+  for category in categories:
+    keyboard.append([InlineKeyboardButton(category, callback_data='opt_' + mapCategories[category])])
   return InlineKeyboardMarkup(keyboard)
 
 def go_into_opt_user():
-  keyboard = [
-    [InlineKeyboardButton("Все тематики", callback_data='opt_into_all_init')],
-    [InlineKeyboardButton("Образование", callback_data='opt_into_Образ_init')],
-    [InlineKeyboardButton("Финансы", callback_data='opt_into_Финансы_init')],
-    [InlineKeyboardButton("Здоровье", callback_data='opt_into_Здоровье_init')],
-    [InlineKeyboardButton("Новости", callback_data='opt_into_Новости_init')],
-    [InlineKeyboardButton("IT", callback_data='opt_into_IT_init')],
-    [InlineKeyboardButton("Досуг", callback_data='opt_into_Досуг_init')],
-    [InlineKeyboardButton("Психология", callback_data='opt_into_Психология_init')],
-    [InlineKeyboardButton("Видосики", callback_data='opt_into_Видосики_init')],
-    [InlineKeyboardButton("Авторские", callback_data='opt_into_Авторские_init')],
-    [InlineKeyboardButton("Другое", callback_data='opt_into_Другое_init')],
-  ]
+  keyboard=[]
+  keyboard.append([InlineKeyboardButton('Все тематики', callback_data='opt_into_all_init')])
+  for category in categories:
+    keyboard.append([InlineKeyboardButton(category, callback_data='opt_into_' + mapCategories[category] + '_init')])
   return InlineKeyboardMarkup(keyboard)
 
 def go_chanel_opt(category_type, start_cut, finish_cut, page):
