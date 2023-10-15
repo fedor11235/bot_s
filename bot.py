@@ -1083,7 +1083,7 @@ class SlonBot():
             booking_date_parse = parse_view_date(booking_date)
             profile = get_profile(opt['user_id'])
             await query.edit_message_text('''
-*Опт в канале:* ['''+ str(opt['title']) +'''](https://t.me/'''+opt['chanel'][1:]+''')                                 
+*Опт в канале:* ['''+ str(opt['title']) +'''](https://t.me/'''+opt['chanel'][1:]+''')                            
 *Розничная цена:* '''+ str(opt['retail_price']) +'''
 *Оптовая цена:* '''+ str(opt['wholesale_cost']) +'''
 *Минимум постов:* '''+ str(opt['min_places']) +'''
@@ -1091,7 +1091,7 @@ class SlonBot():
 *Список дат:* \n'''+ booking_date_parse +'''
 *Дедлайн:* '''+ str(opt['deadline_date']) +'''
 *Реквизиты:* '''+ str(opt['requisites']) +'''
-*Владелец:* '''+ str(profile['username']) +'''
+*Владелец:* @'''+ str(profile['username']) +'''
 ''', reply_markup=reply_markup, parse_mode="Markdown")
           elif query_array[3] == 'init':
             start_cut = 1
@@ -1266,19 +1266,19 @@ class SlonBot():
         booking_date = recommendation['data_list'].split('_')
         booking_date_parse = parse_view_date(booking_date)
         await query.edit_message_text('''
-Подписчиков: '''+ str(recommendation['subscribers']) +'''
-Охват: '''+ str(recommendation['coverage']) +'''
-Стандартная цена: '''+ str(recommendation['price_standart']) +'''
-Текущая цена: '''+ str(recommendation['price_now']) +'''
-Формат: '''+ recommendation['format'] +'''
-Число постов: '''+ str(recommendation['number_posts']) +'''
-Места длля брони: '''+ booking_date_parse +'''
-Ревизиты: '''+ recommendation['requisites'] +'''
-Дедлайн формирования опта: '''+ recommendation['deadline'] +'''
-Юзернейм: '''+ recommendation['username'] +'''
-Информация: '''+ recommendation['info'] +'''
-Контакт для связи: @slon_feedback
-''', reply_markup=reply_markup)
+*Подписчиков:* '''+ str(recommendation['subscribers']) +'''
+*Охват:* '''+ str(recommendation['coverage']) +'''
+*Стандартная цена:* '''+ str(recommendation['price_standart']) +'''
+*Текущая цена:* '''+ str(recommendation['price_now']) +'''
+*Формат:* '''+ recommendation['format'] +'''
+*Число постов:* '''+ str(recommendation['number_posts']) +'''
+*Места длля брони:* '''+ booking_date_parse +'''
+*Ревизиты:* '''+ recommendation['requisites'] +'''
+*Дедлайн формирования опта:* '''+ recommendation['deadline'] +'''
+*Юзернейм:* '''+ recommendation['username'] +'''
+*Информация:* '''+ recommendation['info'] +'''
+Контакт для связи: [@slon_feedback]
+''', reply_markup=reply_markup, parse_mode="Markdown")
       elif query_array[1] == 'back':
         offset = int(query_array[2]) - 10
         if offset < 0:

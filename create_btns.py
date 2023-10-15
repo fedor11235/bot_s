@@ -144,7 +144,7 @@ def get_btns_pay(mode, discount, user_id):
     prise_y = int((3890 * 12) * ((100 - year) / 100))
     keyboard = [
       [InlineKeyboardButton("Ввести промокод", callback_data='promocode_enter')],
-      [InlineKeyboardButton("30 дней за "+ str(prise_m) +"₽ (" + str(discount) + "% скидка)", callback_data='_'+ str(prise_m))],
+      [InlineKeyboardButton("30 дней за "+ str(prise_m) +"₽ (" + str(discount) + "% скидка)", callback_data='pay_check_business_litle_'+ str(prise_m))],
       [InlineKeyboardButton("90 дней за "+ str(prise_three_m) +"₽ (" + str(days_three) + "% скидка)", callback_data='pay_check_business_middle_'+ str(prise_three_m))],
       [InlineKeyboardButton("365 дней за "+ str(prise_y) +"₽ (" + str(year) + "% скидка)", callback_data='pay_check_business_big_'+ str(prise_y))],
     ]
