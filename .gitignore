@@ -1,5 +1,5 @@
-# /.env
+/.env
 /venv
-help
+helpers
 node_modules
 *__pycache__*
