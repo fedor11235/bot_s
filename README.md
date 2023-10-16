@@ -14,7 +14,7 @@ pip install -r requirements.txt
 ```
 bot launch
 ```
-python newbot.py
+python bot.py
 ```
 server start
 open another terminal and in it we write the command

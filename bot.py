@@ -153,10 +153,10 @@ class SlonBot():
     else:
       req = requests.get('http://localhost:3001/user/promocode' + '?idUser=' + str(update.message.chat.id))
       res = req.json()
-      if res == 'no':
-        await update.message.reply_text('Вы исчерпали лимит генерации промокодов')
-      else:
-        await update.message.reply_text(req.json())
+      # if res == 'no':
+      #   await update.message.reply_text('Вы исчерпали лимит генерации промокодов')
+      # else:
+      await update.message.reply_text('Ваш промокод: ' + req.json())
 
   async def handler_business(self, update: Update, _) -> None:
     user_stat = user_check(update.message.chat.id)
@@ -509,6 +509,8 @@ class SlonBot():
         await update.message.reply_text(text='Такого промокода не существует')
       elif res == 'expired':
         await update.message.reply_text(text='Просроченный промокод')
+      elif res == 'owner':
+        await update.message.reply_text(text='Вы являетесь владельцем промокода')
       await update.message.reply_text(text='Выберите срок на который хотите продлить подписку *' + profile['tariffPlan_temp'].title() + '*:\n',  reply_markup=reply_markup, parse_mode="Markdown")
       return
     #кнопки на клавиатуре
@@ -761,37 +763,37 @@ class SlonBot():
     # креативы подборок
     if query_array[0] == 'recommendation-creative-two':
       user_change_message_mod(user_id, 'recommendation-creative-three')
-      await query.edit_message_text('Ввыедите креативы опта, кнопки присылайте отдельным креативом: ')
+      await query.edit_message_text('Отправьте креативы, кнопки присылайте отдельным креативом: ')
       return
     if query_array[0] == 'recommendation-creative-three':
       user_change_message_mod(user_id, 'recommendation-creative-four')
-      await query.edit_message_text('Ввыедите креативы опта, кнопки присылайте отдельным креативом: ')
+      await query.edit_message_text('Отправьте креативы, кнопки присылайте отдельным креативом: ')
       return
     if query_array[0] == 'recommendation-creative-four':
       user_change_message_mod(user_id, 'recommendation-creative-five')
-      await query.edit_message_text('Ввыедите креативы опта, кнопки присылайте отдельным креативом: ')
+      await query.edit_message_text('Отправьте креативы, кнопки присылайте отдельным креативом: ')
       return
     if query_array[0] == 'recommendation-creative-five':
       user_change_message_mod(user_id, 'standart')
-      await query.edit_message_text('Ввыедите креативы опта, кнопки присылайте отдельным креативом: ')
+      await query.edit_message_text('Отправьте креативы, кнопки присылайте отдельным креативом: ')
       return
 
     # креативы опта
     if query_array[0] == 'opt-creative-two':
       user_change_message_mod(user_id, 'opt-creative-three')
-      await query.edit_message_text('Ввыедите креативы опта, кнопки присылайте отдельным креативом: ')
+      await query.edit_message_text('Отправьте креативы, кнопки присылайте отдельным креативом: ')
       return
     if query_array[0] == 'opt-creative-three':
       user_change_message_mod(user_id, 'opt-creative-four')
-      await query.edit_message_text('Ввыедите креативы опта, кнопки присылайте отдельным креативом: ')
+      await query.edit_message_text('Отправьте креативы, кнопки присылайте отдельным креативом: ')
       return
     if query_array[0] == 'opt-creative-four':
       user_change_message_mod(user_id, 'opt-creative-five')
-      await query.edit_message_text('Ввыедите креативы опта, кнопки присылайте отдельным креативом: ')
+      await query.edit_message_text('Отправьте креативы, кнопки присылайте отдельным креативом: ')
       return
     if query_array[0] == 'opt-creative-five':
       user_change_message_mod(user_id, 'standart')
-      await query.edit_message_text('Ввыедите креативы опта, кнопки присылайте отдельным креативом: ')
+      await query.edit_message_text('Отправьте креативы, кнопки присылайте отдельным креативом: ')
       return
     
     # одобрение креативов
@@ -1083,15 +1085,15 @@ class SlonBot():
             booking_date_parse = parse_view_date(booking_date)
             profile = get_profile(opt['user_id'])
             await query.edit_message_text('''
-*Опт в канале:* ['''+ str(opt['title']) +'''](https://t.me/'''+opt['chanel'][1:]+''')                            
-*Розничная цена:* '''+ str(opt['retail_price']) +'''
-*Оптовая цена:* '''+ str(opt['wholesale_cost']) +'''
-*Минимум постов:* '''+ str(opt['min_places']) +'''
-*Максимум постов:* '''+ str(opt['max_places']) +'''
-*Список дат:* \n'''+ booking_date_parse +'''
-*Дедлайн:* '''+ str(opt['deadline_date']) +'''
-*Реквизиты:* '''+ str(opt['requisites']) +'''
-*Владелец:* @'''+ str(profile['username']) +'''
+*Опт в канале:* ['''+ str(opt['title']) +'''](https://t.me/'''+opt['chanel'][1:]+''')\n                            
+*Розничная цена:* '''+ str(opt['retail_price']) +'''\n
+*Оптовая цена:* '''+ str(opt['wholesale_cost']) +'''\n
+*Минимум постов:* '''+ str(opt['min_places']) +'''\n
+*Максимум постов:* '''+ str(opt['max_places']) +'''\n
+*Список дат:* \n'''+ booking_date_parse +'''\n
+*Дедлайн:* '''+ str(opt['deadline_date']) +'''\n
+*Реквизиты:* '''+ str(opt['requisites']) +'''\n
+*Владелец:* @'''+ str(profile['username']) +'''\n
 ''', reply_markup=reply_markup, parse_mode="Markdown")
           elif query_array[3] == 'init':
             start_cut = 1
@@ -1212,7 +1214,7 @@ class SlonBot():
           set_any_profile(user_id, {'rec_into_temp': query_array[2]})
           user_change_message_mod(user_id, 'recommendation-creative-one')
           opt_old = set_opt_recommendation_into(user_id, query_array[2],  {'status': 'confirm'}, 'none')
-          await query.edit_message_text('Ввыедите креативы опта, кнопки присылайте отдельным креативом: ')
+          await query.edit_message_text('Отправьте креативы, кнопки присылайте отдельным креативом: ')
           return
         elif  'morning' in query_array[3] or 'day' in query_array[3] or 'evening' in query_array[3]:
           new_booket = query_array[3]
@@ -1266,18 +1268,18 @@ class SlonBot():
         booking_date = recommendation['data_list'].split('_')
         booking_date_parse = parse_view_date(booking_date)
         await query.edit_message_text('''
-*Подписчиков:* '''+ str(recommendation['subscribers']) +'''
-*Охват:* '''+ str(recommendation['coverage']) +'''
-*Стандартная цена:* '''+ str(recommendation['price_standart']) +'''
-*Текущая цена:* '''+ str(recommendation['price_now']) +'''
-*Формат:* '''+ recommendation['format'] +'''
-*Число постов:* '''+ str(recommendation['number_posts']) +'''
-*Места длля брони:* '''+ booking_date_parse +'''
-*Ревизиты:* '''+ recommendation['requisites'] +'''
-*Дедлайн формирования опта:* '''+ recommendation['deadline'] +'''
-*Юзернейм:* '''+ recommendation['username'] +'''
-*Информация:* '''+ recommendation['info'] +'''
-Контакт для связи: [@slon_feedback]
+*Подписчиков:* '''+ str(recommendation['subscribers']) +'''\n
+*Охват:* '''+ str(recommendation['coverage']) +'''\n
+*Стандартная цена:* '''+ str(recommendation['price_standart']) +'''\n
+*Текущая цена:* '''+ str(recommendation['price_now']) +'''\n
+*Формат:* '''+ recommendation['format'] +'''\n
+*Число постов:* '''+ str(recommendation['number_posts']) +'''\n
+*Места длля брони:* '''+ booking_date_parse +'''\n
+*Ревизиты:* '''+ recommendation['requisites'] +'''\n
+*Дедлайн формирования опта:* '''+ recommendation['deadline'] +'''\n
+*Юзернейм:* '''+ recommendation['username'] +'''\n
+*Информация:* '''+ recommendation['info'] +'''\n
+*Контакт для связи*: [@slon_feedback]
 ''', reply_markup=reply_markup, parse_mode="Markdown")
       elif query_array[1] == 'back':
         offset = int(query_array[2]) - 10
@@ -1329,7 +1331,7 @@ class SlonBot():
         opt_old = set_opt_into(user_id, query_array[1],  {'status': 'confirm'}, 'none')
         set_any_profile(user_id, {'opt_into_temp': query_array[1]})
         user_change_message_mod(user_id, 'opt-creative-one')
-        await query.edit_message_text('Ввыедите креативы опта, кнопки присылайте отдельным креативом: ')
+        await query.edit_message_text('Отправьте креативы, кнопки присылайте отдельным креативом: ')
         return
       elif  'morning' in query_array[2] or 'day' in query_array[2] or 'evening' in query_array[2]:
         new_booket = query_array[2]
