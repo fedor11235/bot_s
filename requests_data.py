@@ -101,12 +101,13 @@ def recommendations_ind_get(id):
   )
   return req.json()
 
-def set_tariff_profile(id, tariffPlan, time):
+def set_tariff_profile(id, tariffPlan, time, is_one = 'disabled'):
   req = requests.get(
     'http://localhost:3001/user/set' +
     '?idUser=' + str(id) +
     '&tariffPlan=' + tariffPlan +
-    '&time=' + str(time)
+    '&time=' + str(time) +
+    '&isOne=' + str(is_one)
   )
   return req.json()
 

@@ -88,6 +88,7 @@ class SlonBot():
     application.add_handler(CommandHandler("test_secret_profile_lite", self.handler_secret_profile_lite))
     application.add_handler(CommandHandler("test_secret_profile_pro", self.handler_secret_profile_pro))
     application.add_handler(CommandHandler("test_secret_profile_business", self.handler_secret_profile_business))
+    application.add_handler(CommandHandler("get_profile_business", self.handler_get_profile_business))
     application.add_handler(PreCheckoutQueryHandler(self.handler_checkout))
     application.add_handler(CallbackQueryHandler(self.handler_callback))
     application.add_handler(CommandHandler("start", self.handler_start))
@@ -1593,6 +1594,13 @@ class SlonBot():
     id = update.message.chat.id
     set_tariff_profile(id, 'business', 30)
     await update.message.reply_text('У вас подписка business')
+  async def handler_get_profile_business(self, update: Update, context) -> None:
+    id = update.message.chat.id
+    res = set_tariff_profile(id, 'business', 30, 'enabled')
+    if res == 'no':
+      await update.message.reply_text('Вы уже один раз импользовали секретную команду :(')
+    else:
+      await update.message.reply_text('У вас подписка business')
 
 def main() -> None:
   load_dotenv()
