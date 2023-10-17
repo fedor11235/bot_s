@@ -1195,34 +1195,61 @@ class SlonBot():
     elif query_array[0] == 'watch':
       delete = 'enabled'
       if query_array[1] == 'opt-into':
+        print(query_array)
+        username = ''
+        username_array = query_array[2:-1]
+        if len(username_array) > 0:
+          username = '_'.join(username_array)
+        else:
+          username = query_array[0]
+
         new_booket = ''
         # username = query_array[1]
         offset= 0
         try:
-          offset = query_array[4]
+          offset = query_array[-1]
         except:
           offset= 0
 
-        if query_array[3] == 'more':
+        if query_array[-2] == 'more':
+          username_array = query_array[2:-2]
+          if len(username_array) > 0:
+            username = '_'.join(username_array)
+          else:
+            username = query_array[0]
           delete = 'none'
-          offset_old = int(query_array[4])
+          offset_old = int(query_array[-1])
           if offset_old < 20:
             offset = offset_old + 10
           else:
             offset = offset_old
-        elif query_array[3] == 'confirm':
-          set_any_profile(user_id, {'rec_into_temp': query_array[2]})
+        elif query_array[-1] == 'confirm':
+          username_array = query_array[2:-1]
+          if len(username_array) > 0:
+            username = '_'.join(username_array)
+          else:
+            username = query_array[0]
+          set_any_profile(user_id, {'rec_into_temp': username})
           user_change_message_mod(user_id, 'recommendation-creative-one')
           opt_old = set_opt_recommendation_into(user_id, query_array[2],  {'status': 'confirm'}, 'none')
           await query.edit_message_text('Отправьте креативы, кнопки присылайте отдельным креативом: ')
           return
-        elif  'morning' in query_array[3] or 'day' in query_array[3] or 'evening' in query_array[3]:
-          new_booket = query_array[3]
+        elif  'morning' in query_array[-2] or 'day' in query_array[-2] or 'evening' in query_array[-2]:
+          new_booket = query_array[-2]
           delete = 'none'
+          username = ''
+          username_array = query_array[2:-2]
+          print('!!!!!!!!!!!!!')
+          print(username_array)
+          if len(username_array) > 0:
+            username = '_'.join(username_array)
+          else:
+            username = query_array[0]
 
-        opt_old = set_opt_recommendation_into(user_id, query_array[2],  {}, delete)
+        opt_old = set_opt_recommendation_into(user_id, username,  {}, delete)
 
         print('рекомендации')
+        print(username)
         allowed_dates = opt_old['allowed_dates'].split('_')
         bookeds = []
         booked_send = ''
@@ -1238,9 +1265,10 @@ class SlonBot():
 
         str_booked = '_'.join(c)
 
-        opt = set_opt_recommendation_into(user_id, query_array[2],  {'booking_date': str_booked}, delete)
+        opt = set_opt_recommendation_into(user_id, username,  {'booking_date': str_booked}, delete)
+        print(offset)
 
-        reply_markup = get_reservation_req_table(bookeds=c, offset = offset, channel=query_array[2], allowed_dates=allowed_dates)
+        reply_markup = get_reservation_req_table(bookeds=c, offset = offset, channel=username, allowed_dates=allowed_dates)
         await query.edit_message_text('Выберите доступные для брони слоты:', reply_markup=reply_markup)
 
 
@@ -1262,7 +1290,7 @@ class SlonBot():
         recommendation = recommendations_ind_get(query_array[2])
         keyboard = [
           [InlineKeyboardButton("Назад", callback_data='watch_see')],
-          [InlineKeyboardButton("Выбрать даты", callback_data='watch_opt-into_' + recommendation['username'] + '_init')],
+          [InlineKeyboardButton("Выбрать даты", callback_data='watch_opt-into_' + recommendation['username'] + '_0')],
         ]
         reply_markup = InlineKeyboardMarkup(keyboard)
         booking_date = recommendation['data_list'].split('_')
@@ -1277,10 +1305,9 @@ class SlonBot():
 *Места длля брони:* '''+ booking_date_parse +'''\n
 *Ревизиты:* '''+ recommendation['requisites'] +'''\n
 *Дедлайн формирования опта:* '''+ recommendation['deadline'] +'''\n
-*Юзернейм:* '''+ recommendation['username'] +'''\n
+*Юзернейм:* ['''+ recommendation['username'] +''']\n
 *Информация:* '''+ recommendation['info'] +'''\n
-*Контакт для связи*: [@slon_feedback]
-''', reply_markup=reply_markup, parse_mode="Markdown")
+*Контакт для связи*: [@slon_feedback]''', reply_markup=reply_markup, parse_mode="Markdown")
       elif query_array[1] == 'back':
         offset = int(query_array[2]) - 10
         if offset < 0:

@@ -378,7 +378,6 @@ def get_reservation_into_table(bookeds=[], offset = 0, channel="", allowed_dates
 
 # таблица для выбор дат подборок
 def get_reservation_req_table(bookeds=[], offset = 0, channel="", allowed_dates=[]):
-  # print(allowed_dates)
   dates = generate_date(offset)
   keyboard = []
   keyboard.append([InlineKeyboardButton("Дата", callback_data='empty'), InlineKeyboardButton("Утро", callback_data='empty'), InlineKeyboardButton("День", callback_data='empty'), InlineKeyboardButton("Вечер", callback_data='empty')])
