@@ -278,7 +278,7 @@ def parse_categories_opt_into(categoriesArray, category_type, page):
   # arrayBtns = [[InlineKeyboardButton('Фильтры', callback_data='opt_into_'+ category_type +'_filters_' + category_type +'_'+ str(page))]]
   arrayBtns = []
   for category in categoriesArray:
-    arrayBtns.append([InlineKeyboardButton(category['chanel'], callback_data='opt_into_'+ category_type +'_old_' + category['chanel'] + '_' + category_type)])
+    arrayBtns.append([InlineKeyboardButton(category['title']+" "+ str(category['wholesale_cost']) + "тыс.₽", callback_data='opt_into_'+ category_type +'_old_' + category['chanel'] + '_' + category_type)])
   arrayBtns.append([InlineKeyboardButton('<<Назад', callback_data=('opt_into_' + category_type +'_back_' + str(page))), InlineKeyboardButton('Далее>>', callback_data=('opt_into_' + category_type +'_next_' + str(page)))])
   return InlineKeyboardMarkup(arrayBtns)
 
@@ -315,7 +315,7 @@ def btns_recommendations_get(offset = 0):
   recommendations = recommendations_get()
   recommendations_filter = recommendations[offset: offset+10]
   for data in recommendations_filter:
-    keyboard.append([InlineKeyboardButton(data['username'] +" "+ str(data['price_now']) + "тыс.₽", callback_data='watch_chanel_' + str(data['id']))])
+    keyboard.append([InlineKeyboardButton(data['title'] +" "+ str(data['price_now']) + "тыс.₽", callback_data='watch_chanel_' + str(data['id']))])
   keyboard.append([InlineKeyboardButton("Назад", callback_data='watch_back_' + str(offset)), InlineKeyboardButton("Вперед", callback_data='watch_next_' + str(offset))])
   return InlineKeyboardMarkup(keyboard)
 
@@ -378,7 +378,6 @@ def get_reservation_into_table(bookeds=[], offset = 0, channel="", allowed_dates
 
 # таблица для выбор дат подборок
 def get_reservation_req_table(bookeds=[], offset = 0, channel="", allowed_dates=[]):
-  # print(allowed_dates)
   dates = generate_date(offset)
   keyboard = []
   keyboard.append([InlineKeyboardButton("Дата", callback_data='empty'), InlineKeyboardButton("Утро", callback_data='empty'), InlineKeyboardButton("День", callback_data='empty'), InlineKeyboardButton("Вечер", callback_data='empty')])
