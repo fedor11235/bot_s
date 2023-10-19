@@ -1560,9 +1560,9 @@ class SlonBot():
   async def handler_checkout(self, update: Update, context) -> None:
     total_amount = update.pre_checkout_query.total_amount
     user_id = update.message.chat.id
-    # id = update.pre_checkout_query.id
-    await update.pre_checkout_query.answer(ok=True)
-    # await context.bot.answer_pre_checkout_query(id, ok=True)
+    id = update.pre_checkout_query.id
+    # await update.pre_checkout_query.answer(ok=True)
+    await context.bot.answer_pre_checkout_query(id, ok=True)
     user = get_profile(user_id)
     tariff_plan = user['tariffPlan']
     subscription_end_date = user['subscriptionEndDate']
