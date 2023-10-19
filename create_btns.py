@@ -159,7 +159,7 @@ def get_user_chanels(chanels_array):
 def get_categories(category_type, start_cut, finish_cut, page, idUser, filter=""):
   categoriesBtns = []
   req = requests.get(
-    'http://localhost:3002/test/chanel/categories' +
+    'http://localhost:3001/chanel/categories' +
     '?category=' + category_type +
     '&filter=' + filter +
     '&idUser=' + str(idUser)
@@ -254,7 +254,7 @@ def go_into_opt_user():
 def go_chanel_opt(category_type, start_cut, finish_cut, page):
   categoriesBtns = []
   req = requests.get(
-    'http://localhost:3002/test/chanel/categories' +
+    'http://localhost:3001/chanel/categories' +
     '?category=' + category_type
     )
   categoriesArray =  req.json()
@@ -265,7 +265,7 @@ def go_chanel_opt(category_type, start_cut, finish_cut, page):
 def go_chanel_opt_into(category_type, start_cut, finish_cut, page, filter, idUser):
   categoriesBtns = []
   req = requests.get(
-    'http://localhost:3002/test/opt/categories' +
+    'http://localhost:3001/opt/categories' +
     '?category=' + category_type +
     '&filter=' + filter +
     '&idUser=' + str(idUser)
