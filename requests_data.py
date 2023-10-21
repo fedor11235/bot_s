@@ -17,7 +17,7 @@ def parse_filter(name):
 # user
 def get_profile(user_id):
   req = requests.get(
-    'http://localhost:3002/test/user/profile' +
+    'http://localhost:3001/user/profile' +
     '?idUser=' + str(user_id)
   )
   profile = req.json()
@@ -25,7 +25,7 @@ def get_profile(user_id):
 
 def create_chanel(idUser, idChanel, title, username=''):
   req = requests.get(
-  'http://localhost:3002/test/chanel/create' +
+  'http://localhost:3001/chanel/create' +
   '?idUser=' + str(idUser) +
   '&idChanel=' + str(idChanel) +
   '&title=' + str(title) +
@@ -36,28 +36,28 @@ def create_chanel(idUser, idChanel, title, username=''):
 
 def user_check(id):
   req = requests.get(
-    'http://localhost:3002/test/user/check' +
+    'http://localhost:3001/user/check' +
     '?idUser=' + str(id)
   )
   return req.json()
 
 def user_get_stat_opt(chanel):
   req = requests.get(
-    'http://localhost:3002/test/opt/stat' +
+    'http://localhost:3001/opt/stat' +
     '?chanel=' + str(chanel)
   )
   return req.json()
 
 def user_change_message_mod(id, mode):
   requests.get(
-    'http://localhost:3002/test/mode/set' +
+    'http://localhost:3001/mode/set' +
     '?idUser=' + str(id) +
     '&mode=' + mode
   )
 
 def user_get_message_mod(id):
   req = requests.get(
-    'http://localhost:3002/test/mode/get' +
+    'http://localhost:3001/mode/get' +
     '?idUser=' + str(id) 
   )
   return req.json()
@@ -65,7 +65,7 @@ def user_get_message_mod(id):
 # opt
 def opt_create(id, chanel):
   req = requests.get(
-    'http://localhost:3002/test/opt/create' +
+    'http://localhost:3001/opt/create' +
     '?idUser=' + str(id) +
     '&chanel=' + str(chanel)
   )
@@ -74,7 +74,7 @@ def opt_create(id, chanel):
 # def opt_set(id, chanel, data):
 def opt_set(id, data):
   req = requests.post(
-    'http://localhost:3002/test/opt/set' +
+    'http://localhost:3001/opt/set' +
     '?idUser=' + str(id),
     # '&chanel=' + str(chanel), 
       data=data
@@ -83,27 +83,27 @@ def opt_set(id, data):
 
 def opt_get(id):
   req = requests.get(
-    'http://localhost:3002/test/opt/get' +
+    'http://localhost:3001/opt/get' +
     '?idUser=' + str(id)
   )
   return req.json()
 
 def recommendations_get():
   req = requests.get(
-    'http://localhost:3002/test/recommendations/get'
+    'http://localhost:3001/recommendations/get'
   )
   return req.json()
 
 def recommendations_ind_get(id):
   req = requests.get(
-    'http://localhost:3002/test/recommendations/individual' +
+    'http://localhost:3001/recommendations/individual' +
     '?idRecommendation=' + str(id)
   )
   return req.json()
 
 def set_tariff_profile(id, tariffPlan, time, is_one = 'disabled'):
   req = requests.get(
-    'http://localhost:3002/test/user/set' +
+    'http://localhost:3001/user/set' +
     '?idUser=' + str(id) +
     '&tariffPlan=' + tariffPlan +
     '&time=' + str(time) +
@@ -113,7 +113,7 @@ def set_tariff_profile(id, tariffPlan, time, is_one = 'disabled'):
 
 def set_tariff_temp_profile(id, tariffPlan):
   req = requests.get(
-    'http://localhost:3002/test/user/set/tariff-temp' +
+    'http://localhost:3001/user/set/tariff-temp' +
     '?idUser=' + str(id) +
     '&tariffPlan=' + tariffPlan
   )
@@ -121,14 +121,14 @@ def set_tariff_temp_profile(id, tariffPlan):
 
 def get_opt_into(id):
   req = requests.get(
-    'http://localhost:3002/test/opt/into/get' +
+    'http://localhost:3001/opt/into/get' +
     '?idOpt=' + str(id)
   )
   return req.json()
 
 def set_opt_into(id, idOpt, payload, delete):
   req = requests.post(
-    'http://localhost:3002/test/opt/into/set' +
+    'http://localhost:3001/opt/into/set' +
     '?idUser=' + str(id) +
     '&idOpt=' + str(idOpt) +
     '&isDel=' + str(delete),
@@ -138,7 +138,7 @@ def set_opt_into(id, idOpt, payload, delete):
 
 def set_opt_recommendation_into(id, idOpt, payload, delete = 'enabled'):
   req = requests.post(
-    'http://localhost:3002/test/opt/into-recommendation/set' +
+    'http://localhost:3001/opt/into-recommendation/set' +
     '?idUser=' + str(id) +
     '&idOpt=' + str(idOpt) +
     '&isDel=' + str(delete),
@@ -149,7 +149,7 @@ def set_opt_recommendation_into(id, idOpt, payload, delete = 'enabled'):
 
 def upload_promocode(id, promocode):
   req = requests.get(
-    'http://localhost:3002/test/user/upload/promocode' +
+    'http://localhost:3001/user/upload/promocode' +
     '?idUser=' + str(id) +
     '&promocode=' + str(promocode)
   )
@@ -157,7 +157,7 @@ def upload_promocode(id, promocode):
 
 def set_any_profile(id, data):
   req = requests.post(
-    'http://localhost:3002/test/user/set/profile' +
+    'http://localhost:3001/user/set/profile' +
     '?idUser=' + str(id),
     data=data
   )
@@ -165,7 +165,7 @@ def set_any_profile(id, data):
 
 def set_channel(id, category):
   req = requests.get(
-    'http://localhost:3002/test/chanel/user/set-channel' +
+    'http://localhost:3001/chanel/user/set-channel' +
     '?idUser=' + str(id) +
     '&category=' + str(category)
   )
@@ -173,21 +173,21 @@ def set_channel(id, category):
 
 def user_opt(id):
   req = requests.get(
-    'http://localhost:3002/test/user/opt-user' +
+    'http://localhost:3001/user/opt-user' +
     '?idUser=' + str(id)
   )
   return req.json()
 
 def user_recommendation_into(id):
   req = requests.get(
-    'http://localhost:3002/test/user/recommendation-into-user' +
+    'http://localhost:3001/user/recommendation-into-user' +
     '?idUser=' + str(id)
   )
   return req.json()
 
 def user_opt_into(id):
   req = requests.get(
-    'http://localhost:3002/test/user/opt-into-user' +
+    'http://localhost:3001/user/opt-into-user' +
     '?idUser=' + str(id)
   )
   return req.json()
@@ -195,7 +195,7 @@ def user_opt_into(id):
 
 def recommendation_requisites(username):
   req = requests.get(
-    'http://localhost:3002/test/recommendations/requisites' +
+    'http://localhost:3001/recommendations/requisites' +
     '?username=' + str(username)
   )
   return req.json()
@@ -203,14 +203,14 @@ def recommendation_requisites(username):
 
 def opt_requisites(channel):
   req = requests.get(
-    'http://localhost:3002/test/opt/requisites' +
+    'http://localhost:3001/opt/requisites' +
     '?channel=' + str(channel)
   )
   return req.json()
 
 def recommendation_set_check(id, chennel, file_id, path_check):
   req = requests.get(
-    'http://localhost:3002/test/recommendations/set-check' +
+    'http://localhost:3001/recommendations/set-check' +
     '?idUser=' + str(id) +
     '&chennel=' + str(chennel) +
     '&check=' + str(file_id) +
@@ -220,7 +220,7 @@ def recommendation_set_check(id, chennel, file_id, path_check):
 
 def opt_set_check(id, chennel, file_id, path_check):
   req = requests.get(
-    'http://localhost:3002/test/opt/set-check' +
+    'http://localhost:3001/opt/set-check' +
     '?idUser=' + str(id) +
     '&chennel=' + str(chennel) +
     '&check=' + str(file_id) +
@@ -252,7 +252,7 @@ def parse_view_date(date_array):
 
 # def set_profile_opt_chanel(id, chanel):
 #   req = requests.get(
-#     'http://localhost:3002/test/user/set' +
+#     'http://localhost:3001/user/set' +
 #     '?idUser=' + str(id) +
 #     '&chanel=' + chanel
 #   )
