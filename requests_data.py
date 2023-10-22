@@ -228,6 +228,16 @@ def opt_set_check(id, chennel, file_id, path_check):
   )
   return req.json()
 
+def opt_post_delete(user_id, chennel, opt_type, post_number):
+  req = requests.delete(
+    'http://localhost:3001/opt/post-delete' +
+    '?idUser=' + str(user_id) +
+    '&chennel=' + str(chennel) +
+    '&type=' + str(opt_type) +
+    '&postNumber=' + str(post_number)
+  )
+  return req.json()
+
 def map_en(word):
   print(word)
   if word == 'morning':

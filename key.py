@@ -98,8 +98,8 @@ async def handler_btn_keyboard(update: Update, _) -> None:
     else:
       keyboard = [
         [InlineKeyboardButton("Мои опты", callback_data='my-opt')],
-        [InlineKeyboardButton("Опты в которых я участвую", callback_data='my-req')],
-        [InlineKeyboardButton("Подборки в которых я участвую", callback_data='my-opt-into')],
+        [InlineKeyboardButton("Опты в которых я участвую", callback_data='my-opt-into')],
+        # [InlineKeyboardButton("Подборки в которых я участвую", callback_data='my-opt-into')],
       ]
       reply_markup = InlineKeyboardMarkup(keyboard)
       profile = get_profile(user_id)

@@ -4,6 +4,8 @@ from calendar import monthrange
 from telegram import InlineKeyboardButton, InlineKeyboardMarkup
 from requests_data import recommendations_get, set_tariff_temp_profile
 
+# cd_walk = CallbackData("dun_w", "action", "floor")
+
 data_reservation = ['01.07', '02.07', '03.07', '04.07', '05.07', '06.07', '07.07', '08.07', '09.07', '10.07']
 data_reservation_time = [
   ['8:10', '13:10', '18:10'],
