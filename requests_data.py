@@ -238,6 +238,43 @@ def opt_post_delete(user_id, chennel, opt_type, post_number):
   )
   return req.json()
 
+def save_eddit_temp_post(user_id, chennel, opt_type, post_number):
+  req = requests.get(
+    'http://localhost:3001/opt/post-save-temp' +
+    '?chanelEdit=' + str(chennel) +
+    '&postId=' + str(post_number) +
+    '&optType=' + str(opt_type) +
+    '&idUser=' + str(user_id)
+  )
+  return req.json()
+
+
+def save_eddit_temp_check(user_id, chennel, opt_type):
+  req = requests.get(
+    'http://localhost:3001/opt/check-save-temp' +
+    '?chanelEdit=' + str(chennel) +
+    '&idUser=' + str(user_id) +
+    '&optType=' + str(opt_type)
+  )
+  return req.json()
+
+def edit_post_req(user_id, post):
+  req = requests.post(
+    'http://localhost:3001/opt/post-edit-temp' +
+    '?idUser=' + str(user_id),
+    data=post
+  )
+  return req.json()
+
+def edit_check_req(user_id, check):
+  req = requests.get(
+    'http://localhost:3001/opt/check-edit-temp' +
+    '?idUser=' + str(user_id) +
+    '&check=' + str(check)
+  )
+  print(req.json())
+  return req.json()
+
 def map_en(word):
   print(word)
   if word == 'morning':

@@ -1,6 +1,9 @@
 import requests
 from telegram import Update, InlineKeyboardButton, InlineKeyboardMarkup
 from requests_data import (
+  save_eddit_temp_check,
+  save_eddit_temp_post,
+  user_change_message_mod,
   opt_post_delete,
   user_recommendation_into,
   user_opt_into,
@@ -65,15 +68,23 @@ async def profile_opt(update: Update, context) -> None:
     else:
       chanel = query_array[1]
     keyboard = []
-    keyboard.append([InlineKeyboardButton("Назад", callback_data='my-profile')])
-    reply_markup = InlineKeyboardMarkup(keyboard)
+    # keyboard.append([InlineKeyboardButton("Добавить", callback_data='my-profile')])
     for opt in opts:
       if opt['chanel'] == chanel:
         check =  opt['check']
-        await query.answer()
-        await context.bot.send_photo(caption="Ваш чек: ", chat_id=query.message.chat.id, photo=check, reply_markup=reply_markup)
+        if check:
+          keyboard.append([InlineKeyboardButton("Редактировать ✍️", callback_data='my-opt-into-chek-edit_' + chanel + '_' + opt['type'])])
+          keyboard.append([InlineKeyboardButton("Назад", callback_data='my-profile')])
+          reply_markup = InlineKeyboardMarkup(keyboard)
+          await query.answer()
+          await context.bot.send_photo(caption="Ваш чек ", chat_id=query.message.chat.id, photo=check, reply_markup=reply_markup)
+        else: 
+          keyboard.append([InlineKeyboardButton("Добавить ✍️", callback_data='my-opt-into-chek-edit_' + chanel + '_' + opt['type'])])
+          keyboard.append([InlineKeyboardButton("Назад", callback_data='my-profile')])
+          reply_markup = InlineKeyboardMarkup(keyboard)
+          await query.edit_message_text('У вас нет чеков, хотите добавить?', reply_markup=reply_markup)
         return
-    await query.edit_message_text('Упс :( что-то пошло не так')
+    await query.edit_message_text('Упс, что-то пошло не так :(')
 
   elif query_array[0] == 'my-opt-into-post':
     recommendations_into = user_recommendation_into(user_id)
@@ -119,7 +130,7 @@ async def profile_opt(update: Update, context) -> None:
             await query.answer()
             keyboard = [
               [InlineKeyboardButton("Удалить ❌", callback_data='my-opt-into-post-delete_' + str(i) + '_' + chanel + '_' + opt['type'])],
-              # [InlineKeyboardButton("Редактировать ✍️", callback_data='my-opt-into-post-edit_' + str(i) + '_' + chanel + '_' + opt['type'])],
+              [InlineKeyboardButton("Редактировать ✍️", callback_data='my-opt-into-post-edit_' + str(i) + '_' + chanel + '_' + opt['type'])],
               [InlineKeyboardButton("Назад", callback_data='my-profile')]
             ]
             reply_markup = InlineKeyboardMarkup(keyboard)
@@ -166,5 +177,28 @@ async def profile_opt(update: Update, context) -> None:
     await query.answer()
     await query.message.reply_text('Посты:', reply_markup=reply_markup)
 
-  # elif query_array[0] == 'my-opt-into-post-edit':
-  #   await query.message.reply_text('Введите:', reply_markup=reply_markup)
+  elif query_array[0] == 'my-opt-into-post-edit':
+    user_array = query_array[2:-1]
+    post_number = query_array[1]
+    opt_type = query_array[-1]
+    chanel = ''
+    if len(user_array) > 1:
+      chanel = '_'.join(user_array)
+    else:
+      chanel = query_array[2]
+    user_change_message_mod(user_id, 'edit-post')
+    save_eddit_temp_post(user_id, chanel, opt_type, post_number)
+    await query.message.reply_text('Введите новый пост:')
+
+  elif query_array[0] == 'my-opt-into-chek-edit':
+    user_array = query_array[1:-1]
+    opt_type = query_array[-1]
+    chanel = ''
+    if len(user_array) > 1:
+      chanel = '_'.join(user_array)
+    else:
+      chanel = query_array[1]
+    user_change_message_mod(user_id, 'edit-chek')
+    save_eddit_temp_check(user_id, chanel, opt_type)
+    await query.answer()
+    await query.message.reply_text('Отправьте чек')

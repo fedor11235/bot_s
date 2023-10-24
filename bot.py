@@ -17,6 +17,7 @@ from opt_creative import opt_creative
 from recommendation_creative import recommendation_creative
 from creation_opts import creation_opts
 from profile_opt import profile_opt
+from edit_post import edit_post
 
 from requests_data import (
   opt_set_check,
@@ -212,6 +213,8 @@ class SlonBot():
 
     await creation_opts(update, context)
 
+    await edit_post(update, context)
+
     # отправка чеков владельцу опта и подборок
     if mode == 'recommendation-check':
       user_id = update.message.chat.id
@@ -338,7 +341,6 @@ class SlonBot():
         user_change_message_mod(update.message.chat.id, 'standart')
         await update.message.reply_text('Не верные введенные данные, либо вы не добавили бота в канал')
         return
-
     user_stat = user_check(user_id)
     if user_stat == 'empty':
       status = ''
