@@ -90,7 +90,8 @@ def opt_get(id):
 
 def recommendations_get():
   req = requests.get(
-    'http://localhost:3001/recommendations/get'
+    'http://localhost:3001/recommendations/get' +
+    '?isBot=enable'
   )
   return req.json()
 
@@ -272,11 +273,17 @@ def edit_check_req(user_id, check):
     '?idUser=' + str(user_id) +
     '&check=' + str(check)
   )
-  print(req.json())
+  return req.json()
+
+def add_new_post(user_id, data):
+  req = requests.post(
+    'http://localhost:3001/opt/add-new-post' +
+    '?idUser=' + str(user_id),
+    data=data
+  )
   return req.json()
 
 def map_en(word):
-  print(word)
   if word == 'morning':
     return 'утро'
   elif word == 'day':
@@ -285,23 +292,13 @@ def map_en(word):
     return 'вечер'
 
 def parse_view_date(date_array):
-  # print(date_array)
   if date_array[0] != '':
     test = list(map(lambda x: x.split('/'), date_array))
-    # print(test)
     test = list(map(lambda x: x[1] + ' ('+ map_en(x[0])+ ')', test))
     test.sort(reverse=True)
     test = reduce(lambda x, y: x + '\n' + y, test)
     return test
   else:
     return ''
-  # reduce(lambda x, y: x + '\n' + y, booking_date)
 
-# def set_profile_opt_chanel(id, chanel):
-#   req = requests.get(
-#     'http://localhost:3001/user/set' +
-#     '?idUser=' + str(id) +
-#     '&chanel=' + chanel
-#   )
-#   return req.json() 
 

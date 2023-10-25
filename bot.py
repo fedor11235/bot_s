@@ -18,6 +18,7 @@ from recommendation_creative import recommendation_creative
 from creation_opts import creation_opts
 from profile_opt import profile_opt
 from edit_post import edit_post
+from add_post import add_post
 
 from requests_data import (
   opt_set_check,
@@ -205,6 +206,9 @@ class SlonBot():
     # функция для работы кнопок клавиатуры
     await handler_btn_keyboard(update, context)
 
+    # добаление нового поста в профиле
+    await add_post(update, context)
+
     # ввод креативов опта
     await opt_creative(update, context)
   
@@ -216,64 +220,64 @@ class SlonBot():
     await edit_post(update, context)
 
     # отправка чеков владельцу опта и подборок
-    if mode == 'recommendation-check':
-      user_id = update.message.chat.id
-      mode = user_get_message_mod(user_id)
-      file_id = update.message.photo[-1].file_id
-      profile = get_profile(user_id)
+    # if mode == 'recommendation-check':
+    #   user_id = update.message.chat.id
+    #   mode = user_get_message_mod(user_id)
+    #   file_id = update.message.photo[-1].file_id
+    #   profile = get_profile(user_id)
 
-      file_info = await context.bot.get_file(file_id)
-      file_path = file_info.file_path
-      recommendation_set_check(user_id, profile['rec_into_temp'], file_id, file_path)
-      await update.message.reply_text('Чек придет владельцу опта')
-      user_change_message_mod(user_id, 'standart')
-    elif mode == 'opt-check':
-      user_id = update.message.chat.id
-      mode = user_get_message_mod(user_id)
-      file_id = update.message.photo[-1].file_id
-      profile = get_profile(user_id)
+    #   file_info = await context.bot.get_file(file_id)
+    #   file_path = file_info.file_path
+    #   recommendation_set_check(user_id, profile['rec_into_temp'], file_id, file_path)
+    #   await update.message.reply_text('Чек придет владельцу опта')
+    #   user_change_message_mod(user_id, 'standart')
+#     if mode == 'opt-check':
+#       user_id = update.message.chat.id
+#       mode = user_get_message_mod(user_id)
+#       # file_id = update.message.photo[-1].file_id
+#       profile = get_profile(user_id)
 
-      file_info = await context.bot.get_file(file_id)
-      file_path = file_info.file_path
-      opt_set_check(user_id, profile['rec_into_temp'], file_id, file_path)
+#       # file_info = await context.bot.get_file(file_id)
+#       # file_path = file_info.file_path
+#       # opt_set_check(user_id, profile['rec_into_temp'], file_id, file_path)
   
-      await update.message.reply_text('Чек придет владельцу опта')
-      user_change_message_mod(user_id, 'standart')
+#       # await update.message.reply_text('Чек придет владельцу опта')
+#       user_change_message_mod(user_id, 'standart')
 
 
-      try:
-        requisites = update.message.text
-        data = {'requisites': requisites}
-        opt = opt_set(user_id, data)
-        reply_markup = get_opt_create(opt['chanel'])
-        booking_date = opt['booking_date'].split('_')
-        booking_date_parse = parse_view_date(booking_date)
-        current_datetime = datetime.now()
-        month_now = current_datetime.month
-        day_now = current_datetime.day
-        date = str(day_now) + '.' + str(month_now)
-        first_name = update.message.chat.first_name
-        username = update.message.chat.username
-        await update.message.reply_text('''
-Опт от '''+ date +''' в канале ['''+opt['title']+'''](https://t.me/'''+opt['chanel'][1:]+''')\n
-*Розничная цена:* '''+ str(opt['retail_price']) + ''' \n
-*Оптовая цена:* '''+ str(opt['wholesale_cost']) + '''\n
-*Минимум постов:* '''+ str(opt['min_places']) + '''\n
-*Максимум постов:* '''+ str(opt['max_places']) + '''\n
-*Список дат:* \n'''+ booking_date_parse + '''\n
-*Дедлайн:* '''+ opt['deadline_date'] + '''\n
-*Реквизиты:* '''+ opt['requisites'] + '''\n
-*Владелец:* ['''+first_name+'''](https://t.me/'''+username+''')'''
-        ,
-        reply_markup=reply_markup,
-        parse_mode="Markdown",
-        disable_web_page_preview=None
-      )
-      except:
-        await update.message.reply_text("Упс произошла ошибка")
-      return
+#       try:
+#         requisites = update.message.text
+#         data = {'requisites': requisites}
+#         opt = opt_set(user_id, data)
+#         reply_markup = get_opt_create(opt['chanel'])
+#         booking_date = opt['booking_date'].split('_')
+#         booking_date_parse = parse_view_date(booking_date)
+#         current_datetime = datetime.now()
+#         month_now = current_datetime.month
+#         day_now = current_datetime.day
+#         date = str(day_now) + '.' + str(month_now)
+#         first_name = update.message.chat.first_name
+#         username = update.message.chat.username
+#         await update.message.reply_text('''
+# Опт от '''+ date +''' в канале ['''+opt['title']+'''](https://t.me/'''+opt['chanel'][1:]+''')\n
+# *Розничная цена:* '''+ str(opt['retail_price']) + ''' \n
+# *Оптовая цена:* '''+ str(opt['wholesale_cost']) + '''\n
+# *Минимум постов:* '''+ str(opt['min_places']) + '''\n
+# *Максимум постов:* '''+ str(opt['max_places']) + '''\n
+# *Список дат:* \n'''+ booking_date_parse + '''\n
+# *Дедлайн:* '''+ opt['deadline_date'] + '''\n
+# *Реквизиты:* '''+ opt['requisites'] + '''\n
+# *Владелец:* ['''+first_name+'''](https://t.me/'''+username+''')'''
+#         ,
+#         reply_markup=reply_markup,
+#         parse_mode="Markdown",
+#         disable_web_page_preview=None
+#       )
+#       except:
+#         await update.message.reply_text("Упс произошла ошибка")
+#       return
     #ввод промокода
-    elif mode == 'promocode':
+    if mode == 'promocode':
       promocode = update.message.text
       user_change_message_mod(update.message.chat.id, 'standart')
       res = upload_promocode(user_id, promocode)
@@ -440,53 +444,83 @@ class SlonBot():
     # креативы подборок
     if query_array[0] == 'recommendation-creative-two':
       user_change_message_mod(user_id, 'recommendation-creative-three')
-      await query.edit_message_text('Отправьте креативы, кнопки присылайте отдельным креативом: ')
+      await query.edit_message_text('Отправьте креативы, кнопки присылайте отдельным сообщением:\n\nВы можете отправить их позже в профиле.')
       return
     if query_array[0] == 'recommendation-creative-three':
       user_change_message_mod(user_id, 'recommendation-creative-four')
-      await query.edit_message_text('Отправьте креативы, кнопки присылайте отдельным креативом: ')
+      await query.edit_message_text('Отправьте креативы, кнопки присылайте отдельным сообщением:\n\nВы можете отправить их позже в профиле.')
       return
     if query_array[0] == 'recommendation-creative-four':
       user_change_message_mod(user_id, 'recommendation-creative-five')
-      await query.edit_message_text('Отправьте креативы, кнопки присылайте отдельным креативом: ')
+      await query.edit_message_text('Отправьте креативы, кнопки присылайте отдельным сообщением:\n\nВы можете отправить их позже в профиле.')
       return
     if query_array[0] == 'recommendation-creative-five':
       user_change_message_mod(user_id, 'standart')
-      await query.edit_message_text('Отправьте креативы, кнопки присылайте отдельным креативом: ')
+      await query.edit_message_text('Отправьте креативы, кнопки присылайте отдельным сообщением:\n\nВы можете отправить их позже в профиле.')
       return
 
     # креативы опта
     if query_array[0] == 'opt-creative-two':
       user_change_message_mod(user_id, 'opt-creative-three')
-      await query.edit_message_text('Отправьте креативы, кнопки присылайте отдельным креативом: ')
+      await query.edit_message_text('Отправьте креативы, кнопки присылайте отдельным сообщением:\n\nВы можете отправить их позже в профиле.')
       return
     if query_array[0] == 'opt-creative-three':
       user_change_message_mod(user_id, 'opt-creative-four')
-      await query.edit_message_text('Отправьте креативы, кнопки присылайте отдельным креативом: ')
+      await query.edit_message_text('Отправьте креативы, кнопки присылайте отдельным сообщением:\n\nВы можете отправить их позже в профиле.')
       return
     if query_array[0] == 'opt-creative-four':
       user_change_message_mod(user_id, 'opt-creative-five')
-      await query.edit_message_text('Отправьте креативы, кнопки присылайте отдельным креативом: ')
+      await query.edit_message_text('Отправьте креативы, кнопки присылайте отдельным сообщением:\n\nВы можете отправить их позже в профиле.')
       return
     if query_array[0] == 'opt-creative-five':
       user_change_message_mod(user_id, 'standart')
-      await query.edit_message_text('Отправьте креативы, кнопки присылайте отдельным креативом: ')
+      await query.edit_message_text('Отправьте креативы, кнопки присылайте отдельным сообщением:\n\nВы можете отправить их позже в профиле.')
       return
     
     # одобрение креативов
     elif query_array[0] == 'recommendation-creative-accept':
       profile = get_profile(user_id)
-      rec_old = recommendation_requisites(profile['rec_into_temp'])
-      user_change_message_mod(user_id, 'recommendation-check')
-      await query.edit_message_text('Креативы переданы владельцу канала. Вам придет уведомление когда он ответит.\n Оплатитите присланные реквизиты и пришлите скрин оплаты:\n' + str(rec_old))
-      return
+      user_change_message_mod(user_id, 'standart')
+      # rec_old = recommendation_requisites(profile['rec_into_temp'])
+      # user_change_message_mod(user_id, 'recommendation-check')
+      await query.edit_message_text('Креативы переданы владельцу канала. Вам придет уведомление когда он ответит.\n')
+
     
     elif query_array[0] == 'opt-creative-accept':
       profile = get_profile(user_id)
-      opt_old = opt_requisites(profile['opt_into_temp'])
-      user_change_message_mod(user_id, 'opt-check')
-      await query.edit_message_text('Креативы переданы владельцу канала. Вам придет уведомление когда он ответит.\n Оплатитите присланные реквизиты и пришлите скрин оплаты\n' + str(opt_old))
-      return
+      user_change_message_mod(user_id, 'standart')
+      # opt_old = opt_requisites(profile['opt_into_temp'])
+      # user_change_message_mod(user_id, 'opt-check')
+      await query.edit_message_text('Креативы переданы владельцу канала. Вам придет уведомление когда он ответит.\Информацию о опте можно посмотреть в профиле.\n' )
+      # try:
+#       opt = opt_set(user_id, {})
+#       reply_markup = get_opt_create(opt['chanel'])
+#       booking_date = opt['booking_date'].split('_')
+#       booking_date_parse = parse_view_date(booking_date)
+#       current_datetime = datetime.now()
+#       month_now = current_datetime.month
+#       day_now = current_datetime.day
+#       date = str(day_now) + '.' + str(month_now)
+#       first_name = query.message.chat.first_name
+#       username = query.message.chat.username
+#       await query.message.reply_text('''
+# Опт от '''+ date +''' в канале ['''+opt['title']+'''](https://t.me/'''+opt['chanel'][1:]+''')\n
+# *Розничная цена:* '''+ str(opt['retail_price']) + ''' \n
+# *Оптовая цена:* '''+ str(opt['wholesale_cost']) + '''\n
+# *Минимум постов:* '''+ str(opt['min_places']) + '''\n
+# *Максимум постов:* '''+ str(opt['max_places']) + '''\n
+# *Список дат:* \n'''+ booking_date_parse + '''\n
+# *Дедлайн:* '''+ opt['deadline_date'] + '''\n
+# *Реквизиты:* '''+ opt['requisites'] + '''\n
+# *Владелец:* ['''+first_name+'''](https://t.me/'''+username+''')'''
+#         ,
+#       reply_markup=reply_markup,
+#       parse_mode="Markdown",
+#       disable_web_page_preview=None
+#       )
+#       # except:
+#       #   await query.message.reply_text("Упс произошла ошибка")
+#       return
 
     #!Подписчки
     if query_array[0] == 'pay':
@@ -510,7 +544,6 @@ class SlonBot():
         day = ''
         price = int(query_array[4] + '00')
         value = query_array[4] + '.00'
-        print(query_array)
         if query_array[2] == 'lite':
           sub = 'lite'
           if query_array[3] == 'litle':
@@ -617,6 +650,7 @@ class SlonBot():
       if query_array[1] == 'confirm':
         reply_markup = get_reservation_table()
         opt = opt_set(user_id, {})
+        opt = opt_set(user_id, {'now_places': str(len(opt['booking_date'].split('_')))})
         booking_date = opt['booking_date'].split('_')
         booking_date_parse = parse_view_date(booking_date)
         await query.message.reply_text('Хотите выбрать следующие даты:?\n' + booking_date_parse, reply_markup=reply_markup)
@@ -746,7 +780,7 @@ class SlonBot():
             page = old + 1
             profile = get_profile(user_id)
             reply_markup = go_chanel_opt_into(query_array[2], start_cut, finish_cut, page, profile['filter_opt'], user_id)
-            await query.edit_message_text('Выберите опт', reply_markup=reply_markup)
+            await query.edit_message_text('Выберите опт:', reply_markup=reply_markup)
             return
           elif query_array[3] == 'filters':
             user = get_profile(user_id)
@@ -761,12 +795,14 @@ class SlonBot():
             booking_date = opt['booking_date'].split('_')
             booking_date_parse = parse_view_date(booking_date)
             profile = get_profile(opt['user_id'])
+
             await query.edit_message_text('''
 *Опт в канале:* ['''+ str(opt['title']) +'''](https://t.me/'''+opt['chanel'][1:]+''')\n                            
 *Розничная цена:* '''+ str(opt['retail_price']) +'''\n
 *Оптовая цена:* '''+ str(opt['wholesale_cost']) +'''\n
 *Минимум постов:* '''+ str(opt['min_places']) +'''\n
 *Максимум постов:* '''+ str(opt['max_places']) +'''\n
+*Собрано постов:* '''+ str(int(opt['now_places']) - len(booking_date)) +'''/'''+ str(opt['now_places']) + '''\n
 *Список дат:* \n'''+ booking_date_parse +'''\n
 *Дедлайн:* '''+ str(opt['deadline_date']) +'''\n
 *Реквизиты:* '''+ str(opt['requisites']) +'''\n
@@ -907,7 +943,7 @@ class SlonBot():
           set_any_profile(user_id, {'rec_into_temp': username})
           user_change_message_mod(user_id, 'recommendation-creative-one')
           opt_old = set_opt_recommendation_into(user_id, query_array[2],  {'status': 'confirm'}, 'none')
-          await query.edit_message_text('Отправьте креативы, кнопки присылайте отдельным креативом: ')
+          await query.edit_message_text('Отправьте креативы, кнопки присылайте отдельным сообщением:\n\nВы можете отправить их позже в профиле.')
           return
         elif  'morning' in query_array[-2] or 'day' in query_array[-2] or 'evening' in query_array[-2]:
           new_booket = query_array[-2]
@@ -921,7 +957,6 @@ class SlonBot():
 
         opt_old = set_opt_recommendation_into(user_id, username,  {}, delete)
 
-        print('рекомендации')
         allowed_dates = opt_old['allowed_dates'].split('_')
         bookeds = []
         booked_send = ''
@@ -972,7 +1007,7 @@ class SlonBot():
 *Стандартная цена:* '''+ str(recommendation['price_standart']) +'''\n
 *Текущая цена:* '''+ str(recommendation['price_now']) +'''\n
 *Формат:* '''+ recommendation['format'] +'''\n
-*Число постов:* '''+ str(recommendation['number_posts']) +'''\n
+*Собрано постов:* '''+ str(int(recommendation['price_now']) - len(booking_date)) +'''/'''+ str(recommendation['number_posts']) + '''\n
 *Места длля брони:* '''+ booking_date_parse +'''\n
 *Ревизиты:* '''+ recommendation['requisites'] +'''\n
 *Дедлайн формирования опта:* '''+ recommendation['deadline'] +'''\n
@@ -1029,7 +1064,7 @@ class SlonBot():
         opt_old = set_opt_into(user_id, query_array[1],  {'status': 'confirm'}, 'none')
         set_any_profile(user_id, {'opt_into_temp': query_array[1]})
         user_change_message_mod(user_id, 'opt-creative-one')
-        await query.edit_message_text('Отправьте креативы, кнопки присылайте отдельным креативом: ')
+        await query.edit_message_text('Отправьте креативы, кнопки присылайте отдельным сообщением:\n\nВы можете отправить их позже в профиле.')
         return
       elif  'morning' in query_array[2] or 'day' in query_array[2] or 'evening' in query_array[2]:
         new_booket = query_array[2]

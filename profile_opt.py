@@ -28,15 +28,16 @@ async def profile_opt(update: Update, context) -> None:
     opts_str = ''
     keyboard = []
     for opt in opts:
+      
       keyboard.append([
-        InlineKeyboardButton(opt['chanel'], callback_data='empty'),
+        InlineKeyboardButton(opt['title'], callback_data='empty'),
         InlineKeyboardButton('Посты', callback_data='my-opt-into-post_' + opt['chanel']),
         InlineKeyboardButton('Чек', callback_data='my-opt-into-check_' + opt['chanel']),
         InlineKeyboardButton('Даты брони', callback_data='my-opt-into-date_' + opt['chanel'])
       ])
     keyboard.append([InlineKeyboardButton("Назад", callback_data='my-profile')])
     reply_markup = InlineKeyboardMarkup(keyboard)
-    await query.edit_message_text('В подборках в которых учавствуешь\n' + opts_str, reply_markup=reply_markup)
+    await query.edit_message_text('Актуальные опты с вашим участием:\n' + opts_str, reply_markup=reply_markup)
 
   elif query_array[0] == 'my-opt-into-date':
     recommendations_into = user_recommendation_into(user_id)
@@ -104,7 +105,7 @@ async def profile_opt(update: Update, context) -> None:
           if i == 0:
             continue
           keyboard.append([InlineKeyboardButton("Пост № " + str(i), callback_data='my-opt-into-post-number_' + str(i) + '_' + chanel)])
-        
+    keyboard.append([InlineKeyboardButton("Добавить пост ➕", callback_data='my-opt-into-post-add_' + chanel  + '_' + opt['type'])])
     keyboard.append([InlineKeyboardButton("Назад", callback_data='my-profile')])
     reply_markup = InlineKeyboardMarkup(keyboard)
     await query.edit_message_text('Посты:', reply_markup=reply_markup)
@@ -125,7 +126,6 @@ async def profile_opt(update: Update, context) -> None:
         creatives =  opt['creatives'].split('///')
         for i, v in enumerate(creatives):
           if i == int(post_number):
-            print(v)
             textArray = v.split('*')
             await query.answer()
             keyboard = [
@@ -135,7 +135,6 @@ async def profile_opt(update: Update, context) -> None:
             ]
             reply_markup = InlineKeyboardMarkup(keyboard)
             if len(textArray) == 1:
-              print(v)
               await query.message.reply_text(v, reply_markup=reply_markup, parse_mode="HTML")
             else:
               text = textArray[0]
@@ -202,3 +201,15 @@ async def profile_opt(update: Update, context) -> None:
     save_eddit_temp_check(user_id, chanel, opt_type)
     await query.answer()
     await query.message.reply_text('Отправьте чек')
+
+  elif query_array[0] == 'my-opt-into-post-add':
+    user_array = query_array[1:-1]
+    opt_type = query_array[-1]
+    chanel = ''
+    if len(user_array) > 1:
+      chanel = '_'.join(user_array)
+    else:
+      chanel = query_array[1]
+    save_eddit_temp_check(user_id, chanel, opt_type)
+    user_change_message_mod(user_id, 'add-post')
+    await query.message.reply_text('Введите новый пост:')
