@@ -24,8 +24,10 @@ async def edit_post(update: Update, context) -> None:
   
   #принять редактор пост
   if mode == 'edit-chek':
-    check = update.message.photo[-1].file_id
-    edit_check_req(user_id, check)
+    file_id = update.message.photo[-1].file_id
+    file_info = await context.bot.get_file(file_id)
+    file_path = file_info.file_path
+    edit_check_req(user_id, file_id, file_path)
     user_change_message_mod(user_id, 'standart')
     await update.message.reply_text("Ваш чек упешно сохранён!")
     return

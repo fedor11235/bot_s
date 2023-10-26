@@ -267,11 +267,12 @@ def edit_post_req(user_id, post):
   )
   return req.json()
 
-def edit_check_req(user_id, check):
+def edit_check_req(user_id, check, check_path):
   req = requests.get(
     'http://localhost:3001/opt/check-edit-temp' +
     '?idUser=' + str(user_id) +
-    '&check=' + str(check)
+    '&check=' + str(check) +
+    '&checkPath=' + str(check_path)
   )
   return req.json()
 

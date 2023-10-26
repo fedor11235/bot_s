@@ -170,7 +170,7 @@ async def profile_opt(update: Update, context) -> None:
           if i == 0:
             continue
           keyboard.append([InlineKeyboardButton("Пост № " + str(i), callback_data='my-opt-into-post-number_' + str(i) + '_' + chanel)])
-        
+    keyboard.append([InlineKeyboardButton("Добавить пост ➕", callback_data='my-opt-into-post-add_' + chanel  + '_' + opt['type'])])
     keyboard.append([InlineKeyboardButton("Назад", callback_data='my-profile')])
     reply_markup = InlineKeyboardMarkup(keyboard)
     await query.answer()
@@ -212,4 +212,5 @@ async def profile_opt(update: Update, context) -> None:
       chanel = query_array[1]
     save_eddit_temp_check(user_id, chanel, opt_type)
     user_change_message_mod(user_id, 'add-post')
+    await query.answer()
     await query.message.reply_text('Введите новый пост:')

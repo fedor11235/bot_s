@@ -443,38 +443,54 @@ class SlonBot():
     await profile_opt(update, context)
     # креативы подборок
     if query_array[0] == 'recommendation-creative-two':
+      keyboard = [[InlineKeyboardButton("Я сделаю это позже", callback_data='recommendation-creative-accept')]]
+      reply_markup = InlineKeyboardMarkup(keyboard)
       user_change_message_mod(user_id, 'recommendation-creative-three')
-      await query.edit_message_text('Отправьте креативы, кнопки присылайте отдельным сообщением:\n\nВы можете отправить их позже в профиле.')
+      await query.edit_message_text('Отправьте креативы, кнопки присылайте отдельным сообщением:\n\nВы можете отправить их позже в профиле.', reply_markup=reply_markup)
       return
     if query_array[0] == 'recommendation-creative-three':
+      keyboard = [[InlineKeyboardButton("Я сделаю это позже", callback_data='recommendation-creative-accept')]]
+      reply_markup = InlineKeyboardMarkup(keyboard)
       user_change_message_mod(user_id, 'recommendation-creative-four')
-      await query.edit_message_text('Отправьте креативы, кнопки присылайте отдельным сообщением:\n\nВы можете отправить их позже в профиле.')
+      await query.edit_message_text('Отправьте креативы, кнопки присылайте отдельным сообщением:\n\nВы можете отправить их позже в профиле.', reply_markup=reply_markup)
       return
     if query_array[0] == 'recommendation-creative-four':
+      keyboard = [[InlineKeyboardButton("Я сделаю это позже", callback_data='recommendation-creative-accept')]]
+      reply_markup = InlineKeyboardMarkup(keyboard)
       user_change_message_mod(user_id, 'recommendation-creative-five')
-      await query.edit_message_text('Отправьте креативы, кнопки присылайте отдельным сообщением:\n\nВы можете отправить их позже в профиле.')
+      await query.edit_message_text('Отправьте креативы, кнопки присылайте отдельным сообщением:\n\nВы можете отправить их позже в профиле.', reply_markup=reply_markup)
       return
     if query_array[0] == 'recommendation-creative-five':
+      keyboard = [[InlineKeyboardButton("Я сделаю это позже", callback_data='recommendation-creative-accept')]]
+      reply_markup = InlineKeyboardMarkup(keyboard)
       user_change_message_mod(user_id, 'standart')
-      await query.edit_message_text('Отправьте креативы, кнопки присылайте отдельным сообщением:\n\nВы можете отправить их позже в профиле.')
+      await query.edit_message_text('Отправьте креативы, кнопки присылайте отдельным сообщением:\n\nВы можете отправить их позже в профиле.', reply_markup=reply_markup)
       return
 
     # креативы опта
     if query_array[0] == 'opt-creative-two':
+      keyboard = [[InlineKeyboardButton("Я сделаю это позже", callback_data='opt-creative-accept')]]
+      reply_markup = InlineKeyboardMarkup(keyboard)
       user_change_message_mod(user_id, 'opt-creative-three')
-      await query.edit_message_text('Отправьте креативы, кнопки присылайте отдельным сообщением:\n\nВы можете отправить их позже в профиле.')
+      await query.edit_message_text('Отправьте креативы, кнопки присылайте отдельным сообщением:\n\nВы можете отправить их позже в профиле.', reply_markup=reply_markup)
       return
     if query_array[0] == 'opt-creative-three':
+      keyboard = [[InlineKeyboardButton("Я сделаю это позже", callback_data='opt-creative-accept')]]
+      reply_markup = InlineKeyboardMarkup(keyboard)
       user_change_message_mod(user_id, 'opt-creative-four')
       await query.edit_message_text('Отправьте креативы, кнопки присылайте отдельным сообщением:\n\nВы можете отправить их позже в профиле.')
       return
     if query_array[0] == 'opt-creative-four':
+      keyboard = [[InlineKeyboardButton("Я сделаю это позже", callback_data='opt-creative-accept')]]
+      reply_markup = InlineKeyboardMarkup(keyboard)
       user_change_message_mod(user_id, 'opt-creative-five')
-      await query.edit_message_text('Отправьте креативы, кнопки присылайте отдельным сообщением:\n\nВы можете отправить их позже в профиле.')
+      await query.edit_message_text('Отправьте креативы, кнопки присылайте отдельным сообщением:\n\nВы можете отправить их позже в профиле.', reply_markup=reply_markup)
       return
     if query_array[0] == 'opt-creative-five':
+      keyboard = [[InlineKeyboardButton("Я сделаю это позже", callback_data='opt-creative-accept')]]
+      reply_markup = InlineKeyboardMarkup(keyboard)
       user_change_message_mod(user_id, 'standart')
-      await query.edit_message_text('Отправьте креативы, кнопки присылайте отдельным сообщением:\n\nВы можете отправить их позже в профиле.')
+      await query.edit_message_text('Отправьте креативы, кнопки присылайте отдельным сообщением:\n\nВы можете отправить их позже в профиле.', reply_markup=reply_markup)
       return
     
     # одобрение креативов
@@ -483,7 +499,14 @@ class SlonBot():
       user_change_message_mod(user_id, 'standart')
       # rec_old = recommendation_requisites(profile['rec_into_temp'])
       # user_change_message_mod(user_id, 'recommendation-check')
-      await query.edit_message_text('Креативы переданы владельцу канала. Вам придет уведомление когда он ответит.\n')
+      opt_old = set_opt_recommendation_into(user_id, profile['rec_into_temp'],  {}, 'none')
+      booking_date = opt_old['booking_date'].split('_')
+      booking_date_parse = parse_view_date(booking_date)
+      # await query.edit_message_text('Креативы переданы владельцу канала. Вам придет уведомление когда он ответит.\n' )
+      await query.edit_message_text('''
+Готово! Вы забронировали следующие даты:\n\n''' + booking_date_parse +
+'''Вам придет уведомление об оплате когда опт соберется''')
+      # await query.edit_message_text('Креативы переданы владельцу канала. Вам придет уведомление когда он ответит.\n')
 
     
     elif query_array[0] == 'opt-creative-accept':
@@ -491,7 +514,14 @@ class SlonBot():
       user_change_message_mod(user_id, 'standart')
       # opt_old = opt_requisites(profile['opt_into_temp'])
       # user_change_message_mod(user_id, 'opt-check')
-      await query.edit_message_text('Креативы переданы владельцу канала. Вам придет уведомление когда он ответит.\Информацию о опте можно посмотреть в профиле.\n' )
+      opt_old = set_opt_into(user_id, profile['opt_into_temp'],  {}, 'none')
+      booking_date = opt_old['booking_date'].split('_')
+      booking_date_parse = parse_view_date(booking_date)
+      
+      # await query.edit_message_text('Креативы переданы владельцу канала. Вам придет уведомление когда он ответит.\n' )
+      await query.edit_message_text('''
+Готово! Вы забронировали следующие даты:\n\n''' + booking_date_parse +
+'''Вам придет уведомление об оплате когда опт соберется''')
       # try:
 #       opt = opt_set(user_id, {})
 #       reply_markup = get_opt_create(opt['chanel'])
@@ -796,13 +826,17 @@ class SlonBot():
             booking_date_parse = parse_view_date(booking_date)
             profile = get_profile(opt['user_id'])
 
+            alldate = len(booking_date)
+            if booking_date[0] == '':
+              alldate = 0
+
             await query.edit_message_text('''
 *Опт в канале:* ['''+ str(opt['title']) +'''](https://t.me/'''+opt['chanel'][1:]+''')\n                            
 *Розничная цена:* '''+ str(opt['retail_price']) +'''\n
 *Оптовая цена:* '''+ str(opt['wholesale_cost']) +'''\n
 *Минимум постов:* '''+ str(opt['min_places']) +'''\n
 *Максимум постов:* '''+ str(opt['max_places']) +'''\n
-*Собрано постов:* '''+ str(int(opt['now_places']) - len(booking_date)) +'''/'''+ str(opt['now_places']) + '''\n
+*Собрано постов:* '''+ str(int(opt['now_places']) - alldate) +'''/'''+ str(opt['now_places']) + '''\n
 *Список дат:* \n'''+ booking_date_parse +'''\n
 *Дедлайн:* '''+ str(opt['deadline_date']) +'''\n
 *Реквизиты:* '''+ str(opt['requisites']) +'''\n
@@ -943,7 +977,9 @@ class SlonBot():
           set_any_profile(user_id, {'rec_into_temp': username})
           user_change_message_mod(user_id, 'recommendation-creative-one')
           opt_old = set_opt_recommendation_into(user_id, query_array[2],  {'status': 'confirm'}, 'none')
-          await query.edit_message_text('Отправьте креативы, кнопки присылайте отдельным сообщением:\n\nВы можете отправить их позже в профиле.')
+          keyboard = [[InlineKeyboardButton("Я сделаю это позже", callback_data='recommendation-creative-accept')]]
+          reply_markup = InlineKeyboardMarkup(keyboard)
+          await query.edit_message_text('Отправьте креативы, кнопки присылайте отдельным сообщением:\n\nВы можете отправить их позже в профиле.', reply_markup=reply_markup)
           return
         elif  'morning' in query_array[-2] or 'day' in query_array[-2] or 'evening' in query_array[-2]:
           new_booket = query_array[-2]
@@ -1001,13 +1037,16 @@ class SlonBot():
         reply_markup = InlineKeyboardMarkup(keyboard)
         booking_date = recommendation['data_list'].split('_')
         booking_date_parse = parse_view_date(booking_date)
+        alldate = len(booking_date)
+        if booking_date[0] == '':
+          alldate = 0
         await query.edit_message_text('''
 *Подписчиков:* '''+ str(recommendation['subscribers']) +'''\n
 *Охват:* '''+ str(recommendation['coverage']) +'''\n
 *Стандартная цена:* '''+ str(recommendation['price_standart']) +'''\n
 *Текущая цена:* '''+ str(recommendation['price_now']) +'''\n
 *Формат:* '''+ recommendation['format'] +'''\n
-*Собрано постов:* '''+ str(int(recommendation['price_now']) - len(booking_date)) +'''/'''+ str(recommendation['number_posts']) + '''\n
+*Собрано постов:* '''+ str(int(recommendation['number_posts']) - alldate) +'''/'''+ str(recommendation['number_posts']) + '''\n
 *Места длля брони:* '''+ booking_date_parse +'''\n
 *Ревизиты:* '''+ recommendation['requisites'] +'''\n
 *Дедлайн формирования опта:* '''+ recommendation['deadline'] +'''\n
@@ -1064,7 +1103,9 @@ class SlonBot():
         opt_old = set_opt_into(user_id, query_array[1],  {'status': 'confirm'}, 'none')
         set_any_profile(user_id, {'opt_into_temp': query_array[1]})
         user_change_message_mod(user_id, 'opt-creative-one')
-        await query.edit_message_text('Отправьте креативы, кнопки присылайте отдельным сообщением:\n\nВы можете отправить их позже в профиле.')
+        keyboard = [[InlineKeyboardButton("Я сделаю это позже", callback_data='opt-creative-accept')]]
+        reply_markup = InlineKeyboardMarkup(keyboard)
+        await query.edit_message_text('Отправьте креативы, кнопки присылайте отдельным сообщением:\n\nВы можете отправить их позже в профиле.', reply_markup=reply_markup)
         return
       elif  'morning' in query_array[2] or 'day' in query_array[2] or 'evening' in query_array[2]:
         new_booket = query_array[2]
