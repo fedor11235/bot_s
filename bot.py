@@ -628,9 +628,10 @@ class SlonBot():
             booking_date_parse = parse_view_date(booking_date)
             profile = get_profile(opt['user_id'])
 
-            alldate = len(booking_date)
-            if booking_date[0] == '':
-              alldate = 0
+            allowed_dates = opt['allowed_dates'].split('_')
+            allowed_dates_len = len(allowed_dates)
+            if allowed_dates[0] == '':
+              allowed_dates_len = 0
 
             await query.edit_message_text('''
 *Опт в канале:* ['''+ str(opt['title']) +'''](https://t.me/'''+opt['chanel'][1:]+''')\n                            
@@ -638,7 +639,7 @@ class SlonBot():
 *Оптовая цена:* '''+ str(opt['wholesale_cost']) +'''\n
 *Минимум постов:* '''+ str(opt['min_places']) +'''\n
 *Максимум постов:* '''+ str(opt['max_places']) +'''\n
-*Собрано постов:* '''+ str(int(opt['now_places']) - alldate) +'''/'''+ str(opt['now_places']) + '''\n
+*Собрано постов:* '''+ str(int(opt['now_places']) - allowed_dates_len) +'''/'''+ str(opt['now_places']) + '''\n
 *Список дат:* \n'''+ booking_date_parse +'''\n
 *Дедлайн:* '''+ str(opt['deadline_date']) +'''\n
 *Реквизиты:* '''+ str(opt['requisites']) +'''\n
@@ -817,8 +818,6 @@ class SlonBot():
 
         allowed_dates =  [*allowed_dates, *opt['allowed_dates'].split('_')]
 
-        print(allowed_dates)
-
         reply_markup = get_reservation_req_table(bookeds=c, offset = offset, channel=username, allowed_dates=allowed_dates)
         await query.edit_message_text('Выберите доступные для брони слоты:', reply_markup=reply_markup)
         # print(query.message.message_id)
@@ -847,18 +846,19 @@ class SlonBot():
         reply_markup = InlineKeyboardMarkup(keyboard)
         booking_date = recommendation['data_list'].split('_')
         booking_date_parse = parse_view_date(booking_date)
-        alldate = len(booking_date)
-        print(booking_date)
-        print(alldate)
-        if booking_date[0] == '':
-          alldate = 0
+
+        allowed_dates = recommendation['allowed_dates'].split('_')
+        allowed_dates_len = len(allowed_dates)
+        if allowed_dates[0] == '':
+          allowed_dates_len = 0
+
         await query.edit_message_text('''
 *Подписчиков:* '''+ str(recommendation['subscribers']) +'''\n
 *Охват:* '''+ str(recommendation['coverage']) +'''\n
 *Стандартная цена:* '''+ str(recommendation['price_standart']) +'''\n
 *Текущая цена:* '''+ str(recommendation['price_now']) +'''\n
 *Формат:* '''+ recommendation['format'] +'''\n
-*Собрано постов:* '''+ str(int(recommendation['number_posts']) - alldate) +'''/'''+ str(recommendation['number_posts']) + '''\n
+*Собрано постов:* '''+ str(int(recommendation['number_posts']) - allowed_dates_len) +'''/'''+ str(recommendation['number_posts']) + '''\n
 *Места длля брони:* '''+ booking_date_parse +'''\n
 *Ревизиты:* '''+ recommendation['requisites'] +'''\n
 *Дедлайн формирования опта:* '''+ recommendation['deadline'] +'''\n
@@ -939,8 +939,12 @@ class SlonBot():
       c = [s for s in c if s]
 
       str_booked = '_'.join(c)
+      str_allowed = '_'.join(repeated_elements)
 
-      opt = set_opt_into(user_id, query_array[1],  {'booking_date': str_booked}, delete)
+      opt = set_opt_into(user_id, query_array[1],  {'booking_date': str_booked, 'allowed_dates': str_allowed}, delete)
+
+      allowed_dates =  [*allowed_dates, *opt['allowed_dates'].split('_')]
+
 
       reply_markup = get_reservation_into_table(bookeds=c, offset = offset, channel=query_array[1], allowed_dates=allowed_dates)
       await query.edit_message_text('Выберите доступные для брони слоты:', reply_markup=reply_markup)

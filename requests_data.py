@@ -71,13 +71,11 @@ def opt_create(id, chanel):
   )
   return req.json()
 
-# def opt_set(id, chanel, data):
 def opt_set(id, data):
   req = requests.post(
     'http://localhost:3001/opt/set' +
     '?idUser=' + str(id),
-    # '&chanel=' + str(chanel), 
-      data=data
+    data=data
   )
   return req.json()
 

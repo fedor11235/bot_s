@@ -329,10 +329,11 @@ def check_morning_into(data, bookeds, allowed_dates):
     if (data in allowed) and ("morning" in allowed):
       result[0] = " "
       result[1] = True
-      for booked in bookeds:
-        if (data in booked) and ("morning" in booked):
-          result[0] = "✅"
-          break
+  for booked in bookeds:
+    if (data in booked) and ("morning" in booked):
+      result[0] = "✅"
+      result[1] = True
+      break
 
   return result
 
@@ -342,10 +343,11 @@ def check_day_into(data, bookeds, allowed_dates):
     if (data in allowed) and ("day" in allowed):
       result[0] = " "
       result[1] = True
-      for booked in bookeds:
-        if (data in booked) and ("day" in booked):
-          result[0] = "✅"
-          break
+  for booked in bookeds:
+    if (data in booked) and ("day" in booked):
+      result[0] = "✅"
+      result[1] = True
+      break
 
 
   return result
@@ -356,10 +358,11 @@ def check_evening_into(data, bookeds, allowed_dates):
     if (data in allowed) and ("evening" in allowed):
       result[0] = " "
       result[1] = True
-      for booked in bookeds:
-        if (data in booked) and ("evening" in booked):
-          result[0] = "✅"
-          break
+  for booked in bookeds:
+    if (data in booked) and ("evening" in booked):
+      result[0] = "✅"
+      result[1] = True
+      break
 
   return result
 
