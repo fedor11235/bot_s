@@ -639,7 +639,7 @@ class SlonBot():
 *Оптовая цена:* '''+ str(opt['wholesale_cost']) +'''\n
 *Минимум постов:* '''+ str(opt['min_places']) +'''\n
 *Максимум постов:* '''+ str(opt['max_places']) +'''\n
-*Собрано постов:* '''+ str(int(opt['now_places']) - allowed_dates_len) +'''/'''+ str(opt['now_places']) + '''\n
+*Собрано постов:* '''+ str(len(booking_date) - allowed_dates_len) +'''/'''+ str(opt['now_places']) + '''\n
 *Список дат:* \n'''+ booking_date_parse +'''\n
 *Дедлайн:* '''+ str(opt['deadline_date']) +'''\n
 *Реквизиты:* '''+ str(opt['requisites']) +'''\n
@@ -858,7 +858,7 @@ class SlonBot():
 *Стандартная цена:* '''+ str(recommendation['price_standart']) +'''\n
 *Текущая цена:* '''+ str(recommendation['price_now']) +'''\n
 *Формат:* '''+ recommendation['format'] +'''\n
-*Собрано постов:* '''+ str(int(recommendation['number_posts']) - allowed_dates_len) +'''/'''+ str(recommendation['number_posts']) + '''\n
+*Собрано постов:* '''+ str(len(booking_date) - allowed_dates_len) +'''/'''+ str(recommendation['number_posts']) + '''\n
 *Места длля брони:* '''+ booking_date_parse +'''\n
 *Ревизиты:* '''+ recommendation['requisites'] +'''\n
 *Дедлайн формирования опта:* '''+ recommendation['deadline'] +'''\n
