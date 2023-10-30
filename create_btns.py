@@ -326,11 +326,13 @@ def btns_recommendations_get(offset = 0):
 def check_morning_into(data, bookeds, allowed_dates):
   result = ["❌", False]
   for allowed in allowed_dates:
-    if (data in allowed) and ("morning" in allowed):
+    allowedArray = allowed.split('/')
+    if data  == allowedArray[1] and "morning" == allowedArray[0]:
       result[0] = " "
       result[1] = True
   for booked in bookeds:
-    if (data in booked) and ("morning" in booked):
+    bookedArray = booked.split('/')
+    if data  == bookedArray[1] and "morning" == bookedArray[0]:
       result[0] = "✅"
       result[1] = True
       break
@@ -340,11 +342,13 @@ def check_morning_into(data, bookeds, allowed_dates):
 def check_day_into(data, bookeds, allowed_dates):
   result = ["❌", False]
   for allowed in allowed_dates:
-    if (data in allowed) and ("day" in allowed):
+    allowedArray = allowed.split('/')
+    if data == allowedArray[1] and "day" == allowedArray[0]:
       result[0] = " "
       result[1] = True
   for booked in bookeds:
-    if (data in booked) and ("day" in booked):
+    bookedArray = booked.split('/')
+    if data  == bookedArray[1] and "day" == bookedArray[0]:
       result[0] = "✅"
       result[1] = True
       break
@@ -355,11 +359,13 @@ def check_day_into(data, bookeds, allowed_dates):
 def check_evening_into(data, bookeds, allowed_dates):
   result = ["❌", False]
   for allowed in allowed_dates:
-    if (data in allowed) and ("evening" in allowed):
+    allowedArray = allowed.split('/')
+    if data == allowedArray[1] and "evening" == allowedArray[0]:
       result[0] = " "
       result[1] = True
   for booked in bookeds:
-    if (data in booked) and ("evening" in booked):
+    bookedArray = booked.split('/')
+    if data  == bookedArray[1] and "evening" == bookedArray[0]:
       result[0] = "✅"
       result[1] = True
       break
