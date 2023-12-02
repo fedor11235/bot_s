@@ -181,7 +181,7 @@ def user_recommendation_into(id):
   req = requests.get(
     'http://localhost:3001/user/recommendation-into-user' +
     '?idUser=' + str(id) +
-    '?bot=enabled'
+    '&bot=enabled'
   )
   return req.json()
 
