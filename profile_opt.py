@@ -244,8 +244,14 @@ async def profile_opt(update: Update, context) -> None:
   elif query_array[0] ==  'release-schedule':
     text = ''
     await query.answer()
-    opts = user_opt(user_id)
+    recommendations_into = user_recommendation_into(user_id)
+    opts_into = user_opt_into(user_id)
+    opts = [*recommendations_into, *opts_into]
+    # opts = user_opt(user_id)
+    print(opts)
     for opt in opts:
-      text += ' '.join(opt['booking_date'].split('_')) + ' ' + opt['chanel'] + ' ' + ' '.join(opt['placement_time'].split('_')) + '\n'
-      opt['placement_time']
+      text += ' '.join(opt['booking_date'].split('_')) + ' ' + opt['chanel'] + '\n'
+      # text += ' '.join(opt['booking_date'].split('_')) + ' ' + opt['chanel'] + ' ' + ' '.join(opt['placement_time'].split('_')) + '\n'
+    if not text:
+      text = 'Нету вхождений в опты'
     await query.message.reply_text(text)
