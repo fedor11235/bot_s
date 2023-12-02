@@ -14,6 +14,22 @@ def parse_filter(name):
     return 'indexSay'
   
 
+def get_release_schedule(idUser):
+  req = requests.get(
+    'http://localhost:3001/opt/release-schedule' +
+    '?idUser=' + str(idUser)
+  )
+  chanels = req.json()
+  return chanels
+
+def delete_opt(chanel):
+  req = requests.delete(
+    'http://localhost:3001/opt/opt-delete' +
+    '?chanel=' + str(chanel)
+  )
+  chanel = req.json()
+  return chanel
+
 # user
 def get_profile(user_id):
   req = requests.get(

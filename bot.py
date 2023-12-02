@@ -20,6 +20,7 @@ from add_post import add_post
 from register_user import register_user, add_chanel, user_promocode
 
 from requests_data import (
+  delete_opt,
   user_opt,
   set_any_profile,
   set_opt_recommendation_into,
@@ -110,7 +111,7 @@ class SlonBot():
     keyboard = [
       # [KeyboardButton("Каталог")],
       [KeyboardButton("Создать опт"), KeyboardButton("Зайти в опт")],
-      [KeyboardButton("Подборки"), KeyboardButton("Профиль")],
+      [KeyboardButton("Slon Business✨"), KeyboardButton("Профиль")],
     ]
     reply_markup = ReplyKeyboardMarkup(keyboard)
     if user_stat == 'empty':
@@ -221,6 +222,8 @@ class SlonBot():
         [InlineKeyboardButton("Мои опты", callback_data='my-opt')],
         # [InlineKeyboardButton("Опты в которых я участвую", callback_data='my-req')],
         [InlineKeyboardButton("Опты в которых я участвую", callback_data='my-opt-into')],
+        [InlineKeyboardButton("Мои каналы", callback_data='my-chanel')],
+        [InlineKeyboardButton("График выходов", callback_data='release-schedule')],
       ]
       reply_markup = InlineKeyboardMarkup(keyboard)
       profile = get_profile(user_id)
@@ -955,7 +958,26 @@ class SlonBot():
       keyboard = []
 
       for opt in opts:
-        keyboard.append([InlineKeyboardButton(opt['chanel'], callback_data='my-opt-chenel_' + opt['chanel'])])
+        keyboard.append([InlineKeyboardButton(opt['title'], callback_data='my-opt-chenel_' + opt['chanel']), InlineKeyboardButton('❌ удалить', callback_data='my-opt-chenel-delete_' + opt['chanel'])])
+        
+      keyboard.append([InlineKeyboardButton("Назад", callback_data='my-profile')])
+      reply_markup = InlineKeyboardMarkup(keyboard)
+      await query.edit_message_text('Мои опты:\n', reply_markup=reply_markup)
+
+    elif query_array[0] == 'my-opt-chenel-delete':
+      await query.answer()
+      channel = ''
+      query_array.pop(0)
+      if(len(query_array) > 1):
+        channel = query_array.join('_')
+      else:
+        channel = query_array[0]
+      delete_opt(channel)
+      opts = user_opt(user_id)
+      keyboard = []
+
+      for opt in opts:
+        keyboard.append([InlineKeyboardButton(opt['title'], callback_data='my-opt-chenel_' + opt['chanel']), InlineKeyboardButton('❌ удалить', callback_data='my-opt-chenel-delete_' + opt['chanel'])])
         
       keyboard.append([InlineKeyboardButton("Назад", callback_data='my-profile')])
       reply_markup = InlineKeyboardMarkup(keyboard)
@@ -1099,6 +1121,7 @@ class SlonBot():
       keyboard = [
         [InlineKeyboardButton("Мои опты", callback_data='my-opt')],
         [InlineKeyboardButton("Опты в которых я участвую", callback_data='my-opt-into')],
+        [InlineKeyboardButton("Мои каналы", callback_data='my-chanel')],
       ]
       reply_markup = InlineKeyboardMarkup(keyboard)
       profile = get_profile(user_id)

@@ -1,13 +1,16 @@
 import requests
 from telegram import Update, InlineKeyboardButton, InlineKeyboardMarkup
 from requests_data import (
+  # get_release_schedule,
+  get_profile,
   save_eddit_temp_check,
   save_eddit_temp_post,
   user_change_message_mod,
   opt_post_delete,
   user_recommendation_into,
   user_opt_into,
-  parse_view_date
+  parse_view_date,
+  user_opt
 )
 from create_btns import (
   get_user_chanels,
@@ -220,3 +223,29 @@ async def profile_opt(update: Update, context) -> None:
     user_change_message_mod(user_id, 'add-post')
     await query.answer()
     await query.message.reply_text('Введите новый пост:')
+
+  elif query_array[0] ==  'my-chanel':
+    keyboard = [[InlineKeyboardButton("Добавить канал", callback_data='add-channel')]]
+    reply_markup = InlineKeyboardMarkup(keyboard)
+    profile = get_profile(user_id)
+    channels = profile['channels']
+    text = ''
+    for channel in channels:
+      text += channel['title'] + '  ' + channel['idChanel'] + '\n'
+
+    await query.answer()
+    await query.message.reply_text(text, reply_markup=reply_markup)
+
+  elif query_array[0] ==  'add-channel':
+    user_change_message_mod(user_id, 'chanel')
+    await query.answer()
+    await query.message.reply_text('''Чтобы добавить канал, сделайте @SlonRobot администратором в канале, а затем пришлите сюда ссылку на канал или просто перешлите из него любое сообщение.\n\nБоту можно не выдавать никаких прав. Данная процедура нужна чтобы подтвердить, что вы являетесь владельцем канала.\n''')
+
+  elif query_array[0] ==  'release-schedule':
+    text = ''
+    await query.answer()
+    opts = user_opt(user_id)
+    for opt in opts:
+      text += ' '.join(opt['booking_date'].split('_')) + ' ' + opt['chanel'] + ' ' + ' '.join(opt['placement_time'].split('_')) + '\n'
+      opt['placement_time']
+    await query.message.reply_text(text)
