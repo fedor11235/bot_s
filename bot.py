@@ -383,6 +383,11 @@ class SlonBot():
         await query.edit_message_text(text='Выберите срок на который хотите продлить подписку *Pro*:\n',  reply_markup=reply_markup, parse_mode="Markdown")
         return
       elif query_array[1] == 'business':
+        profile = get_profile(user_id)
+        allow_suggestions = profile['allow_suggestions']
+        if not allow_suggestions:
+          await query.edit_message_text(text='для одобрения подписки business свяжитесь с нашим менеджером: @slon_feedback')
+          return
         reply_markup = get_btns_pay('business', profile['discount'], user_id)
         await query.edit_message_text(text='Выберите срок на который хотите продлить подписку *Business*:\n',  reply_markup=reply_markup, parse_mode="Markdown")
         return
@@ -417,6 +422,8 @@ class SlonBot():
             day = '365'
           
         elif query_array[2] == 'business':
+          # profile = get_profile(user_id)
+          # print(profile)
           sub = 'business'
           if query_array[3] == 'litle':
             label = 'Business — '+query_array[4]+'₽/мес.'
