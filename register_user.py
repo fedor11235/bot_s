@@ -22,7 +22,7 @@ async def add_chanel(update: Update, context):
     try:
       if update.message.forward_from_chat:
         idChanel = update.message.forward_from_chat.id
-        await context.bot.get_chat_member(user_id=6569483795, chat_id=str(idChanel))
+        await context.bot.get_chat_member(user_id=user_id, chat_id=str(idChanel))
         chat_info = await context.bot.get_chat(chat_id=idChanel)
         
         status = create_chanel(user_id, idChanel, chat_info.title)
