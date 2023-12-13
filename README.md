@@ -16,11 +16,6 @@ bot launch
 ```
 python bot.py
 ```
-server start
-open another terminal and in it we write the command
-```
-python server.py
-```
 ## for development
 information about the bot is in the file "info_information.txt"
 
