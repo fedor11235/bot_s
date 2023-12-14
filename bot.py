@@ -152,7 +152,7 @@ class SlonBot():
         [InlineKeyboardButton("Добавить канал", callback_data='chanelAdd')],
       ]
       reply_markup =  InlineKeyboardMarkup(keyboard)
-      await update.message.reply_text('''*Сначала создайте профиль*\n\nЧтобы начать использовать бота, сделайте @SlonRobot администратором в канале, а затем пришлите сюда ссылку на канал или просто перешлите из него любое сообщение.\n\nБоту можно не выдавать никаких прав. Данная процедура нужна чтобы подтвердить, что вы являетесь владельцем канала.\n\nДругие полезные команды:\n/partners — сгенерировать уникальный промокод, чтобы вы могли приглашать других пользователей и получать бонусы\n/help — связь со службой поддержки и ответы на часто задаваемые вопросы''', parse_mode="Markdown")
+      await update.message.edit_text('''*Сначала создайте профиль*\n\nЧтобы начать использовать бота, сделайте @SlonRobot администратором в канале, а затем пришлите сюда ссылку на канал или просто перешлите из него любое сообщение.\n\nБоту можно не выдавать никаких прав. Данная процедура нужна чтобы подтвердить, что вы являетесь владельцем канала.\n\nДругие полезные команды:\n/partners — сгенерировать уникальный промокод, чтобы вы могли приглашать других пользователей и получать бонусы\n/help — связь со службой поддержки и ответы на часто задаваемые вопросы''', parse_mode="Markdown")
     else:
       user = get_profile(user_id)
       tariff_plan = user['tariffPlan']
@@ -495,7 +495,7 @@ class SlonBot():
         opt = opt_set(user_id, {'now_places': str(len(opt['booking_date'].split('_')))})
         booking_date = opt['booking_date'].split('_')
         booking_date_parse = parse_view_date(booking_date)
-        await query.message.reply_text('Хотите выбрать следующие даты:?\n' + booking_date_parse, reply_markup=reply_markup)
+        await query.message.edit_text('Хотите выбрать следующие даты:?\n' + booking_date_parse, reply_markup=reply_markup)
         return
       elif query_array[1] == "change":
         opt = opt_set(user_id, {})
@@ -510,17 +510,17 @@ class SlonBot():
 
       elif query_array[1] == 'save':
         user_change_message_mod(user_id, 'deadline-wholesale-formation')
-        await query.message.reply_text('Укажите крайнюю дату формирования опта в формате 31.12. По наступлении этой даты, если опт не будет собран, он будет отменен.')
+        await query.message.edit_text('Укажите крайнюю дату формирования опта в формате 31.12. По наступлении этой даты, если опт не будет собран, он будет отменен.')
         return
       elif query_array[1] == 'time':
         user_change_message_mod(user_id, 'opt-send-details')
-        await query.message.reply_text('Пришлите реквизиты для оплаты одним сообщением:')
+        await query.message.edit_text('Пришлите реквизиты для оплаты одним сообщением:')
         return
       elif query_array[1] == 'create':
         data = {'status': 'confirmed'}
         opt_set(user_id, data)
         user_change_message_mod(user_id, 'standart')
-        await query.message.reply_text('Поздравляем! Опт успешно создан и добавлен в каталог.')
+        await query.message.edit_text('Поздравляем! Опт успешно создан и добавлен в каталог.')
         return
       elif query_array[1] in categoriesBd:
         start_cut = 1
@@ -582,7 +582,7 @@ class SlonBot():
 
         user_change_message_mod(user_id, 'opt-retail-price')
 
-        await query.message.reply_text('Создаем опт для канала '+ str(query_array[2]) +'. Напишите стандартную(розничную) стоимость размещения: ')
+        await query.message.edit_text('Создаем опт для канала '+ str(query_array[2]) +'. Напишите стандартную(розничную) стоимость размещения: ')
       elif query_array[1] == 'into':
         if query_array[2] in categoriesBd:
           if query_array[3] == 'back':
@@ -861,7 +861,6 @@ class SlonBot():
         allowed_dates_len = len(allowed_dates)
         if allowed_dates[0] == '':
           allowed_dates_len = 0
-
         await query.edit_message_text('''
 *Подписчиков:* '''+ str(recommendation['subscribers']) +'''\n
 *Охват:* '''+ str(recommendation['coverage']) +'''\n
@@ -1107,28 +1106,13 @@ class SlonBot():
                 
       await query.message.reply_text('Упс :( какая-то ошибка\n', reply_markup=reply_markup)
 
-    #   user_array = query_array[1:]
-    #   chanel = ''
-    #   if len(user_array) > 1:
-    #     chanel = '_'.join(user_array)
-    #   else:
-    #     chanel = query_array[1]
-    #   keyboard = [[InlineKeyboardButton("Назад", callback_data='my-profile')]]
-    #   reply_markup = InlineKeyboardMarkup(keyboard)
-    #   opts = user_opt_into(user_id)
-    #   for opt in opts:
-    #     if opt['chanel'] == chanel:
-    #       booking_date =  parse_view_date(opt['booking_date'].split('_'))
-    #       await query.edit_message_text(booking_date, reply_markup=reply_markup)
-    #       return
-    #   await query.edit_message_text('Упс :( что-то пошло не так')
-
     elif query_array[0] == 'my-profile':
       user_id = query.message.chat.id
       keyboard = [
         [InlineKeyboardButton("Мои опты", callback_data='my-opt')],
         [InlineKeyboardButton("Опты в которых я участвую", callback_data='my-opt-into')],
         [InlineKeyboardButton("Мои каналы", callback_data='my-chanel')],
+        [InlineKeyboardButton("График выходов", callback_data='release-schedule')],
       ]
       reply_markup = InlineKeyboardMarkup(keyboard)
       profile = get_profile(user_id)

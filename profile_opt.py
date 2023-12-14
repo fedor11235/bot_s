@@ -31,9 +31,10 @@ async def profile_opt(update: Update, context) -> None:
     opts_str = ''
     keyboard = []
     for opt in opts:
+      print(opt)
       
       keyboard.append([
-        InlineKeyboardButton(opt['title'], callback_data='empty'),
+        InlineKeyboardButton(str(opt['title']), callback_data='empty'),
         InlineKeyboardButton('Посты', callback_data='my-opt-into-post_' + opt['chanel']),
         InlineKeyboardButton('Чек', callback_data='my-opt-into-check_' + opt['chanel']),
         InlineKeyboardButton('Даты брони', callback_data='my-opt-into-date_' + opt['chanel'])
@@ -52,7 +53,7 @@ async def profile_opt(update: Update, context) -> None:
       chanel = '_'.join(user_array)
     else:
       chanel = query_array[1]
-    keyboard = [[InlineKeyboardButton("Назад", callback_data='my-profile')]]
+    keyboard = [[InlineKeyboardButton("Назад", callback_data='my-opt-into')]]
     reply_markup = InlineKeyboardMarkup(keyboard)
     for opt in opts:
       if opt['chanel'] == chanel:
@@ -72,19 +73,18 @@ async def profile_opt(update: Update, context) -> None:
     else:
       chanel = query_array[1]
     keyboard = []
-    # keyboard.append([InlineKeyboardButton("Добавить", callback_data='my-profile')])
     for opt in opts:
       if opt['chanel'] == chanel:
         check =  opt['check']
         if check:
           keyboard.append([InlineKeyboardButton("Редактировать ✍️", callback_data='my-opt-into-chek-edit_' + chanel + '_' + opt['type'])])
-          keyboard.append([InlineKeyboardButton("Назад", callback_data='my-profile')])
+          keyboard.append([InlineKeyboardButton("Назад", callback_data='my-opt-into')])
           reply_markup = InlineKeyboardMarkup(keyboard)
           await query.answer()
           await context.bot.send_photo(caption="Ваш чек ", chat_id=query.message.chat.id, photo=check, reply_markup=reply_markup)
         else: 
           keyboard.append([InlineKeyboardButton("Добавить ✍️", callback_data='my-opt-into-chek-edit_' + chanel + '_' + opt['type'])])
-          keyboard.append([InlineKeyboardButton("Назад", callback_data='my-profile')])
+          keyboard.append([InlineKeyboardButton("Назад", callback_data='my-opt-into')])
           reply_markup = InlineKeyboardMarkup(keyboard)
           await query.edit_message_text('У вас нет чеков, хотите добавить?', reply_markup=reply_markup)
         return
@@ -111,7 +111,7 @@ async def profile_opt(update: Update, context) -> None:
             continue
           keyboard.append([InlineKeyboardButton("Пост № " + str(i), callback_data='my-opt-into-post-number_' + str(i) + '_' + chanel)])
     keyboard.append([InlineKeyboardButton("Добавить пост ➕", callback_data='my-opt-into-post-add_' + chanel  + '_' + opt_type)])
-    keyboard.append([InlineKeyboardButton("Назад", callback_data='my-profile')])
+    keyboard.append([InlineKeyboardButton("Назад", callback_data='my-opt-into')])
     reply_markup = InlineKeyboardMarkup(keyboard)
     await query.edit_message_text('Посты:', reply_markup=reply_markup)
 
@@ -164,7 +164,6 @@ async def profile_opt(update: Update, context) -> None:
     else:
       chanel = query_array[2]
     keyboard = []
-    print(opt_type)
     opt_post_delete(user_id, chanel, opt_type, post_id)
     recommendations_into = user_recommendation_into(user_id)
     opts_into = user_opt_into(user_id)
@@ -218,14 +217,13 @@ async def profile_opt(update: Update, context) -> None:
       chanel = '_'.join(user_array)
     else:
       chanel = query_array[1]
-    print(opt_type)
     save_eddit_temp_check(user_id, chanel, opt_type)
     user_change_message_mod(user_id, 'add-post')
     await query.answer()
     await query.message.reply_text('Введите новый пост:')
 
   elif query_array[0] ==  'my-chanel':
-    keyboard = [[InlineKeyboardButton("Добавить канал", callback_data='add-channel')]]
+    keyboard = [[InlineKeyboardButton("Добавить канал", callback_data='add-channel')], [InlineKeyboardButton("Назад", callback_data='my-profile')]]
     reply_markup = InlineKeyboardMarkup(keyboard)
     profile = get_profile(user_id)
     channels = profile['channels']
@@ -234,7 +232,7 @@ async def profile_opt(update: Update, context) -> None:
       text += channel['title'] + '  ' + channel['idChanel'] + '\n'
 
     await query.answer()
-    await query.message.reply_text(text, reply_markup=reply_markup)
+    await query.message.edit_text(text, reply_markup=reply_markup)
 
   elif query_array[0] ==  'add-channel':
     user_change_message_mod(user_id, 'chanel')
@@ -247,11 +245,14 @@ async def profile_opt(update: Update, context) -> None:
     recommendations_into = user_recommendation_into(user_id)
     opts_into = user_opt_into(user_id)
     opts = [*recommendations_into, *opts_into]
+    keyboard = [
+      [InlineKeyboardButton("Назад", callback_data='my-profile')],
+    ]
+    reply_markup = InlineKeyboardMarkup(keyboard)
     # opts = user_opt(user_id)
-    print(opts)
     for opt in opts:
       text += ' '.join(opt['booking_date'].split('_')) + ' ' + opt['chanel'] + '\n'
       # text += ' '.join(opt['booking_date'].split('_')) + ' ' + opt['chanel'] + ' ' + ' '.join(opt['placement_time'].split('_')) + '\n'
     if not text:
       text = 'Нету вхождений в опты'
-    await query.message.reply_text(text)
+    await query.message.edit_text(text, reply_markup=reply_markup)
