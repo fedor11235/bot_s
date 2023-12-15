@@ -83,6 +83,8 @@ def generate_date(offset = 0):
     day = day_now + index  + int(offset)
     if day >= days_in_month:
       month = month_now + 1
+      if month > 12:
+        month = 1
       day -= days_in_month
       day += 1
     dates.append(str(day) + '.' + str(month))
