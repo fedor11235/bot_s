@@ -4,6 +4,8 @@ from requests_data import (
   user_check,
   get_profile,
   user_get_message_mod,
+  user_recommendation_into,
+  user_opt_into,
   # go_into_opt_user,
   user_change_message_mod
 )
@@ -118,5 +120,29 @@ async def handler_btn_keyboard(update: Update, _) -> None:
       ]
       reply_markup = InlineKeyboardMarkup(keyboard)
       profile = get_profile(user_id)
-      await update.message.reply_text("*Здесь собирается информация, показывающая насколько вы Slon.*\n\n*Подписка " + profile['tariffPlan'] + "* действует до: "+ profile['subscriptionEndDate'] +"\n*Ваши каналы:* " + str(profile['userNumber']) + "\n*Создано оптов:* " + str(profile['optNumber']) + " на сумму " + str(profile['totalSavings']) + "\n*Куплено оптов:* " + str(profile['byOpt']) + " на сумму " + str(profile['totalEarned']) + "\n*Всего сэкономлено:*  "+ str(profile['totalEarned']) + "\n*Приглашено пользователей:* "+ str(profile['totalEarned']) + "\n*Всего заработано:* "+ str(profile['totalEarned'] )+ "", reply_markup=reply_markup, parse_mode="Markdown")
+      recommendations_into = user_recommendation_into(user_id)
+      opts_into = user_opt_into(user_id)
+      opts = [*recommendations_into, *opts_into]
+      opts_sum = 0
+      saved = 0
+      for opt in opts:
+        if opt['type'] == 'recommendation':
+          opts_sum = opts_sum + int(opt['opt']['price_standart'])
+          saved = saved + int(opt['opt']['price_standart']) - int(opt['opt']['price_now'])
+
+        if opt['type'] == 'opt':
+          opts_sum = opts_sum + int(opt['opt']['retail_price'])
+          saved = saved + int(opt['opt']['retail_price']) - int(opt['opt']['wholesale_cost'])
+ 
+
+      await update.message.reply_text('''
+*Здесь собирается информация, показывающая насколько вы Slon.*\n\n
+*Подписка ''' + profile['tariffPlan'] + '''* действует до: '''+ profile['subscriptionEndDate'] +'''\n
+*Ваши каналы:* ''' + str(profile['userNumber']) + '''\n
+*Создано оптов:* ''' + str(profile['optNumber']) + ''' на сумму ''' + str(profile['totalEarned']) + '''\n
+*Куплено оптов:* ''' + str(len(opts)) + ''' на сумму ''' + str(opts_sum) + '''\n
+*Всего сэкономлено:*  '''+ str(saved) + '''\n
+*Приглашено пользователей:* '''+ str(profile['invitedUsers']), 
+# *Всего заработано:* '''+ str(profile['totalEarned'] 
+reply_markup=reply_markup, parse_mode="Markdown")
       return
