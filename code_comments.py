@@ -1,15 +1,15 @@
-    # отправка чеков владельцу опта и подборок
-    # if mode == 'recommendation-check':
-    #   user_id = update.message.chat.id
-    #   mode = user_get_message_mod(user_id)
-    #   file_id = update.message.photo[-1].file_id
-    #   profile = get_profile(user_id)
+# отправка чеков владельцу опта и подборок
+# if mode == 'recommendation-check':
+#   user_id = update.message.chat.id
+#   mode = user_get_message_mod(user_id)
+#   file_id = update.message.photo[-1].file_id
+#   profile = get_profile(user_id)
 
-    #   file_info = await context.bot.get_file(file_id)
-    #   file_path = file_info.file_path
-    #   recommendation_set_check(user_id, profile['rec_into_temp'], file_id, file_path)
-    #   await update.message.reply_text('Чек придет владельцу опта')
-    #   user_change_message_mod(user_id, 'standart')
+#   file_info = await context.bot.get_file(file_id)
+#   file_path = file_info.file_path
+#   recommendation_set_check(user_id, profile['rec_into_temp'], file_id, file_path)
+#   await update.message.reply_text('Чек придет владельцу опта')
+#   user_change_message_mod(user_id, 'standart')
 #     if mode == 'opt-check':
 #       user_id = update.message.chat.id
 #       mode = user_get_message_mod(user_id)
@@ -19,7 +19,7 @@
 #       # file_info = await context.bot.get_file(file_id)
 #       # file_path = file_info.file_path
 #       # opt_set_check(user_id, profile['rec_into_temp'], file_id, file_path)
-  
+
 #       # await update.message.reply_text('Чек придет владельцу опта')
 #       user_change_message_mod(user_id, 'standart')
 
@@ -57,11 +57,10 @@
 #       return
 
 
-
-  # async def handler_catalog(self, update: Update, _) -> None:
-  #   user_stat = user_check(update.message.chat.id)
-  #   if user_stat == 'empty':
-  #     await update.message.reply_text('''*Сначала создайте профиль*\n\nЧтобы начать использовать бота, сделайте @SlonRobot администратором в канале, а затем пришлите сюда ссылку на канал или просто перешлите из него любое сообщение.\n\nБоту можно не выдавать никаких прав. Данная процедура нужна чтобы подтвердить, что вы являетесь владельцем канала.\n\nДругие полезные команды:\n/partners — сгенерировать уникальный промокод, чтобы вы могли приглашать других пользователей и получать бонусы\n/help — связь со службой поддержки и ответы на часто задаваемые вопросы''', parse_mode="Markdown")
-  #   else:
-  #     reply_markup = set_catalog()
-  #     await update.message.reply_text('Выберите тематику:',reply_markup=reply_markup)
+# async def handler_catalog(self, update: Update, _) -> None:
+#   user_stat = user_check(update.message.chat.id)
+#   if user_stat == 'empty':
+#     await update.message.reply_text('''*Сначала создайте профиль*\n\nЧтобы начать использовать бота, сделайте @SlonRobot администратором в канале, а затем пришлите сюда ссылку на канал или просто перешлите из него любое сообщение.\n\nБоту можно не выдавать никаких прав. Данная процедура нужна чтобы подтвердить, что вы являетесь владельцем канала.\n\nДругие полезные команды:\n/partners — сгенерировать уникальный промокод, чтобы вы могли приглашать других пользователей и получать бонусы\n/help — связь со службой поддержки и ответы на часто задаваемые вопросы''', parse_mode="Markdown")
+#   else:
+#     reply_markup = set_catalog()
+#     await update.message.reply_text('Выберите тематику:',reply_markup=reply_markup)
