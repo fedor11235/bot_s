@@ -963,18 +963,9 @@ class SlonBot():
                                                       {'booking_date': str_booked, 'allowed_dates': str_allowed}, delete)
 
                     allowed_dates = [*allowed_dates, *opt['allowed_dates'].split('_')]
-<<<<<<< HEAD
 
                     reply_markup = get_reservation_req_table(bookeds=c, offset=offset, channel=username,
                                                             allowed_dates=allowed_dates)
-=======
-                    # dfsdfds
-                    username = context.user_data['username']
-                    print(f'username: {username}')
-
-                    reply_markup = get_reservation_req_table(bookeds=c, offset=offset, channel=username,
-                                                             allowed_dates=allowed_dates)
->>>>>>> 129767d2d0f1a625e5c1db0917ee1f9ee997745f
                     await query.edit_message_text('Выберите доступные для брони слоты:', reply_markup=reply_markup)
                     # print(query.message.message_id)
                     # print(query.message.chat_id)
