@@ -1302,21 +1302,21 @@ class SlonBot():
                 saved = 0
                 for opt in opts:
                     if opt['type'] == 'recommendation':
-                        opts_sum = opts_sum + int(opt['opt']['price_standart'])
-                        saved = saved + int(opt['opt']['price_standart']) - int(opt['opt']['price_now'])
+                        opts_sum = opts_sum + int(opt['opt']['price_standart'][:-1])
+                        saved = saved + int(opt['opt']['price_standart'][:-1]) - int(opt['opt']['price_now'][:-1])
 
                     if opt['type'] == 'opt':
                         opts_sum = opts_sum + int(opt['opt']['retail_price'])
                         saved = saved + int(opt['opt']['retail_price']) - int(opt['opt']['wholesale_cost'])
 
-                await update.message.reply_text('''
-    *Здесь собирается информация, показывающая насколько вы Slon.*\n\n
-    *Подписка ''' + profile['tariffPlan'] + '''* действует до: ''' + profile['subscriptionEndDate'] + '''\n
-    *Ваши каналы:* ''' + str(profile['userNumber']) + '''\n
-    *Создано оптов:* ''' + str(profile['optNumber']) + ''' на сумму ''' + str(profile['totalEarned']) + '''\n
-    *Куплено оптов:* ''' + str(len(opts)) + ''' на сумму ''' + str(opts_sum) + '''\n
-    *Всего сэкономлено:*  ''' + str(saved) + '''\n
-    *Приглашено пользователей:* ''' + str(profile['invitedUsers']),
+                await query.message.edit_text('''
+*Здесь собирается информация, показывающая насколько вы Slon.*\n\n
+*Подписка ''' + profile['tariffPlan'] + '''* действует до: ''' + profile['subscriptionEndDate'] + '''\n
+*Ваши каналы:* ''' + str(profile['userNumber']) + '''\n
+*Создано оптов:* ''' + str(profile['optNumber']) + ''' на сумму ''' + str(profile['totalEarned']) + '''\n
+*Куплено оптов:* ''' + str(len(opts)) + ''' на сумму ''' + str(opts_sum) + '''\n
+*Всего сэкономлено:*  ''' + str(saved) + '''\n
+*Приглашено пользователей:* ''' + str(profile['invitedUsers']),
                                                 # *Всего заработано:* '''+ str(profile['totalEarned']
                                                 reply_markup=reply_markup, parse_mode="Markdown")
                 return
