@@ -22,7 +22,9 @@ class SlonBot():
 
     async def handler_start(self, update: Update, _) -> None:
         # тут сделай таблицу
-        keyboard = day_time_choice_keyboard()
+        # add disabled values
+        disabled_values_str = '11.10_15.10_13.10'
+        keyboard = day_time_choice_keyboard(disabled_values=disabled_values_str.split('_'))
 
         reply_markup = InlineKeyboardMarkup(keyboard)
         await update.message.reply_text(

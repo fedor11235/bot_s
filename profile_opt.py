@@ -23,7 +23,6 @@ from requests_data import (
     parse_view_date
 )
 
-
 # в оптах в которых участвуешь
 async def profile_opt(update: Update, context) -> None:
     query = update.callback_query
