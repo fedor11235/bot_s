@@ -1,6 +1,3 @@
-rom
-telegram
-import Update, InlineKeyboardButton, InlineKeyboardMarkup
 from requests_data import (
     # get_release_schedule,
     get_profile,
