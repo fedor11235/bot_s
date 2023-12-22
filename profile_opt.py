@@ -1,6 +1,3 @@
-rom
-telegram
-import Update, InlineKeyboardButton, InlineKeyboardMarkup
 from requests_data import (
     # get_release_schedule,
     get_profile,
@@ -25,7 +22,6 @@ from requests_data import (
     user_opt_into,
     parse_view_date
 )
-
 
 # в оптах в которых участвуешь
 async def profile_opt(update: Update, context) -> None:

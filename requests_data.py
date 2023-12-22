@@ -1,5 +1,5 @@
 from functools import reduce
-
+import aiohttp
 import requests
 
 
@@ -15,6 +15,19 @@ def parse_filter(name):
     elif name == 'ci_index':
         return 'indexSay'
 
+
+async def get_available_time_slots(id: int):
+    recommendation_data = await get_recommendation_data(id)
+    return recommendation_data['placement_time']
+
+async def get_recommendation_data(id: int):
+    # recommendation_id = 26 # 25
+    async with aiohttp.ClientSession() as session:
+        url = f'http://localhost:3001/recommendations/individual?idRecommendation={id}'
+        async with session.get(url) as resp:
+            data = await resp.json()
+            # print(data)
+            return data
 
 def get_release_schedule(idUser):
     req = requests.get(
@@ -247,6 +260,17 @@ def opt_requisites(channel):
         '?channel=' + str(channel)
     )
     return req.json()
+
+async def update_booking_time(booking_time: str, user_id: str, channel: str):
+    async with aiohttp.ClientSession() as session:
+        url = 'http://localhost:3001/recommendations/edit-time'
+        # 'id': '7'
+        payload = {'user_id': user_id, 'channel': channel, 'booking_time': booking_time}
+        async with session.post(url, data=payload) as resp:
+            data = await resp.json()
+            # print(data)
+            return data
+
 
 
 def recommendation_set_check(id, chennel, file_id, path_check):

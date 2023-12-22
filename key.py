@@ -146,8 +146,8 @@ async def handler_btn_keyboard(update: Update, _) -> None:
             saved = 0
             for opt in opts:
                 if opt['type'] == 'recommendation':
-                    opts_sum = opts_sum + int(opt['opt']['price_standart'])
-                    saved = saved + int(opt['opt']['price_standart']) - int(opt['opt']['price_now'])
+                    opts_sum = opts_sum + int(opt['opt']['price_standart'][:-1])
+                    saved = saved + int(opt['opt']['price_standart'][:-1]) - int(opt['opt']['price_now'][:-1])
 
                 if opt['type'] == 'opt':
                     opts_sum = opts_sum + int(opt['opt']['retail_price'])
