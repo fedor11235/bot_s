@@ -1,4 +1,4 @@
-from typing import List
+from typing import List, Any
 import json
 
 from telegram import InlineKeyboardButton
@@ -24,7 +24,7 @@ def init_time_slots_keyboard_data():
         keyboard_data.append(keyboard_row)
     return keyboard_data
 
-def day_time_choice_keyboard(keyboard_data: List, available_values=None):
+def day_time_choice_keyboard(keyboard_data: List, available_values=None, channel: Any = 'channel'):
     # print('day_time_choice_keyboard')
     print(len(available_values))
     keyboard = [
@@ -68,7 +68,7 @@ def day_time_choice_keyboard(keyboard_data: List, available_values=None):
             # json.dumps(button_item)
         keyboard.append(keyboard_row)
     keyboard.append([
-        InlineKeyboardButton("Подтвердить", callback_data='opt-into_client_time-confirm'),
+        InlineKeyboardButton("Подтвердить", callback_data='opt-into_@'+ channel +'_time-confirm'),
     ])
 
     return keyboard

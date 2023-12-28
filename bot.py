@@ -338,14 +338,15 @@ class SlonBot():
                 self.selected_time_options.append(item['data'])
             else:
                 self.selected_time_options.remove(item['data'])
-
-            keyboard = day_time_choice_keyboard(self.keyboard_data, available_values=self.available_values)
-            reply_markup = InlineKeyboardMarkup(keyboard)
-
-            selected_time_options_str = '_'.join(self.selected_time_options)
             # получаем user_id and channel
             user_id = context.user_data['user_id']
             channel = context.user_data['chosen_offer']
+            username = context.user_data['username']
+
+            keyboard = day_time_choice_keyboard(self.keyboard_data, available_values=self.available_values, channel=username)
+            reply_markup = InlineKeyboardMarkup(keyboard)
+
+            selected_time_options_str = '_'.join(self.selected_time_options)
             result = await update_booking_time(selected_time_options_str, user_id, channel)
             text = '*Выберите допустимое время размещений:'
 
@@ -355,6 +356,7 @@ class SlonBot():
         else:
             query_array = query.data.split('_')
             user_id = query.message.chat.id
+            context.user_data['user_id'] = user_id
 
             # в оптах в которых участвуешь
             await profile_opt(update, context)
@@ -1101,7 +1103,7 @@ class SlonBot():
                     opt_old = set_opt_into(user_id, query_array[1], {'status': 'confirm'}, 'none')
                     set_any_profile(user_id, {'opt_into_temp': query_array[1]})
                     user_change_message_mod(user_id, 'opt-creative-one')
-                    keyboard = [[InlineKeyboardButton("Я сделаю это позже", callback_data='opt-creative-accept')]]
+                    keyboard = [[InlineKeyboardButton("Я сделаю это позже", callback_data='recommendation-creative-accept')]]
                     reply_markup = InlineKeyboardMarkup(keyboard)
                     await query.edit_message_text(
                         'Отправьте креативы, кнопки присылайте отдельным сообщением:\n\nВы можете отправить их позже в профиле.',
