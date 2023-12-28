@@ -322,8 +322,9 @@ class SlonBot():
 
         query = update.callback_query
         if is_serialized_object(query.data):
+            # print('is serialized object')
             item = json.loads(query.data)
-            print(item)
+            # print(item)
             item_id = item['id']
             is_checked = item['checked']
 
@@ -344,11 +345,12 @@ class SlonBot():
             selected_time_options_str = '_'.join(self.selected_time_options)
             # получаем user_id and channel
             user_id = context.user_data['user_id']
-            channel = context.user_data['username']
+            channel = context.user_data['chosen_offer']
             result = await update_booking_time(selected_time_options_str, user_id, channel)
+            text = '*Выберите допустимое время размещений:'
 
             await query.edit_message_text(
-                'OK',
+                text,
                 reply_markup=reply_markup)
         else:
             query_array = query.data.split('_')
@@ -914,6 +916,24 @@ class SlonBot():
                         else:
                             offset = offset_old
                     elif query_array[-1] == 'confirm':
+                        #  Date selection confirmed
+                        # print(context.user_data['username'], )
+
+                        offer_id = context.user_data['chosen_offer']
+                        available_values = await get_available_time_slots(offer_id)
+                        # print('handler_update_booking_time')
+                        # print(available_values)
+                        self.available_values = available_values.split('_')
+                        # print(f'{len(self.available_values)}')
+
+                        username = context.user_data['username']
+                        user_id = context.user_data['user_id']
+
+                        text = '*Выберите допустимое время размещений:'
+                        keyboard = day_time_choice_keyboard(self.keyboard_data, available_values=self.available_values)
+                        reply_markup = InlineKeyboardMarkup(keyboard)
+
+                        '''
                         username_array = query_array[2:-1]
                         if len(username_array) > 0:
                             username = '_'.join(username_array)
@@ -925,8 +945,10 @@ class SlonBot():
                         keyboard = [
                             [InlineKeyboardButton("Я сделаю это позже", callback_data='recommendation-creative-accept')]]
                         reply_markup = InlineKeyboardMarkup(keyboard)
+                        text = 'Date selection confirmed' # 'Отправьте креативы, кнопки присылайте отдельным сообщением:\n\nВы можете отправить их позже в профиле.'
+                        '''
                         await query.edit_message_text(
-                            'Отправьте креативы, кнопки присылайте отдельным сообщением:\n\nВы можете отправить их позже в профиле.',
+                            text,
                             reply_markup=reply_markup)
                         return
                     elif 'morning' in query_array[-2] or 'day' in query_array[-2] or 'evening' in query_array[-2]:
@@ -990,8 +1012,10 @@ class SlonBot():
                         return
                 elif query_array[1] == 'chanel':
                     # goto here
+                    # watch offer
                     recommendation = recommendations_ind_get(query_array[2])
                     context.user_data['username'] = recommendation['username']
+                    context.user_data['chosen_offer'] = query_array[2]
                     keyboard = [
                         [InlineKeyboardButton("Назад", callback_data='watch_see')],
                         [InlineKeyboardButton("Выбрать даты",
