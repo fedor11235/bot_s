@@ -925,6 +925,7 @@ class SlonBot():
                         available_values = await get_available_time_slots(offer_id)
                         # print('handler_update_booking_time')
                         # print(available_values)
+                        print(available_values)
                         self.available_values = available_values.split('_')
                         # print(f'{len(self.available_values)}')
 
