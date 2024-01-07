@@ -434,6 +434,7 @@ class SlonBot():
                 # user_change_message_mod(user_id, 'recommendation-check')
                 opt_old = set_opt_recommendation_into(user_id, profile['rec_into_temp'], {}, 'none')
                 booking_date = opt_old['booking_date'].split('_')
+                print(booking_date)
                 booking_date_parse = parse_view_date(booking_date)
                 # await query.edit_message_text('Креативы переданы владельцу канала. Вам придет уведомление когда он ответит.\n' )
                 await query.edit_message_text('''
