@@ -3,3 +3,4 @@
 helpers
 node_modules
 *__pycache__*
+button_item.json
