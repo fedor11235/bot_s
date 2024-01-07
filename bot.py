@@ -935,7 +935,7 @@ class SlonBot():
                         user_id = context.user_data['user_id']
 
                         text = '*Выберите допустимое время размещений:'
-                        keyboard = day_time_choice_keyboard(self.keyboard_data, available_values=self.available_values)
+                        keyboard = day_time_choice_keyboard(self.keyboard_data, available_values=self.available_values,  channel=username)
                         reply_markup = InlineKeyboardMarkup(keyboard)
 
                         '''

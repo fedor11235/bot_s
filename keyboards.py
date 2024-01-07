@@ -68,7 +68,7 @@ def day_time_choice_keyboard(keyboard_data: List, available_values=None, channel
             # json.dumps(button_item)
         keyboard.append(keyboard_row)
     keyboard.append([
-        InlineKeyboardButton("Подтвердить", callback_data='opt-into_@'+ channel +'_time-confirm'),
+        InlineKeyboardButton("Подтвердить", callback_data='opt-into_'+ channel +'_time-confirm'),
     ])
 
     return keyboard
