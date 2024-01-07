@@ -432,8 +432,9 @@ class SlonBot():
                 user_change_message_mod(user_id, 'standart')
                 # rec_old = recommendation_requisites(profile['rec_into_temp'])
                 # user_change_message_mod(user_id, 'recommendation-check')
-                print(profile['rec_into_temp'])
-                opt_old = set_opt_recommendation_into(user_id, profile['rec_into_temp'], {}, 'none')
+                username = context.user_data['username']
+                print(username)
+                opt_old = set_opt_recommendation_into(user_id, username, {}, 'none')
                 print(opt_old)
                 booking_date = opt_old['booking_date'].split('_')
                 print(booking_date)
