@@ -1103,11 +1103,12 @@ class SlonBot():
                         offset = offset_old + 10
                     else:
                         offset = offset_old
-                elif query_array[2] == 'time-confirm':
+                elif query_array[-1] == 'time-confirm':
                     # GGHHHHHH
                     print('line 1096')
-                    opt_old = set_opt_into(user_id, query_array[1], {'status': 'confirm'}, 'none')
-                    set_any_profile(user_id, {'opt_into_temp': query_array[1]})
+                    username = context.user_data['username']
+                    opt_old = set_opt_into(user_id, username, {'status': 'confirm'}, 'none')
+                    set_any_profile(user_id, {'opt_into_temp': username})
                     user_change_message_mod(user_id, 'opt-creative-one')
                     keyboard = [[InlineKeyboardButton("Я сделаю это позже", callback_data='recommendation-creative-accept')]]
                     reply_markup = InlineKeyboardMarkup(keyboard)
