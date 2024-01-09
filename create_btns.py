@@ -191,9 +191,12 @@ def get_btns_pay(mode, discount, user_id):
 
 
 def get_user_chanels(chanels_array):
+    print('get_user_chanels')
     keyboard = []
     for chanel in chanels_array:
+        # keyboard.append([InlineKeyboardButton(chanel['title'], callback_data='opt-into_init_' + chanel['idChanel'])])
         keyboard.append([InlineKeyboardButton(chanel['title'], callback_data='opt_init_' + chanel['idChanel'])])
+
     return InlineKeyboardMarkup(keyboard)
 
 
@@ -295,6 +298,7 @@ def user_get_btns_into(category_type, chanel):
 
 
 def go_into_opt():
+    # подборки
     keyboard = []
     keyboard.append([InlineKeyboardButton('Все тематики', callback_data='opt_all')])
     for category in categories:
@@ -303,6 +307,7 @@ def go_into_opt():
 
 
 def go_into_opt_user():
+    # опты
     keyboard = []
     keyboard.append([InlineKeyboardButton('Все тематики', callback_data='opt_into_all_init')])
     for category in categories:
@@ -393,9 +398,12 @@ def btns_recommendations_get(offset=0):
     keyboard = []
     recommendations = recommendations_get()
     recommendations_filter = recommendations[offset: offset + 10]
+    # for data in recommendations_filter:
+    #     keyboard.append([InlineKeyboardButton(data['title'] + " " + str(data['price_now']),
+    #                                           callback_data='watch_chanel_' + str(data['id']))])
     for data in recommendations_filter:
         keyboard.append([InlineKeyboardButton(data['title'] + " " + str(data['price_now']),
-                                              callback_data='watch_chanel_' + str(data['id']))])
+                                              callback_data='chanel-open_' + str(data['id']))])
     keyboard.append([InlineKeyboardButton("Назад", callback_data='watch_back_' + str(offset)),
                      InlineKeyboardButton("Вперед", callback_data='watch_next_' + str(offset))])
     return InlineKeyboardMarkup(keyboard)
@@ -475,6 +483,8 @@ def get_reservation_into_table(bookeds=[], offset=0, channel="", allowed_dates=[
                                               callback_data='opt-into_' + channel + '_evening/' + data + "_" + str(
                                                   offset) if check_evening_into(data, bookeds, allowed_dates)[
                                                   1] else 'empty')])
+    # keyboard.append([InlineKeyboardButton("Больше дат", callback_data='opt_into_' + channel + '_more_' + str(offset)),
+    #                  InlineKeyboardButton("Потдвердить", callback_data='opt_into_' + channel + '_confirm')])
     keyboard.append([InlineKeyboardButton("Больше дат", callback_data='opt-into_' + channel + '_more_' + str(offset)),
                      InlineKeyboardButton("Потдвердить", callback_data='opt-into_' + channel + '_confirm')])
     keyboard.append([InlineKeyboardButton("Назад", callback_data='opt_into_all_init')])
@@ -489,22 +499,42 @@ def get_reservation_req_table(bookeds=[], offset=0, channel="", allowed_dates=[]
         [InlineKeyboardButton("Дата", callback_data='empty'), InlineKeyboardButton("Утро", callback_data='empty'),
          InlineKeyboardButton("День", callback_data='empty'), InlineKeyboardButton("Вечер", callback_data='empty')])
 
+    # for data in dates:
+    #     keyboard.append([InlineKeyboardButton(data, callback_data='empty'),
+    #                      InlineKeyboardButton(check_morning_into(data, bookeds, allowed_dates)[0],
+    #                                           callback_data='watch_opt-into_' + channel + '_morning/' + data + "_" + str(
+    #                                               offset) if check_morning_into(data, bookeds, allowed_dates)[
+    #                                               1] else 'empty'),
+    #                      InlineKeyboardButton(check_day_into(data, bookeds, allowed_dates)[0],
+    #                                           callback_data='watch_opt-into_' + channel + '_day/' + data + "_" + str(
+    #                                               offset) if check_day_into(data, bookeds, allowed_dates)[
+    #                                               1] else 'empty'),
+    #                      InlineKeyboardButton(check_evening_into(data, bookeds, allowed_dates)[0],
+    #                                           callback_data='watch_opt-into_' + channel + '_evening/' + data + "_" + str(
+    #                                               offset) if check_evening_into(data, bookeds, allowed_dates)[
+    #                                               1] else 'empty')])
+    # keyboard.append(
+    #     [InlineKeyboardButton("Больше дат", callback_data='watch_opt-into_' + channel + '_more_' + str(offset)),
+    #      InlineKeyboardButton("Потдвердить", callback_data='watch_opt-into_' + channel + '_confirm')])
+    # keyboard.append([InlineKeyboardButton("Назад", callback_data='watch_see')])
+    # return InlineKeyboardMarkup(keyboard)
     for data in dates:
         keyboard.append([InlineKeyboardButton(data, callback_data='empty'),
                          InlineKeyboardButton(check_morning_into(data, bookeds, allowed_dates)[0],
-                                              callback_data='watch_opt-into_' + channel + '_morning/' + data + "_" + str(
+                                              callback_data='chanel-select-dates_' + channel + '_morning/' + data + "_" + str(
                                                   offset) if check_morning_into(data, bookeds, allowed_dates)[
                                                   1] else 'empty'),
                          InlineKeyboardButton(check_day_into(data, bookeds, allowed_dates)[0],
-                                              callback_data='watch_opt-into_' + channel + '_day/' + data + "_" + str(
+                                              callback_data='chanel-select-dates_' + channel + '_day/' + data + "_" + str(
                                                   offset) if check_day_into(data, bookeds, allowed_dates)[
                                                   1] else 'empty'),
                          InlineKeyboardButton(check_evening_into(data, bookeds, allowed_dates)[0],
-                                              callback_data='watch_opt-into_' + channel + '_evening/' + data + "_" + str(
+                                              callback_data='chanel-select-dates_' + channel + '_evening/' + data + "_" + str(
                                                   offset) if check_evening_into(data, bookeds, allowed_dates)[
                                                   1] else 'empty')])
     keyboard.append(
-        [InlineKeyboardButton("Больше дат", callback_data='watch_opt-into_' + channel + '_more_' + str(offset)),
-         InlineKeyboardButton("Потдвердить", callback_data='watch_opt-into_' + channel + '_confirm')])
-    keyboard.append([InlineKeyboardButton("Назад", callback_data='watch_see')])
+        [InlineKeyboardButton("Больше дат", callback_data='chanel-select-dates_' + channel + '_more_' + str(offset)),
+         InlineKeyboardButton("Потдвердить", callback_data='chanel-select-dates_' + channel + '_confirm')])
+    keyboard.append([InlineKeyboardButton("Назад", callback_data='list-all')])
+    # keyboard.append([InlineKeyboardButton("Назад", callback_data='watch_see')])
     return InlineKeyboardMarkup(keyboard)

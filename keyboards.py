@@ -47,9 +47,6 @@ def day_time_choice_keyboard(keyboard_data: List, available_values=None, channel
                 'checked': button_item['checked']
             }
             # print(button_item)
-            if i == 0 and j == 0:
-                with open('button_item.json', 'w') as fp:
-                    json.dump(button_item, fp)
             # hour = i + j * 5
             # time_value = f'{hour}.10'
             time_value = button_item['data']
@@ -68,8 +65,11 @@ def day_time_choice_keyboard(keyboard_data: List, available_values=None, channel
             # json.dumps(button_item)
         keyboard.append(keyboard_row)
     keyboard.append([
-        InlineKeyboardButton("Подтвердить", callback_data='opt-into_'+ channel +'_time-confirm'),
+        InlineKeyboardButton("Подтвердить", callback_data='chanel-select-time_@' + channel + '_time-confirm'),  # _time-confirm
     ])
+    # keyboard.append([
+    #     InlineKeyboardButton("Подтвердить", callback_data='opt-into_@'+ channel +'_time-confirm'), # _time-confirm
+    # ])
 
     return keyboard
 

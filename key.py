@@ -19,7 +19,7 @@ text_key = ['Создать опт', 'Зайти в опт', 'Slon Business✨',
 
 
 # кнопки на клавиатуре
-async def handler_btn_keyboard(update: Update, _) -> None:
+async def handler_btn_keyboard(update: Update, context) -> None:
     text = update.message.text
     user_id = update.message.chat.id
 
@@ -27,6 +27,7 @@ async def handler_btn_keyboard(update: Update, _) -> None:
         user_change_message_mod(user_id, 'standart')
 
     if text == 'Создать опт':
+        context.user_data['category'] = 'opt'
         user_stat = user_check(user_id)
         if user_stat == 'empty':
             await update.message.reply_text(
@@ -58,6 +59,8 @@ async def handler_btn_keyboard(update: Update, _) -> None:
                                                 reply_markup=reply_markup)
         return
     elif text == 'Зайти в опт':
+        # опты
+        context.user_data['category'] = 'opt'
         user_stat = user_check(user_id)
         if user_stat == 'empty':
             await update.message.reply_text(
@@ -83,6 +86,8 @@ async def handler_btn_keyboard(update: Update, _) -> None:
         return
     elif text == 'Slon Business✨':
         user_stat = user_check(user_id)
+        # подборки
+        context.user_data['category'] = 'req'
         if user_stat == 'empty':
             await update.message.reply_text(
                 '''*Сначала создайте профиль*\n\nЧтобы начать использовать бота, сделайте @SlonRobot администратором в канале, а затем пришлите сюда ссылку на канал или просто перешлите из него любое сообщение.\n\nБоту можно не выдавать никаких прав. Данная процедура нужна чтобы подтвердить, что вы являетесь владельцем канала.\n\nДругие полезные команды:\n/partners — сгенерировать уникальный промокод, чтобы вы могли приглашать других пользователей и получать бонусы\n/help — связь со службой поддержки и ответы на часто задаваемые вопросы''',
@@ -124,6 +129,7 @@ async def handler_btn_keyboard(update: Update, _) -> None:
                                                     parse_mode="Markdown")
         return
     elif text == 'Профиль':
+        context.user_data['category'] = 'profile'
         user_stat = user_check(user_id)
         if user_stat == 'empty':
             await update.message.reply_text(
