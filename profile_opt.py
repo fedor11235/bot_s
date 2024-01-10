@@ -277,15 +277,14 @@ async def profile_opt(update: Update, context) -> None:
         reply_markup = InlineKeyboardMarkup(keyboard)
         # opts = user_opt(user_id)
         for opt in opts:
-            print(opt)
             date_str = ''
             date_array = opt['booking_date'].split('_')
             time_array = opt['booking_time'].split('_')
             for date in date_array:
                 if date != '':
-                  date_str += ' ' + date.split('/')[1]
+                  date_str +=  date.split('/')[1] + ' '
 
-            text += date_str + ' ' + opt['chanel'] + ' ' +' '.join(time_array) + '\n'
+            text += date_str + opt['chanel'] + ' ' +' '.join(time_array) + '\n'
             # text += ' '.join(opt['booking_date'].split('_')) + ' ' + opt['chanel'] + ' ' + ' '.join(opt['placement_time'].split('_')) + '\n'
         if not text:
             text = 'Нету вхождений в опты'
