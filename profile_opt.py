@@ -283,7 +283,8 @@ async def profile_opt(update: Update, context) -> None:
             print(opt['booking_date'])
             print(date_array)
             for date in date_array:
-                date_str += ' ' + date.split('/')[1]
+                if date != '':
+                  date_str += ' ' + date.split('/')[1]
 
             text += date_str + ' ' + opt['chanel'] + ' ' +' '.join(time_array) + '\n'
             # text += ' '.join(opt['booking_date'].split('_')) + ' ' + opt['chanel'] + ' ' + ' '.join(opt['placement_time'].split('_')) + '\n'
