@@ -280,8 +280,10 @@ async def profile_opt(update: Update, context) -> None:
             date_str = ''
             date_array = opt['booking_date'].split('_')
             time_array = opt['booking_time'].split('_')
+            print(opt['booking_date'])
+            print(date_array)
             for date in date_array:
-                date_str += date.split('/')[1]
+                date_str += ' ' + date.split('/')[1]
 
             text += date_str + ' ' + opt['chanel'] + ' ' +' '.join(time_array) + '\n'
             # text += ' '.join(opt['booking_date'].split('_')) + ' ' + opt['chanel'] + ' ' + ' '.join(opt['placement_time'].split('_')) + '\n'
